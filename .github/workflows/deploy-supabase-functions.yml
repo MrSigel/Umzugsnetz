@@ -3,6 +3,7 @@ name: Deploy Supabase Edge Functions
 on:
   push:
     branches:
+      - main
       - master
     paths:
       - "supabase/functions/**"
@@ -27,4 +28,3 @@ jobs:
 
       - name: Deploy partner-invite
         run: supabase functions deploy partner-invite --project-ref "$SUPABASE_PROJECT_REF"
-
