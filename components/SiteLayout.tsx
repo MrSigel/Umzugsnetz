@@ -66,7 +66,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
           </div>
           <a href="https://de.trustpilot.com/review/umzugsnetz.de" target="_blank" rel="noopener noreferrer"
             className="flex items-center flex-shrink-0 ml-2 hover:opacity-80 transition-opacity">
-            <img src="/iconTOP.png" alt="Trustpilot Bewertung" className="h-5.5 w-auto object-contain" />
+            <img src="/IconTOP.png" alt="Trustpilot Bewertung" className="h-5.5 w-auto object-contain" />
           </a>
         </div>
       </div>
