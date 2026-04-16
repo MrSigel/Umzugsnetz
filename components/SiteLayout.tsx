@@ -1,0 +1,202 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShieldCheck, Network, Mail, MapPin, Phone } from 'lucide-react';
+
+const Facebook = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
+const Twitter = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>;
+const Instagram = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>;
+
+/** activeNav: which nav item is highlighted ('startseite' | 'rechner' | 'ratgeber' | 'partner') */
+export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activeNav?: string, theme?: 'blue' | 'green' }) {
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
+
+  const c_primary = theme === 'green' ? '#00b67a' : '#00a8f3';
+  const c_hover = theme === 'green' ? '#009968' : '#0092d6';
+  const bg_class = theme === 'green' ? 'bg-[#00b67a]' : 'bg-[#00a8f3]';
+  const text_hoverClass = theme === 'green' ? 'hover:text-[#00b67a]' : 'hover:text-[#00a8f3]';
+  const text_activeClass = theme === 'green' ? 'text-[#00b67a]' : 'text-[#00a8f3]';
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText('kontakt@umzugsnetz.de');
+    setCopyStatus('copied');
+    setTimeout(() => setCopyStatus('idle'), 2000);
+  };
+
+  const navLinks = [
+    { href: '/', label: 'Startseite', key: 'startseite' },
+    { href: '/#rechner', label: 'Kostenrechner', key: 'rechner' },
+    { href: '/#ratgeber', label: 'Ratgeber', key: 'ratgeber' },
+    { href: '/partner', label: 'Für Partner', key: 'partner' },
+  ];
+
+  return (
+    <>
+      {/* TOP BAR */}
+      <div className={`${bg_class} text-white py-2.5 hidden xl:block`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center items-center text-sm font-semibold gap-6">
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <ShieldCheck className="w-4 h-4 flex-shrink-0" />
+            <span>Ihre Anfrage ist kostenlos &amp; unverbindlich</span>
+          </div>
+          <div className="w-px h-4 bg-white/40 flex-shrink-0" />
+          <div className="flex items-center gap-2 whitespace-nowrap">
+            <Network className="w-4 h-4 flex-shrink-0" />
+            <span>Deutschlands Netzwerk für Umzug &amp; Entrümpelung</span>
+          </div>
+          <div className="w-px h-4 bg-white/40 flex-shrink-0" />
+          <div className="relative group flex items-center">
+            <button onClick={handleCopyEmail} className="flex items-center gap-2 whitespace-nowrap hover:text-blue-100 transition-colors cursor-pointer focus:outline-none">
+              <Mail className="w-4 h-4 flex-shrink-0" />
+              <span>kontakt@umzugsnetz.de</span>
+            </button>
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[60]">
+              Klicke zum Kopieren
+            </div>
+            <AnimatePresence>
+              {copyStatus === 'copied' && (
+                <motion.div initial={{ opacity: 0, y: 10, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y: -10, x: '-50%' }}
+                  className="absolute bottom-full mb-2 left-1/2 bg-emerald-500 text-white text-[11px] font-bold py-1 px-3 rounded shadow-lg z-[60]">
+                  E-Mail kopiert!
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <a href="https://de.trustpilot.com/review/umzugsnetz.de" target="_blank" rel="noopener noreferrer"
+            className="flex items-center flex-shrink-0 ml-2 hover:opacity-80 transition-opacity">
+            <img src="/iconTOP.png" alt="Trustpilot Bewertung" className="h-5.5 w-auto object-contain" />
+          </a>
+        </div>
+      </div>
+
+      {/* HEADER */}
+      <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <motion.img whileHover={{ scale: 1.05 }} src="/logo_transparent.png" alt="Umzugsnetz Logo" className="h-12 w-auto object-contain" />
+          </Link>
+
+          <nav className="hidden md:flex gap-8 font-bold text-slate-600 items-center">
+            {navLinks.map(({ href, label, key }) => (
+              <Link key={key} href={href}
+                className={`transition-colors ${activeNav === key ? text_activeClass : text_hoverClass}`}>
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <Link href="/#rechner">
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+              style={{ backgroundColor: c_primary }}
+              className={`text-white px-8 py-3 rounded-full font-bold shadow-md transition-colors hover:opacity-90`}>
+              Kostenlos anfragen
+            </motion.button>
+          </Link>
+        </div>
+      </header>
+    </>
+  );
+}
+
+export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
+  
+  const bg_class = theme === 'green' ? 'bg-[#004d33]' : 'bg-[#0075c9]';
+  const text_highlight = theme === 'green' ? 'text-[#00ff9d]' : 'text-[#00ff9d]';
+  const hover_bg = theme === 'green' ? 'hover:text-[#004d33]' : 'hover:text-[#0075c9]';
+
+  const handleServiceClick = (service?: string) => {
+    // If not on home page, use standard link with hash
+    if (window.location.pathname !== '/') {
+      window.location.href = service ? `/#rechner?service=${service}` : '/#rechner';
+      return;
+    }
+
+    // Scroll to rechner
+    const element = document.getElementById('rechner');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Dispatch event for service
+    if (service) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('openRechner', { detail: { service } }));
+      }, 400);
+    }
+  };
+
+  return (
+    <footer className={`${bg_class} text-white pt-16 pb-8 text-sm`}>
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        {/* Logo & Info */}
+        <div className="col-span-1 space-y-6">
+          <Link href="/" className="inline-block">
+            <img src="/logo_transparent.png" alt="Umzugsnetz Logo" className="h-12 w-auto object-contain brightness-0 invert" />
+          </Link>
+          <p className="text-white/80 leading-relaxed">
+            Eines der größten Vergleichsportale für Umzugs- und Entrümpelungsangebote in Deutschland. Qualität, Vertrauen und Transparenz.
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            {[
+              { Icon: Instagram, link: 'https://instagram.com/' },
+              { Icon: Facebook, link: 'https://facebook.com/' },
+              { Icon: Twitter, link: 'https://twitter.com/' }
+            ].map(({ Icon, link }, i) => (
+              <a key={i} href={link} target="_blank" rel="noopener noreferrer" className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white ${hover_bg} transition-all`}>
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Leistungen */}
+        <div className="col-span-1">
+          <h4 className="font-bold text-white uppercase tracking-wider mb-6">Leistungen</h4>
+          <ul className="space-y-4 text-white/80">
+            <li><button onClick={() => handleServiceClick('privatumzug')} className="hover:text-white transition-colors cursor-pointer text-left focus:outline-none">Privatumzug</button></li>
+            <li><button onClick={() => handleServiceClick('firmenumzug')} className="hover:text-white transition-colors cursor-pointer text-left focus:outline-none">Firmenumzug</button></li>
+            <li><button onClick={() => handleServiceClick('entruempelung')} className="hover:text-white transition-colors cursor-pointer text-left focus:outline-none">Entrümpelung</button></li>
+            <li><button onClick={() => handleServiceClick()} className="hover:text-white transition-colors cursor-pointer text-left focus:outline-none">Kostenrechner</button></li>
+          </ul>
+        </div>
+
+        {/* Informationen */}
+        <div className="col-span-1">
+          <h4 className="font-bold text-white uppercase tracking-wider mb-6">Informationen</h4>
+          <ul className="space-y-4 text-white/80">
+            <li><Link href="/#ratgeber" className="hover:text-white transition-colors">Ratgeber</Link></li>
+            <li><Link href="/partner/umzug" className="hover:text-white transition-colors">Für Umzugsunternehmen</Link></li>
+            <li><Link href="/partner/entruempelung" className="hover:text-white transition-colors">Für Entrümpelungsunternehmen</Link></li>
+            <li><Link href="/#faq" className="hover:text-white transition-colors">FAQ</Link></li>
+            <li><Link href="/impressum" className="hover:text-white transition-colors">Impressum</Link></li>
+            <li><Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link></li>
+          </ul>
+        </div>
+
+        {/* Kontakt */}
+        <div className="col-span-1">
+          <h4 className="font-bold text-white uppercase tracking-wider mb-6">Kontakt</h4>
+          <ul className="space-y-4 text-white/80">
+            <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-white/60" /> Berlin, Deutschland</li>
+            <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-white/60" /> kontakt@umzugsnetz.de</li>
+            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-white/60" /> 0800 123 456 789</li>
+          </ul>
+          <div className="mt-8 text-white/60 text-[10px]">
+            © {new Date().getFullYear()} Umzugsnetz. Alle Rechte vorbehalten.
+          </div>
+        </div>
+      </div>
+
+
+
+      {/* Bottom Links */}
+      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-white/10 flex justify-center gap-6 text-white/80 text-xs font-medium">
+        <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
+        <Link href="/partnerbedingungen" className="hover:text-white transition-colors">Partnerbedingungen</Link>
+        <Link href="/datenschutz" className="hover:text-white transition-colors">Cookies & Datenschutz</Link>
+      </div>
+    </footer>
+  );
+}
