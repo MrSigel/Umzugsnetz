@@ -457,13 +457,13 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="max-w-2xl text-center lg:text-left"
+              className="max-w-2xl min-w-0 text-center lg:text-left"
             >
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6 break-words hyphens-auto">
                 Sind Sie ein Umzugs- oder <br className="hidden md:block" />
                 Entrümpelungsunternehmen?
               </h2>
-              <p className="text-blue-50 text-lg md:text-xl font-medium leading-relaxed opacity-90">
+              <p className="text-blue-50 text-lg md:text-xl font-medium leading-relaxed opacity-90 break-words hyphens-auto">
                 Werden Sie Teil unseres Premium-Netzwerks von über 500 geprüften Partnern und erhalten Sie hochwertige Anfragen direkt in Ihr Postfach.
               </p>
             </motion.div>
