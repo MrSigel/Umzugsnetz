@@ -202,14 +202,14 @@ export default function LiveChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] font-sans">
+    <div className="fixed bottom-4 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 z-[100] font-sans">
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-20 right-0 w-[350px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
+            className="absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[350px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
           >
             <div className="bg-gradient-to-r from-[#0075c9] to-[#00b67a] p-4 text-white flex justify-between items-center">
               <div>
@@ -224,7 +224,7 @@ export default function LiveChatWidget() {
               </button>
             </div>
 
-            <div className="h-[400px] flex flex-col">
+            <div className="h-[70vh] sm:h-[400px] flex flex-col">
               {step === 'name' ? (
                 <div className="p-6 flex-1 flex flex-col justify-center">
                   <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -308,7 +308,7 @@ export default function LiveChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
-        className="w-16 h-16 rounded-full bg-gradient-to-r from-[#0075c9] to-[#00b67a] shadow-2xl flex items-center justify-center text-white relative focus:outline-none"
+        className="ml-auto w-16 h-16 rounded-full bg-gradient-to-r from-[#0075c9] to-[#00b67a] shadow-2xl flex items-center justify-center text-white relative focus:outline-none"
       >
         {isOpen ? <X className="w-7 h-7" /> : <MessageCircle className="w-7 h-7" />}
         {!isOpen && hasUnreadReply && (

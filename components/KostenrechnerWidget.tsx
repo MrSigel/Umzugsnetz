@@ -21,8 +21,8 @@ function InfoModal({ onClose }: { onClose: () => void }) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
       <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="relative bg-white w-full max-w-2xl max-h-[85vh] overflow-y-auto modal-scrollbar rounded-[2.5rem] shadow-2xl p-8 md:p-10">
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full transition-colors">
+        className="relative bg-white w-full max-w-2xl max-h-[85vh] overflow-y-auto modal-scrollbar rounded-3xl sm:rounded-[2.5rem] shadow-2xl p-5 sm:p-8 md:p-10">
+        <button onClick={onClose} className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 hover:bg-slate-100 rounded-full transition-colors">
           <X className="w-6 h-6 text-slate-400" />
         </button>
         <div className="flex items-center gap-4 mb-8">

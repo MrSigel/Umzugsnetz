@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { 
 Send, Link2, MessageCircle, Building2, Users, X, Info, ChevronRight, CheckCircle2, MapPin, ArrowRight, Star, FileText, Inbox, HeartHandshake, ShieldCheck, Network, Mail, Check, Calculator, Trash2, Award, BadgeCheck, ClipboardSignature, Mails, Truck, Phone
@@ -23,6 +24,17 @@ const Instagram = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/
         staggerChildren: 0.15 // Verzögerung zwischen jedem Haken
       }
     }
+  };
+
+  const calcButtonVariants = {
+    rest: { scale: 1 },
+    hover: { scale: 1.03 },
+    tap: { scale: 0.98 },
+  };
+
+  const calcSheenVariants = {
+    rest: { x: '-120%', opacity: 0 },
+    hover: { x: '120%', opacity: 0.9 },
   };
 
 export default function Landingpage() {
@@ -194,14 +206,14 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               </div>
 
               {/* TRUSTPILOT */}
-              <div className="flex items-center gap-4">
-                <div className="flex -space-x-3">
-                  <img className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[1]" src="https://i.pravatar.cc/100?img=32" alt="Kunde 1"/>
-                  <img className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[2]" src="https://i.pravatar.cc/100?img=11" alt="Kunde 2"/>
-                  <img className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[3]" src="https://i.pravatar.cc/100?img=47" alt="Kunde 3"/>
-                  <img className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[4]" src="https://i.pravatar.cc/100?img=5" alt="Kunde 4"/>
-                  <div className="w-11 h-11 rounded-full border-2 border-white bg-[#0075c9] text-white flex items-center justify-center text-xl font-bold shadow-sm relative z-[5]">+</div>
-                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex -space-x-3">
+                  <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[1]" src="/1.jpeg" width={44} height={44} alt="Trustpilot Bewertung 1" sizes="44px" />
+                  <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[2]" src="/2.jpeg" width={44} height={44} alt="Trustpilot Bewertung 2" sizes="44px" />
+                  <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[3]" src="/3.jpeg" width={44} height={44} alt="Trustpilot Bewertung 3" sizes="44px" />
+                  <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[4]" src="/4.jpeg" width={44} height={44} alt="Trustpilot Bewertung 4" sizes="44px" />
+                    <div className="w-11 h-11 rounded-full border-2 border-white bg-[#0075c9] text-white flex items-center justify-center text-xl font-bold shadow-sm relative z-[5]">+</div>
+                  </div>
                 
                 <a 
                   href="https://de.trustpilot.com/review/umzugsnetz.de" 
@@ -236,32 +248,50 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   
                   {/* Sub-Button 1: Umzugskosten */}
                   <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    variants={calcButtonVariants}
+                    initial="rest"
+                    animate="rest"
+                    whileHover="hover"
+                    whileTap="tap"
                     onClick={(e) => {
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'privatumzug' } })), 400);
                     }}
-                    className="group flex items-center justify-center gap-1.5 bg-slate-200/50 hover:bg-[#00a8f3] border border-slate-300/60 hover:border-[#00a8f3] backdrop-blur-sm rounded-full py-2.5 px-2 transition-colors shadow-sm"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-[#00a8f3]/10 hover:bg-[#00a8f3] border border-[#00a8f3]/20 hover:border-[#00a8f3] backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md"
                   >
-                    <Calculator className="w-3.5 h-3.5 text-slate-700 group-hover:text-white flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-slate-700 group-hover:text-white leading-tight text-center transition-colors">
+                    <motion.span
+                      aria-hidden="true"
+                      variants={calcSheenVariants}
+                      transition={{ duration: 0.75, ease: 'easeInOut' }}
+                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                    />
+                    <Calculator className="w-3.5 h-3.5 text-[#00a8f3] group-hover:text-white flex-shrink-0 transition-colors" />
+                    <span className="text-[10px] md:text-[11px] font-bold text-[#00a8f3] group-hover:text-white leading-tight text-center transition-colors">
                       Umzugskosten<br/>berechnen
                     </span>
                   </motion.button>
                   
                   {/* Sub-Button 2: Entrümpelungskosten */}
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <motion.button
+                    variants={calcButtonVariants}
+                    initial="rest"
+                    animate="rest"
+                    whileHover="hover"
+                    whileTap="tap"
                     onClick={(e) => {
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'entruempelung' } })), 400);
                     }}
-                    className="group flex items-center justify-center gap-1.5 bg-slate-200/50 hover:bg-[#00b67a] border border-slate-300/60 hover:border-[#00b67a] backdrop-blur-sm rounded-full py-2.5 px-2 transition-colors shadow-sm"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-[#00b67a]/10 hover:bg-[#00b67a] border border-[#00b67a]/20 hover:border-[#00b67a] backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md"
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-slate-700 group-hover:text-white flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-slate-700 group-hover:text-white leading-tight text-center transition-colors">
+                    <motion.span
+                      aria-hidden="true"
+                      variants={calcSheenVariants}
+                      transition={{ duration: 0.75, ease: 'easeInOut' }}
+                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                    />
+                    <Trash2 className="w-3.5 h-3.5 text-[#00b67a] group-hover:text-white flex-shrink-0 transition-colors" />
+                    <span className="text-[10px] md:text-[11px] font-bold text-[#00b67a] group-hover:text-white leading-tight text-center transition-colors">
                       Entrümpelungskosten<br/>berechnen
                     </span>
                   </motion.button>
@@ -446,32 +476,34 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               {/* Button Umzugsunternehmen → Blau */}
-              <Link href="/partner/umzug">
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-4">
+              <Link href="/partner/umzug" className="w-full">
                 <motion.div
                   whileHover={{ y: -5, scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white/15 hover:bg-white/25 border-2 border-white/30 hover:border-white/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 min-w-[240px] transition-all cursor-pointer backdrop-blur-sm"
+                  className="w-full sm:min-w-[240px] bg-white/15 hover:bg-white/25 border-2 border-white/30 hover:border-white/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
                 >
                   <Truck className="w-7 h-7 mb-1 opacity-90" />
                   <span className="text-xs font-bold uppercase tracking-widest opacity-70">Für</span>
-                  <span className="text-lg font-black whitespace-nowrap">Umzugsunternehmen</span>
+                  <span className="text-lg font-black leading-tight">Umzugsunternehmen</span>
                   <span className="text-xs text-white/60 flex items-center gap-1 mt-1">Jetzt bewerben <ArrowRight className="w-3 h-3" /></span>
                 </motion.div>
               </Link>
 
               {/* Button Entrümpelungsfirmen → Grün */}
-              <Link href="/partner/entruempelung">
+              <Link href="/partner/entruempelung" className="w-full">
                 <motion.div
                   whileHover={{ y: -5, scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-[#00b67a]/30 hover:bg-[#00b67a]/50 border-2 border-[#00ff9d]/30 hover:border-[#00ff9d]/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 min-w-[240px] transition-all cursor-pointer backdrop-blur-sm"
+                  className="w-full sm:min-w-[240px] bg-[#00b67a]/30 hover:bg-[#00b67a]/50 border-2 border-[#00ff9d]/30 hover:border-[#00ff9d]/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
                 >
                   <Trash2 className="w-7 h-7 mb-1 opacity-90" />
                   <span className="text-xs font-bold uppercase tracking-widest opacity-70">Für</span>
-                  <span className="text-lg font-black whitespace-nowrap">Entrümpelungsfirmen</span>
+                  <span className="text-lg font-black leading-tight">Entrümpelungsfirmen</span>
                   <span className="text-xs text-white/60 flex items-center gap-1 mt-1">Jetzt bewerben <ArrowRight className="w-3 h-3" /></span>
                 </motion.div>
               </Link>
+              </div>
             </motion.div>
 
           </div>
