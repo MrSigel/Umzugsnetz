@@ -328,9 +328,7 @@ export default function AdminLoginPage() {
           )}
         </div>
 
-        <p className="text-center text-slate-400 text-sm mt-8">
-          &copy; {new Date().getFullYear()} Umzugapp Management. Alle Rechte vorbehalten.
-        </p>
+        <div className="mt-8"></div>
       </motion.div>
     </div>
   );
