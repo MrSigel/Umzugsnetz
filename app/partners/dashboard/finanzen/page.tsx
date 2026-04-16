@@ -214,7 +214,7 @@ export default function FinancePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -231,7 +231,7 @@ export default function FinancePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Aktuelles Guthaben</p>
-          <p className="text-3xl font-black text-[#0075c9]">€{Number(partner?.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+          <p className="text-3xl font-black text-brand-blue">€{Number(partner?.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
         </div>
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Gesamtausgaben</p>
@@ -247,7 +247,7 @@ export default function FinancePage() {
         <div className="xl:col-span-2 space-y-8">
           <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-8 md:p-10">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-[#0075c9]">
+              <div className="w-10 h-10 rounded-xl bg-brand-blue-soft flex items-center justify-center text-brand-blue">
                 <Plus className="w-5 h-5" />
               </div>
               <h3 className="text-xl font-bold text-slate-800">Guthaben aufladen</h3>
@@ -258,25 +258,25 @@ export default function FinancePage() {
                 <button
                   key={amount}
                   onClick={() => { setSelectedAmount(amount); setCustomAmount(''); }}
-                  className={`relative p-6 rounded-3xl border-2 transition-all ${
-                    selectedAmount === amount && !customAmount
-                      ? 'border-[#0075c9] bg-blue-50/30'
+                    className={`relative p-6 rounded-3xl border-2 transition-all ${
+                      selectedAmount === amount && !customAmount
+                      ? 'border-brand-blue bg-brand-blue/5'
                       : 'border-slate-50 bg-slate-50/50 hover:border-slate-200'
-                  }`}
-                >
-                  <div className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
-                    selectedAmount === amount && !customAmount ? 'text-[#0075c9]' : 'text-slate-400'
-                  }`}>Anfrage</div>
+                    }`}
+                  >
+                    <div className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
+                     selectedAmount === amount && !customAmount ? 'text-brand-blue' : 'text-slate-400'
+                    }`}>Anfrage</div>
                   <div className={`text-xl font-black ${
                     selectedAmount === amount && !customAmount ? 'text-slate-900' : 'text-slate-600'
                   }`}>€ {amount}</div>
-                  {selectedAmount === amount && !customAmount && (
-                    <div className="absolute top-2 right-2">
-                      <div className="w-5 h-5 bg-[#0075c9] rounded-full flex items-center justify-center text-white">
+                   {selectedAmount === amount && !customAmount && (
+                     <div className="absolute top-2 right-2">
+                      <div className="w-5 h-5 bg-brand-blue rounded-full flex items-center justify-center text-white">
                         <Check className="w-3 h-3" />
                       </div>
-                    </div>
-                  )}
+                     </div>
+                   )}
                 </button>
               ))}
             </div>
@@ -286,14 +286,14 @@ export default function FinancePage() {
                 Anderer Betrag (Min. €{minTopupAmount.toFixed(2)})
               </label>
               <div className="relative group">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-300 group-focus-within:text-[#0075c9] transition-colors">€</div>
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-300 group-focus-within:text-brand-blue transition-colors">€</div>
                 <input
                   type="number"
                   placeholder={String(minTopupAmount)}
                   min={minTopupAmount}
                   value={customAmount}
                   onChange={(event) => setCustomAmount(event.target.value)}
-                  className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl pl-12 pr-6 py-5 text-xl font-bold focus:outline-none focus:border-[#0075c9] focus:bg-white transition-all text-slate-900 placeholder:text-slate-200"
+                  className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl pl-12 pr-6 py-5 text-xl font-bold focus:outline-none focus:border-brand-blue focus:bg-white transition-all text-slate-900 placeholder:text-slate-200"
                 />
               </div>
             </div>
@@ -308,7 +308,7 @@ export default function FinancePage() {
             <button
               onClick={handleTopup}
               disabled={isTopupLoading || !finalAmount || finalAmount < minTopupAmount}
-              className="w-full bg-[#0075c9] text-white py-6 rounded-[2rem] font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-[#005ea6] hover:scale-[1.01] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-brand-blue text-white py-6 rounded-[2rem] font-black text-lg shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-hover hover:scale-[1.01] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {isTopupLoading ? 'Wird angefragt...' : `Jetzt €${finalAmount || 0} anfragen`}
               <CreditCard className="w-6 h-6" />
@@ -340,12 +340,12 @@ export default function FinancePage() {
                     const isActive = partner?.category === moveTier.alias;
 
                     return (
-                      <tr key={moveTier.id} className={`hover:bg-slate-50/50 transition-colors ${isActive ? 'bg-blue-50/20' : ''}`}>
+                      <tr key={moveTier.id} className={`hover:bg-slate-50/50 transition-colors ${isActive ? 'bg-brand-blue/5' : ''}`}>
                         <td className="px-8 py-6 font-bold text-slate-700">
                           {moveTier.alias}
-                          {isActive && (
-                            <span className="ml-3 text-[9px] bg-blue-500 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">Aktuell</span>
-                          )}
+                            {isActive && (
+                            <span className="ml-3 text-[9px] bg-brand-blue text-white px-2 py-0.5 rounded-full uppercase tracking-widest">Aktuell</span>
+                            )}
                         </td>
                         <td className="px-8 py-6 text-right font-black text-slate-800">€{moveTier.price.toFixed(2)}</td>
                         <td className="px-8 py-6 text-right font-black text-slate-800">€{clearanceTier.price.toFixed(2)}</td>
@@ -368,7 +368,7 @@ export default function FinancePage() {
               <button
                 onClick={fetchTransactions}
                 disabled={txLoading}
-                className="text-[10px] font-bold text-[#0075c9] uppercase tracking-widest hover:underline flex items-center gap-1 disabled:opacity-50"
+                className="text-[10px] font-bold text-brand-blue uppercase tracking-widest hover:underline flex items-center gap-1 disabled:opacity-50"
               >
                 <RefreshCw className={`w-3 h-3 ${txLoading ? 'animate-spin' : ''}`} />
                 Aktualisieren
@@ -445,15 +445,15 @@ export default function FinancePage() {
               <div className="h-px bg-slate-50 my-2" />
               <div className="flex justify-between items-center">
                 <span className="text-slate-900 font-black">Neu Gesamt</span>
-                <span className="text-2xl font-black text-[#0075c9]">
+                <span className="text-2xl font-black text-brand-blue">
                   €{((Number(partner?.balance) || 0) + (finalAmount || 0)).toFixed(2)}
                 </span>
               </div>
             </div>
-            <div className="p-5 bg-blue-50/50 rounded-2xl border border-blue-100">
+            <div className="p-5 bg-brand-blue/5 rounded-2xl border border-brand-blue/20">
               <div className="flex gap-3">
-                <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-blue-700 leading-relaxed font-medium">
+                <Info className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-700 leading-relaxed font-medium">
                   <span className="font-bold">Ihre Kondition:</span> {leadPriceLabel}
                 </p>
               </div>
@@ -467,7 +467,7 @@ export default function FinancePage() {
           <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-6 shadow-2xl overflow-hidden relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl" />
             <div className="flex items-center gap-3 relative z-10">
-              <Building className="w-5 h-5 text-blue-400" />
+              <Building className="w-5 h-5 text-brand-blue-2" />
               <h3 className="text-lg font-bold">Banküberweisung</h3>
             </div>
             <div className="bg-white/5 rounded-3xl p-6 space-y-4 border border-white/10 relative z-10">
@@ -480,7 +480,7 @@ export default function FinancePage() {
                 <div key={item.label}>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">{item.label}</p>
                   <div className="flex items-center justify-between gap-4">
-                    <span className={`text-sm font-bold ${item.highlight ? 'text-blue-400' : 'text-white'}`}>{item.value}</span>
+                    <span className={`text-sm font-bold ${item.highlight ? 'text-brand-blue-2' : 'text-white'}`}>{item.value}</span>
                     {item.copyable && (
                       <button onClick={() => handleCopy(item.value, item.label)} className="text-white/20 hover:text-white transition-colors p-1">
                         {copiedField === item.label ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}

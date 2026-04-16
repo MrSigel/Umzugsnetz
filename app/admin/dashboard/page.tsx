@@ -73,7 +73,7 @@ export default function AdminOverviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -240,7 +240,7 @@ export default function AdminOverviewPage() {
                 <span className="text-xs font-bold text-slate-800">{stats.partners} Partner</span>
               </div>
               <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (stats.partners / 100) * 100)}%` }} />
+                <div className="h-full bg-brand-blue rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, (stats.partners / 100) * 100)}%` }} />
               </div>
             </div>
             <div>
@@ -291,7 +291,7 @@ export default function AdminOverviewPage() {
                   </td>
                   <td className="py-6">
                     <span className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                      order.service_category === 'PRIVATUMZUG' ? 'bg-blue-50 text-blue-600' :
+                      order.service_category === 'PRIVATUMZUG' ? 'bg-brand-blue-soft text-brand-blue' :
                       order.service_category === 'FIRMENUMZUG' ? 'bg-purple-50 text-purple-600' :
                       'bg-emerald-50 text-emerald-600'
                     }`}>
@@ -311,7 +311,7 @@ export default function AdminOverviewPage() {
                   </td>
                   <td className="py-6">
                     <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
-                      order.status === 'Neu' ? 'bg-blue-50 text-blue-600' :
+                      order.status === 'Neu' ? 'bg-brand-blue-soft text-brand-blue' :
                       order.status === 'In Bearbeitung' ? 'bg-amber-50 text-amber-600' :
                       order.status === 'Abgeschlossen' ? 'bg-emerald-50 text-emerald-600' :
                       'bg-red-50 text-red-600'
@@ -322,7 +322,7 @@ export default function AdminOverviewPage() {
                   <td className="py-6 text-right">
                     <button
                       onClick={() => router.push('/admin/dashboard/auftraege')}
-                      className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1 ml-auto whitespace-nowrap">
+                      className="text-[11px] font-bold text-slate-400 hover:text-brand-blue transition-colors flex items-center gap-1 ml-auto whitespace-nowrap">
                       Details <ChevronRight className="w-4 h-4" />
                     </button>
                   </td>

@@ -168,7 +168,7 @@ export default function SettingsPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -186,7 +186,7 @@ export default function SettingsPage() {
         <section className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
           <div className="p-8 md:p-10 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0075c9] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-brand-blue-soft text-brand-blue flex items-center justify-center">
                 <Building2 className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-slate-800">Profil Informationen</h3>
@@ -204,7 +204,7 @@ export default function SettingsPage() {
                   <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                   <input 
                     type="text" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-blue transition-all"
                   />
                 </div>
               </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                   <input 
                     type="email" value={profileForm.email} onChange={e => setProfileForm({...profileForm, email: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-blue transition-all"
                   />
                 </div>
               </div>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                   <input 
                     type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-blue transition-all"
                   />
                 </div>
               </div>
@@ -234,7 +234,7 @@ export default function SettingsPage() {
                   <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                   <select 
                     value={profileForm.service} onChange={e => setProfileForm({...profileForm, service: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-[#0075c9] appearance-none transition-all"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-blue appearance-none transition-all"
                   >
                     <option value="BEIDES">Umzug & Entrümpelung</option>
                     <option value="UMZUG">Nur Umzug</option>
@@ -252,7 +252,7 @@ export default function SettingsPage() {
                   rows={3}
                   value={profileForm.regions} onChange={e => setProfileForm({...profileForm, regions: e.target.value})}
                   placeholder="Z.B. Berlin, Brandenburg, Potsdam..."
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all resize-none"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-slate-800 focus:outline-none focus:border-brand-blue transition-all resize-none"
                 />
               </div>
             </div>
@@ -279,7 +279,7 @@ export default function SettingsPage() {
                 onClick={() => handleSave('profile')}
                 disabled={savingSection === 'profile'}
                 className={`flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg ${
-                  savedSection === 'profile' ? 'bg-emerald-500 text-white' : 'bg-[#0075c9] text-white hover:bg-[#005ea6] shadow-blue-500/10'
+                  savedSection === 'profile' ? 'bg-emerald-500 text-white' : 'bg-brand-blue text-white hover:bg-brand-blue-hover shadow-brand-blue/10'
                 }`}
                >
                  {savingSection === 'profile' ? <RefreshCw className="w-4 h-4 animate-spin" /> : savedSection === 'profile' ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
@@ -306,21 +306,21 @@ export default function SettingsPage() {
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Aktuelles Passwort</label>
                   <input 
                     type="password" value={passwordForm.current} onChange={e => setPasswordForm({...passwordForm, current: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-[#0075c9]"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-brand-blue"
                   />
                </div>
                <div className="space-y-2 text-black">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Neues Passwort</label>
                   <input 
                     type="password" value={passwordForm.new} onChange={e => setPasswordForm({...passwordForm, new: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-[#0075c9]"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-brand-blue"
                   />
                </div>
                <div className="space-y-2 text-black">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Bestätigen</label>
                   <input 
                     type="password" value={passwordForm.confirm} onChange={e => setPasswordForm({...passwordForm, confirm: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-[#0075c9]"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-brand-blue"
                   />
                </div>
             </div>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
                 onClick={() => handleSave('password')}
                 disabled={savingSection === 'password'}
                 className={`flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg ${
-                  savedSection === 'password' ? 'bg-emerald-500 text-white' : 'bg-[#0075c9] text-white hover:bg-[#005ea6] shadow-blue-500/10'
+                  savedSection === 'password' ? 'bg-emerald-500 text-white' : 'bg-brand-blue text-white hover:bg-brand-blue-hover shadow-brand-blue/10'
                 }`}
               >
                 {savingSection === 'password' ? <RefreshCw className="w-4 h-4 animate-spin" /> : savedSection === 'password' ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                {/* Email Toggle */}
                <div className="flex items-center justify-between gap-6 p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                   <div className="flex items-center gap-4">
-                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-[#0075c9]">
+                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-brand-blue">
                         <Mail className="w-5 h-5" />
                      </div>
                      <div>
@@ -397,7 +397,7 @@ export default function SettingsPage() {
                        <input 
                          type="tel" value={notifForm.smsNumber} onChange={e => setNotifForm({...notifForm, smsNumber: e.target.value})}
                          placeholder="+49 170 1234567"
-                         className="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-[#0075c9] shadow-sm"
+                         className="w-full bg-white border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-brand-blue shadow-sm"
                        />
                     </motion.div>
                   )}
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                 onClick={() => handleSave('notif')}
                 disabled={savingSection === 'notif'}
                 className={`flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-sm transition-all shadow-lg ${
-                  savedSection === 'notif' ? 'bg-emerald-500 text-white' : 'bg-[#0075c9] text-white hover:bg-[#005ea6] shadow-blue-500/10'
+                  savedSection === 'notif' ? 'bg-emerald-500 text-white' : 'bg-brand-blue text-white hover:bg-brand-blue-hover shadow-brand-blue/10'
                 }`}
                >
                  {savingSection === 'notif' ? <RefreshCw className="w-4 h-4 animate-spin" /> : savedSection === 'notif' ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}

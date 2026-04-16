@@ -142,7 +142,7 @@ export default function TransactionsPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input type="text" placeholder="Transaktionen suchen..." value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all text-black" />
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all text-black" />
         </div>
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
           className="px-6 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 focus:outline-none min-w-[160px] cursor-pointer">
@@ -151,12 +151,12 @@ export default function TransactionsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <RefreshCw className="w-8 h-8 animate-spin text-[#0075c9]" />
-          </div>
-        ) : filtered.length === 0 ? (
+          <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <RefreshCw className="w-8 h-8 animate-spin text-brand-blue" />
+              </div>
+            ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Inbox className="w-12 h-12 text-slate-200 mb-4" />
             <p className="text-slate-400 font-medium">Keine Transaktionen gefunden.</p>
@@ -184,7 +184,7 @@ export default function TransactionsPage() {
                       </td>
                       <td className="py-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[#0075c9] flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-brand-blue-soft flex items-center justify-center text-brand-blue flex-shrink-0">
                             <Truck className="w-4 h-4" />
                           </div>
                           <p className="text-sm font-bold text-slate-700">{trx.partners?.name || '—'}</p>
@@ -193,7 +193,7 @@ export default function TransactionsPage() {
                       <td className="py-5 text-center">
                         <span className={`px-3 py-1.5 text-[9px] font-bold rounded-lg uppercase tracking-wider ${
                           trx.type === 'ADMIN_CREDIT' ? 'bg-emerald-100 text-emerald-700' :
-                          trx.type === 'LEAD_PURCHASE' ? 'bg-blue-100 text-blue-700' :
+                          trx.type === 'LEAD_PURCHASE' ? 'bg-brand-blue/10 text-brand-blue' :
                           trx.type === 'TOPUP' ? 'bg-purple-100 text-purple-700' :
                           'bg-slate-100 text-slate-600'
                         }`}>

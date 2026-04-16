@@ -26,12 +26,12 @@ function InfoModal({ onClose }: { onClose: () => void }) {
           <X className="w-6 h-6 text-slate-400" />
         </button>
         <div className="flex items-center gap-4 mb-8">
-          <div className="p-3 bg-blue-50 rounded-2xl text-[#00a8f3]"><Calculator className="w-8 h-8" /></div>
+          <div className="p-3 bg-brand-blue/10 rounded-2xl text-brand-blue"><Calculator className="w-8 h-8" /></div>
           <h3 className="text-2xl font-black text-slate-800 tracking-tight">Berechnungsgrundlage</h3>
         </div>
         <div className="space-y-4 text-slate-600 text-sm leading-relaxed">
           <p>Der Schätzpreis basiert auf Wohnfläche und Entfernung als erste Orientierung. Im nächsten Schritt verfeinern wir die Kalkulation anhand Ihrer Angaben.</p>
-          <ul className="pl-4 list-disc space-y-1 marker:text-[#00a8f3]">
+          <ul className="pl-4 list-disc space-y-1 marker:text-brand-blue">
             <li>Wohnfläche der Wohnung (m²)</li>
             <li>Entfernung zwischen Auszugs- und Einzugsort (km)</li>
             <li>Etagen und Transportwege</li>
@@ -75,12 +75,12 @@ function ProgressBar({ step }: { step: Step }) {
     <div className="mb-6">
       <div className="flex items-center gap-1 mb-2">
         {[0, 1, 2, 3].map(i => (
-          <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-500 ${i <= idx ? 'bg-[#00a8f3]' : 'bg-slate-200'}`} />
+          <div key={i} className={`h-2 flex-1 rounded-full transition-all duration-500 ${i <= idx ? 'bg-brand-blue' : 'bg-slate-200'}`} />
         ))}
       </div>
       <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
         {labels.map((l, i) => (
-          <span key={l} className={i <= idx ? 'text-[#00a8f3]' : ''}>{l}</span>
+          <span key={l} className={i <= idx ? 'text-brand-blue' : ''}>{l}</span>
         ))}
       </div>
     </div>
@@ -90,10 +90,10 @@ function ProgressBar({ step }: { step: Step }) {
 function ToggleOption({ label, desc, active, onClick, icon: Icon }: any) {
   return (
     <button onClick={onClick}
-      className={`flex items-start gap-3 p-4 rounded-2xl border-2 text-left w-full transition-all ${active ? 'border-[#00a8f3] bg-[#e8f6ff]' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
-      <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 transition-colors ${active ? 'text-[#00a8f3]' : 'text-slate-300'}`} />
+      className={`flex items-start gap-3 p-4 rounded-2xl border-2 text-left w-full transition-all ${active ? 'border-brand-blue bg-brand-blue-soft' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+      <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 transition-colors ${active ? 'text-brand-blue' : 'text-slate-300'}`} />
       <div>
-        <div className={`font-bold text-sm transition-colors ${active ? 'text-[#00a8f3]' : 'text-slate-700'}`}>{label}</div>
+        <div className={`font-bold text-sm transition-colors ${active ? 'text-brand-blue' : 'text-slate-700'}`}>{label}</div>
         {desc && <div className="text-xs text-slate-400 mt-0.5">{desc}</div>}
       </div>
     </button>
@@ -102,16 +102,16 @@ function ToggleOption({ label, desc, active, onClick, icon: Icon }: any) {
 
 function ItemCounter({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
-    <div className="flex items-center justify-between bg-white rounded-2xl px-4 py-3 border-2 border-slate-100 hover:border-[#00a8f3]/30 transition-colors">
+    <div className="flex items-center justify-between bg-white rounded-2xl px-4 py-3 border-2 border-slate-100 hover:border-brand-blue/30 transition-colors">
       <span className="text-sm font-bold text-slate-700">{label}</span>
       <div className="flex items-center gap-3">
         <button onClick={() => onChange(Math.max(0, value - 1))}
-          className="w-7 h-7 rounded-full bg-slate-100 hover:bg-[#00a8f3] hover:text-white text-slate-500 flex items-center justify-center transition-all">
+          className="w-7 h-7 rounded-full bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 flex items-center justify-center transition-all">
           <Minus className="w-3.5 h-3.5" />
         </button>
         <span className="w-5 text-center font-black text-slate-800 text-sm">{value}</span>
         <button onClick={() => onChange(value + 1)}
-          className="w-7 h-7 rounded-full bg-slate-100 hover:bg-[#00a8f3] hover:text-white text-slate-500 flex items-center justify-center transition-all">
+          className="w-7 h-7 rounded-full bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 flex items-center justify-center transition-all">
           <Plus className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -124,7 +124,7 @@ function SelectField({ label, value, onChange, options }: any) {
     <div>
       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">{label}</label>
       <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors font-bold text-black appearance-none cursor-pointer text-sm">
+        className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors font-bold text-black appearance-none cursor-pointer text-sm">
         {options.map((o: string) => <option key={o} value={o}>{o}</option>)}
       </select>
     </div>
@@ -137,7 +137,7 @@ function InputField({ label, icon: Icon, ...props }: any) {
       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">{label}</label>
       <div className="relative">
         {Icon && <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />}
-        <input {...props} className={`w-full bg-white border-2 border-slate-200 rounded-2xl ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm`} />
+        <input {...props} className={`w-full bg-white border-2 border-slate-200 rounded-2xl ${Icon ? 'pl-12' : 'pl-4'} pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm`} />
       </div>
     </div>
   );
@@ -296,7 +296,7 @@ export default function KostenrechnerWidget() {
       <AnimatePresence>{isInfoOpen && <InfoModal onClose={() => setIsInfoOpen(false)} />}</AnimatePresence>
 
       <div className="bg-slate-50 p-6 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#00a8f3]/5 rounded-full -mr-16 -mt-16" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/5 rounded-full -mr-16 -mt-16" />
 
         <AnimatePresence mode="wait">
 
@@ -311,7 +311,7 @@ export default function KostenrechnerWidget() {
                       <span className="text-2xl font-black text-[#1e293b]">{wohnflaeche} <span className="text-lg font-medium text-slate-400">m²</span></span>
                     </div>
                     <input type="range" min="0" max="500" step="5" value={wohnflaeche} onChange={e => setWohnflaeche(+e.target.value)}
-                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#00a8f3]" />
+                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-blue" />
                     <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase"><span>0 m²</span><span>500+ m²</span></div>
                   </div>
                   <div className="space-y-4">
@@ -320,7 +320,7 @@ export default function KostenrechnerWidget() {
                       <span className="text-2xl font-black text-[#1e293b]">{entfernung} <span className="text-lg font-medium text-slate-400">km</span></span>
                     </div>
                     <input type="range" min="0" max="1000" step="10" value={entfernung} onChange={e => setEntfernung(+e.target.value)}
-                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#00a8f3]" />
+                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-blue" />
                     <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase"><span>0 km</span><span>1000 km</span></div>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function KostenrechnerWidget() {
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       onClick={() => setStep('details')}
-                      className="flex-1 w-full bg-[#00a8f3] text-white py-4 rounded-full font-extrabold shadow-lg hover:bg-[#0092d6] transition-all flex items-center justify-center gap-2">
+                      className="flex-1 w-full bg-brand-blue text-white py-4 rounded-full font-extrabold shadow-lg hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-2">
                       Angebote vergleichen <ChevronRight className="w-5 h-5" />
                     </motion.button>
                     <button onClick={() => setIsInfoOpen(true)}
@@ -349,7 +349,7 @@ export default function KostenrechnerWidget() {
             <motion.div key="details" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35 }} className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <div className="flex items-center gap-2 text-[#00a8f3] text-xs font-bold uppercase tracking-widest mb-1">
+                  <div className="flex items-center gap-2 text-brand-blue text-xs font-bold uppercase tracking-widest mb-1">
                     <ShieldCheck className="w-4 h-4" /> Sichere Übermittlung
                   </div>
                   <h3 className="text-2xl font-black text-[#1e293b]">
@@ -367,7 +367,7 @@ export default function KostenrechnerWidget() {
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {SERVICES.map(({ id, label, icon: Icon }) => (
                   <button key={id} onClick={() => setSelectedService(id)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 font-bold text-xs uppercase tracking-wider transition-all ${selectedService === id ? 'border-[#00a8f3] bg-[#e8f6ff] text-[#00a8f3] shadow-md' : 'border-slate-200 bg-white text-slate-500 hover:border-[#00a8f3]/50'}`}>
+                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 font-bold text-xs uppercase tracking-wider transition-all ${selectedService === id ? 'border-brand-blue bg-brand-blue-soft text-brand-blue shadow-md' : 'border-slate-200 bg-white text-slate-500 hover:border-brand-blue/50'}`}>
                     <Icon className="w-6 h-6" />{label}
                   </button>
                 ))}
@@ -394,7 +394,7 @@ export default function KostenrechnerWidget() {
                         <div className="flex rounded-2xl overflow-hidden border-2 border-slate-200 h-[46px]">
                           {(['ja', 'nein'] as const).map(v => (
                             <button key={v} onClick={() => setAufzug(v)}
-                              className={`flex-1 font-bold text-sm transition-all capitalize ${aufzug === v ? 'bg-[#00a8f3] text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
+                              className={`flex-1 font-bold text-sm transition-all capitalize ${aufzug === v ? 'bg-brand-blue text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
                               {v === 'ja' ? 'Ja' : 'Nein'}
                             </button>
                           ))}
@@ -414,7 +414,7 @@ export default function KostenrechnerWidget() {
                       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Sonstige Anmerkungen (Optional)</label>
                       <textarea rows={3} value={entruempelNotizen} onChange={e => setEntruempelNotizen(e.target.value)}
                         placeholder="z. B. besondere Gegenstände, Zugangssituation..."
-                        className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
+                        className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                     </div>
 
                     {/* Live Preis */}
@@ -424,7 +424,7 @@ export default function KostenrechnerWidget() {
                         <div className="text-3xl font-black text-[#00b67a]">ab {entruempelPrice.toLocaleString('de-DE')} €</div>
                         <div className="text-xs text-slate-400 mt-0.5">inkl. Fahrtkosten & fachgerechter Entsorgung</div>
                       </div>
-                      <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-[#00a8f3] flex items-center gap-1 hover:underline">
+                      <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline">
                         <Info className="w-3.5 h-3.5" /> Live-Kalkulation
                       </button>
                     </div>
@@ -438,7 +438,7 @@ export default function KostenrechnerWidget() {
                         <div className="relative">
                           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                           <input type="text" value={von} onChange={e => setVon(e.target.value)} placeholder="PLZ oder Ort"
-                            className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
+                            className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
                         </div>
                       </div>
                       <div>
@@ -446,7 +446,7 @@ export default function KostenrechnerWidget() {
                         <div className="relative">
                           <Flag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                           <input type="text" value={nach} onChange={e => setNach(e.target.value)} placeholder="PLZ oder Ort"
-                            className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
+                            className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
                         </div>
                       </div>
                     </div>
@@ -456,7 +456,7 @@ export default function KostenrechnerWidget() {
                       <div className="relative">
                         <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input type="date" value={datum} onChange={e => setDatum(e.target.value)}
-                          className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black text-sm" />
+                          className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black text-sm" />
                       </div>
                     </div>
 
@@ -472,7 +472,7 @@ export default function KostenrechnerWidget() {
                             <div className="flex rounded-xl overflow-hidden border-2 border-slate-200 h-9">
                               {(['ja', 'nein'] as const).map(v => (
                                 <button key={v} onClick={() => setAufzugAuszug(v)}
-                                  className={`flex-1 font-bold text-xs transition-all ${aufzugAuszug === v ? 'bg-[#00a8f3] text-white' : 'bg-white text-slate-500'}`}>
+                                  className={`flex-1 font-bold text-xs transition-all ${aufzugAuszug === v ? 'bg-brand-blue text-white' : 'bg-white text-slate-500'}`}>
                                   {v === 'ja' ? 'Ja' : 'Nein'}
                                 </button>
                               ))}
@@ -487,7 +487,7 @@ export default function KostenrechnerWidget() {
                             <div className="flex rounded-xl overflow-hidden border-2 border-slate-200 h-9">
                               {(['ja', 'nein'] as const).map(v => (
                                 <button key={v} onClick={() => setAufzugEinzug(v)}
-                                  className={`flex-1 font-bold text-xs transition-all ${aufzugEinzug === v ? 'bg-[#00a8f3] text-white' : 'bg-white text-slate-500'}`}>
+                                  className={`flex-1 font-bold text-xs transition-all ${aufzugEinzug === v ? 'bg-brand-blue text-white' : 'bg-white text-slate-500'}`}>
                                   {v === 'ja' ? 'Ja' : 'Nein'}
                                 </button>
                               ))}
@@ -512,7 +512,7 @@ export default function KostenrechnerWidget() {
                       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Sonstige Anmerkungen (Optional)</label>
                       <textarea rows={2} value={umzugNotizen} onChange={e => setUmzugNotizen(e.target.value)}
                         placeholder="z. B. Kühlschrank muss demontiert werden, Querstraße ohne LKW-Zufahrt..."
-                        className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
+                        className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                     </div>
 
                     {/* Live Preis */}
@@ -524,7 +524,7 @@ export default function KostenrechnerWidget() {
                         </div>
                         <div className="text-xs text-slate-400 mt-0.5">inkl. ausgewählter Sonderleistungen</div>
                       </div>
-                      <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-[#00a8f3] flex items-center gap-1 hover:underline">
+                      <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline">
                         <Info className="w-3.5 h-3.5" /> Info
                       </button>
                     </div>
@@ -538,7 +538,7 @@ export default function KostenrechnerWidget() {
 
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={() => setStep('kontakt')}
-                className="w-full mt-4 bg-[#00a8f3] text-white py-4 rounded-2xl font-extrabold text-base shadow-xl hover:bg-[#0092d6] transition-all flex items-center justify-center gap-3">
+                className="w-full mt-4 bg-brand-blue text-white py-4 rounded-2xl font-extrabold text-base shadow-xl hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-3">
                 Weiter zu meinen Kontaktdaten <ChevronRight className="w-5 h-5" />
               </motion.button>
             </motion.div>
@@ -549,7 +549,7 @@ export default function KostenrechnerWidget() {
             <motion.div key="kontakt" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35 }} className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <div className="flex items-center gap-2 text-[#00a8f3] text-xs font-bold uppercase tracking-widest mb-1">
+                  <div className="flex items-center gap-2 text-brand-blue text-xs font-bold uppercase tracking-widest mb-1">
                     <ShieldCheck className="w-4 h-4" /> Fast geschafft!
                   </div>
                   <h3 className="text-2xl font-black text-[#1e293b]">Ihre Kontaktdaten</h3>
@@ -575,7 +575,7 @@ export default function KostenrechnerWidget() {
                   <div className="relative">
                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
                     <input type="text" value={erreichbarAb} onChange={e => setErreichbarAb(e.target.value)} placeholder="z. B. Mo–Fr ab 17 Uhr, oder jederzeit"
-                      className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
+                      className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
                   </div>
                 </div>
 
@@ -585,13 +585,13 @@ export default function KostenrechnerWidget() {
                     <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-slate-300 pointer-events-none" />
                     <textarea rows={3} value={kontaktNotizen} onChange={e => setKontaktNotizen(e.target.value)}
                       placeholder="Sonstige Wünsche oder Informationen an die Umzugsfirma..."
-                      className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
+                      className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                   </div>
                 </div>
 
                 {/* Zusammenfassung */}
-                <div className="bg-[#00a8f3]/5 border border-[#00a8f3]/15 rounded-2xl p-4">
-                  <p className="text-xs font-black text-[#00a8f3] uppercase tracking-widest mb-3">Ihre Zusammenfassung</p>
+                <div className="bg-brand-blue/5 border border-brand-blue/15 rounded-2xl p-4">
+                  <p className="text-xs font-black text-brand-blue uppercase tracking-widest mb-3">Ihre Zusammenfassung</p>
                   <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
                     <div><span className="font-bold text-slate-400">Service:</span> {selectedService === 'privatumzug' ? 'Privatumzug' : selectedService === 'firmenumzug' ? 'Firmenumzug' : 'Entrümpelung'}</div>
                     {!isEntruempelung && von && <div><span className="font-bold text-slate-400">Von:</span> {von}</div>}
@@ -612,7 +612,7 @@ export default function KostenrechnerWidget() {
                   disabled={!kontaktValid || isSubmitting}
                   className={`w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-3 transition-all ${
                     kontaktValid && !isSubmitting
-                      ? 'bg-[#00a8f3] text-white shadow-xl hover:bg-[#0092d6] cursor-pointer'
+                      ? 'bg-brand-blue text-white shadow-xl hover:bg-brand-blue-hover cursor-pointer'
                       : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
@@ -629,7 +629,7 @@ export default function KostenrechnerWidget() {
                 <div className="grid grid-cols-3 gap-3 pt-2 border-t border-slate-100">
                   {[{ icon: Users, val: '50.000+', label: 'Kunden' }, { icon: BadgeCheck, val: '500+', label: 'Geprüfte Firmen' }, { icon: Star, val: '4.9/5', label: 'Ø Bewertung' }].map(({ icon: Icon, val, label }) => (
                     <div key={label} className="flex flex-col items-center text-center">
-                      <Icon className="w-4 h-4 text-[#00a8f3] mb-1" />
+                      <Icon className="w-4 h-4 text-brand-blue mb-1" />
                       <div className="font-black text-slate-800 text-sm">{val}</div>
                       <div className="text-slate-400 text-[10px]">{label}</div>
                     </div>
@@ -654,7 +654,7 @@ export default function KostenrechnerWidget() {
                 setVorname(''); setNachname(''); setEmail(''); setTelefon('');
                 setVon(''); setNach(''); setDatum('');
               }}
-                className="inline-flex items-center gap-2 text-[#00a8f3] font-bold hover:text-[#0092d6] transition-colors">
+                className="inline-flex items-center gap-2 text-brand-blue font-bold hover:text-brand-blue-hover transition-colors">
                 <ArrowRight className="w-4 h-4 rotate-180" /> Zurück zum Rechner
               </button>
             </motion.div>

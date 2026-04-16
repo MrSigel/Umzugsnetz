@@ -64,7 +64,7 @@ export default function PartnerLoginPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0075c9] to-[#00b67a] flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
               <ShieldCheck className="w-10 h-10" />
             </div>
           </Link>
@@ -89,7 +89,7 @@ export default function PartnerLoginPage() {
               <input 
                 type="email" required placeholder="E-Mail Adresse"
                 value={email} onChange={e => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
               />
             </div>
 
@@ -98,21 +98,21 @@ export default function PartnerLoginPage() {
               <input 
                 type="password" required placeholder="Passwort"
                 value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
               />
             </div>
 
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0075c9] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-[#005ea6] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {loading ? 'Anmeldung...' : 'Einloggen'} <ArrowRight className="w-5 h-5" />
             </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-500 font-medium">
-            Noch kein Konto? <Link href="/partners/register" className="text-[#0075c9] font-bold hover:underline">Registrieren</Link>
+            Noch kein Konto? <Link href="/partners/register" className="text-brand-blue font-bold hover:underline">Registrieren</Link>
           </p>
         </motion.div>
 

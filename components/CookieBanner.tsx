@@ -63,14 +63,14 @@ export default function CookieBanner() {
             {/* Header / Info */}
             {!showSettings ? (
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-[#00a8f3] flex-shrink-0">
+                <div className="w-16 h-16 bg-brand-blue/10 rounded-2xl flex items-center justify-center text-brand-blue flex-shrink-0">
                   <ShieldCheck className="w-8 h-8" />
                 </div>
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-xl font-black text-slate-800 mb-2">Ihre Privatsphäre ist uns wichtig</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
                     Wir nutzen Cookies, um unsere Website für Sie optimal zu gestalten und fortlaufend zu verbessern. 
-                    Weitere Informationen finden Sie in unserer <Link href="/datenschutz" className="text-[#00a8f3] font-bold hover:underline">Datenschutzerklärung</Link>.
+                    Weitere Informationen finden Sie in unserer <Link href="/datenschutz" className="text-brand-blue font-bold hover:underline">Datenschutzerklärung</Link>.
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-3">
@@ -88,7 +88,7 @@ export default function CookieBanner() {
                   </button>
                   <button 
                     onClick={handleAcceptAll}
-                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#0075c9] to-[#00b67a] text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all"
+                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-brand-blue to-brand-green text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all"
                   >
                     Alle akzeptieren
                   </button>
@@ -110,13 +110,13 @@ export default function CookieBanner() {
                       <div className="font-bold text-slate-800 text-sm">Notwendige Cookies</div>
                       <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Immer aktiv</div>
                     </div>
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-[#00a8f3]">
+                    <div className="w-10 h-10 bg-brand-blue/10 rounded-full flex items-center justify-center text-brand-blue">
                       <Check className="w-5 h-5" />
                     </div>
                   </div>
 
                   {/* Analytics */}
-                  <label className="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-[#00a8f3]/20 transition-all">
+                  <label className="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-brand-blue/20 transition-all">
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Analyse & Statistik</div>
                       <div className="text-xs text-slate-400">Helfen uns zu verstehen, wie Besucher mit der Website interagieren.</div>
@@ -125,12 +125,12 @@ export default function CookieBanner() {
                       type="checkbox" 
                       checked={settings.analytics} 
                       onChange={(e) => setSettings({...settings, analytics: e.target.checked})}
-                      className="w-6 h-6 rounded-lg border-2 border-slate-200 text-[#00a8f3] focus:ring-[#00a8f3]"
+                      className="w-6 h-6 rounded-lg border-2 border-slate-200 text-brand-blue focus:ring-brand-blue"
                     />
                   </label>
 
                   {/* Marketing */}
-                  <label className="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-[#00a8f3]/20 transition-all">
+                  <label className="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-brand-blue/20 transition-all">
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Marketing & Werbung</div>
                       <div className="text-xs text-slate-400">Ermöglichen personalisierte Werbeangebote auf Drittseiten.</div>
@@ -139,7 +139,7 @@ export default function CookieBanner() {
                       type="checkbox" 
                       checked={settings.marketing} 
                       onChange={(e) => setSettings({...settings, marketing: e.target.checked})}
-                      className="w-6 h-6 rounded-lg border-2 border-slate-200 text-[#00a8f3] focus:ring-[#00a8f3]"
+                      className="w-6 h-6 rounded-lg border-2 border-slate-200 text-brand-blue focus:ring-brand-blue"
                     />
                   </label>
                 </div>
@@ -153,7 +153,7 @@ export default function CookieBanner() {
                   </button>
                   <button 
                     onClick={handleSaveSettings}
-                    className="px-8 py-3 rounded-xl bg-[#0075c9] text-white font-bold text-sm shadow-md hover:bg-[#005ea6] transition-all"
+                    className="px-8 py-3 rounded-xl bg-brand-blue text-white font-bold text-sm shadow-md hover:bg-brand-blue-hover transition-all"
                   >
                     Auswahl speichern
                   </button>

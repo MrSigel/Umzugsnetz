@@ -107,7 +107,7 @@ export default function TariffsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function TariffsPage() {
       </div>
 
       <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center justify-between relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-blue-50 transition-colors duration-500" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-brand-blue-soft transition-colors duration-500" />
         <div className="flex items-center gap-6 relative z-10">
           <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-xl shadow-slate-900/10">
             <ShieldCheck className="w-7 h-7" />
@@ -151,25 +151,25 @@ export default function TariffsPage() {
               key={plan.id}
               whileHover={{ y: -5 }}
               className={`relative bg-white rounded-[3rem] p-10 border-2 transition-all duration-300 flex flex-col h-full ${
-                isActive ? 'border-[#0075c9] shadow-2xl shadow-blue-500/10 scale-[1.02] z-10' : 'border-slate-100 shadow-sm hover:border-slate-200'
+                isActive ? 'border-brand-blue shadow-2xl shadow-brand-blue/10 scale-[1.02] z-10' : 'border-slate-100 shadow-sm hover:border-slate-200'
               }`}
             >
               {plan.id === 'priorisiert' && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#0075c9] to-[#00b67a] text-white text-[10px] font-black px-6 py-2 rounded-full shadow-xl uppercase tracking-widest flex items-center gap-2">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-blue to-brand-green text-white text-[10px] font-black px-6 py-2 rounded-full shadow-xl uppercase tracking-widest flex items-center gap-2">
                   <Sparkles className="w-3 h-3" /> Empfohlen
                 </div>
               )}
 
               <div className="flex items-center justify-between mb-8">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
-                  plan.color === 'blue' ? 'bg-blue-50 text-[#0075c9] shadow-blue-500/5' :
+                  plan.color === 'blue' ? 'bg-brand-blue-soft text-brand-blue shadow-brand-blue/5' :
                   plan.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 shadow-emerald-500/5' :
                   'bg-amber-50 text-amber-600 shadow-amber-500/5'
                 }`}>
                   <Icon className="w-7 h-7" />
                 </div>
                 {isActive && (
-                  <div className="flex items-center gap-1.5 text-blue-600 text-[10px] font-bold bg-blue-50 px-3 py-1 rounded-full uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5 text-brand-blue text-[10px] font-bold bg-brand-blue-soft px-3 py-1 rounded-full uppercase tracking-wider">
                     <Check className="w-3 h-3" /> Aktiv
                   </div>
                 )}
@@ -211,10 +211,10 @@ export default function TariffsPage() {
                     : isUpdating
                       ? 'bg-slate-100 text-slate-400 shadow-none'
                       : plan.id === 'priorisiert'
-                        ? 'bg-gradient-to-r from-[#0075c9] to-[#00b67a] text-white hover:shadow-blue-500/20 hover:scale-[1.02]'
+                        ? 'bg-gradient-to-r from-brand-blue to-brand-green text-white hover:shadow-brand-blue/20 hover:scale-[1.02]'
                         : plan.id === 'exklusiv'
                           ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white hover:shadow-amber-500/20 hover:scale-[1.02]'
-                          : 'bg-white text-[#0075c9] border-2 border-[#0075c9] hover:bg-blue-50 hover:scale-[1.02]'
+                          : 'bg-white text-brand-blue border-2 border-brand-blue hover:bg-brand-blue-soft hover:scale-[1.02]'
                 }`}
               >
                 {isUpdating ? 'Wird aktualisiert...' : isActive ? 'Aktueller Tarif' : `${plan.alias} aktivieren`}
@@ -241,7 +241,7 @@ export default function TariffsPage() {
           </div>
           <button
             onClick={() => router.push('/partners/dashboard/anfragen')}
-            className="bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-sm hover:bg-blue-50 transition-all flex items-center gap-2 flex-shrink-0"
+            className="bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-sm hover:bg-brand-blue-soft transition-all flex items-center gap-2 flex-shrink-0"
           >
             Zum Marktplatz <ArrowRight className="w-4 h-4" />
           </button>

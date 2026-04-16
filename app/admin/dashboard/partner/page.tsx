@@ -322,12 +322,12 @@ export default function PartnerNetworkPage() {
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Firmenname *</label>
                   <input type="text" value={editName} onChange={e => setEditName(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-medium text-black" />
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium text-black" />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Telefon</label>
                   <input type="text" placeholder="z. B. +49 ..." value={editPhone} onChange={e => setEditPhone(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-medium text-black" />
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium text-black" />
                 </div>
               </div>
 
@@ -340,14 +340,14 @@ export default function PartnerNetworkPage() {
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Regionen / Einsatzgebiete</label>
                 <textarea rows={4} value={editRegions} onChange={e => setEditRegions(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-medium resize-none text-black" />
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium resize-none text-black" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Dienstleistung</label>
                   <select value={editService} onChange={e => setEditService(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-medium appearance-none text-black">
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium appearance-none text-black">
                     <option value="BEIDES">Beides</option>
                     <option value="UMZUG">Umzug</option>
                     <option value="ENTRÜMPELUNG">Entrümpelung</option>
@@ -356,7 +356,7 @@ export default function PartnerNetworkPage() {
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Status</label>
                   <select value={editStatus} onChange={e => setEditStatus(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-bold appearance-none text-black">
+                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-bold appearance-none text-black">
                     <option value="ACTIVE">ACTIVE</option>
                     <option value="PENDING">PENDING</option>
                     <option value="SUSPENDED">SUSPENDED</option>
@@ -367,7 +367,7 @@ export default function PartnerNetworkPage() {
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Tarif / Kategorie</label>
                 <select value={editCategory} onChange={e => setEditCategory(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-bold appearance-none text-black">
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-bold appearance-none text-black">
                   {pricingConfig.umzug.map((tier) => (
                     <option key={tier.id} value={tier.alias}>{getCategoryLabel(tier.alias)}</option>
                   ))}
@@ -375,7 +375,7 @@ export default function PartnerNetworkPage() {
               </div>
 
               <button onClick={handleSave} disabled={saving}
-                className="bg-[#0075c9] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#005ea6] transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50">
+                className="bg-brand-blue text-white px-8 py-4 rounded-2xl font-bold hover:bg-brand-blue-hover transition-all flex items-center gap-2 shadow-lg shadow-brand-blue/20 disabled:opacity-50">
                 <Save className={`w-5 h-5 ${saving ? 'animate-pulse' : ''}`} />
                 {saving ? 'Speichert...' : 'Änderungen speichern'}
               </button>
@@ -387,7 +387,7 @@ export default function PartnerNetworkPage() {
             {/* Wallet Card */}
             <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
               <div className="flex items-center gap-3 mb-2">
-                <Wallet className="w-5 h-5 text-blue-500" />
+                <Wallet className="w-5 h-5 text-brand-blue" />
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Wallet</span>
               </div>
               <h3 className="text-3xl font-bold text-slate-900 mb-6">
@@ -397,9 +397,9 @@ export default function PartnerNetworkPage() {
               <div className="space-y-3">
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Guthaben gutschreiben</p>
                 <input type="number" min="0" step="0.01" placeholder="Betrag in €" value={creditAmount} onChange={e => setCreditAmount(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all text-black" />
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all text-black" />
                 <input type="text" placeholder="Grund (z. B. Testguthaben)" value={creditReason} onChange={e => setCreditReason(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all text-black" />
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all text-black" />
                 <button onClick={handleSaveBalance} disabled={isCrediting || !creditAmount}
                   className="w-full bg-[#00b67a] text-white py-4 rounded-2xl font-bold hover:bg-[#008f5e] transition-all shadow-lg shadow-green-500/10 disabled:opacity-50">
                   {isCrediting ? 'Wird gebucht...' : 'Guthaben gutschreiben'}
@@ -470,7 +470,7 @@ export default function PartnerNetworkPage() {
                   <button
                     onClick={() => handleSendPartnerInvite(application)}
                     disabled={sendingApplicationId === application.id}
-                    className="px-4 py-3 bg-[#0075c9] text-white rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-[#005ea6] transition-colors disabled:opacity-50"
+                    className="px-4 py-3 bg-brand-blue text-white rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-brand-blue-hover transition-colors disabled:opacity-50"
                   >
                     {sendingApplicationId === application.id
                       ? 'Versendet...'
@@ -497,7 +497,7 @@ export default function PartnerNetworkPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" placeholder="Unternehmen suchen..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 w-64 lg:w-80 shadow-sm text-black" />
+              className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 w-64 lg:w-80 shadow-sm text-black" />
           </div>
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
             className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 focus:outline-none shadow-sm appearance-none min-w-[140px]">
@@ -506,7 +506,7 @@ export default function PartnerNetworkPage() {
             <option value="PENDING">Ausstehend</option>
             <option value="SUSPENDED">Gesperrt</option>
           </select>
-          <button onClick={fetchPartners} className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-[#0075c9] transition-colors shadow-sm">
+          <button onClick={fetchPartners} className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-brand-blue transition-colors shadow-sm">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -514,7 +514,7 @@ export default function PartnerNetworkPage() {
 
       {loading ? (
         <div className="flex items-center justify-center h-40">
-          <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
@@ -600,7 +600,7 @@ export default function PartnerNetworkPage() {
               </div>
             </div>
             <button onClick={generateInviteCode} disabled={isGeneratingCode}
-              className="px-6 py-3 bg-[#0075c9] text-white rounded-xl text-xs font-bold hover:bg-[#005ea6] transition-all disabled:opacity-50 shadow-lg shadow-blue-500/10 flex items-center gap-2">
+              className="px-6 py-3 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-brand-blue-hover transition-all disabled:opacity-50 shadow-lg shadow-brand-blue/10 flex items-center gap-2">
               <Plus className="w-4 h-4" />
               {isGeneratingCode ? 'Generiert...' : 'Code generieren'}
             </button>
@@ -608,9 +608,9 @@ export default function PartnerNetworkPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto pr-2 p-1">
             {inviteCodes.map((c) => (
-              <div key={c.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-blue-200 transition-colors">
+              <div key={c.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-brand-blue/30 transition-colors">
                 <div className="space-y-1">
-                  <span className={`font-mono text-base font-black tracking-wider ${c.is_used ? 'text-slate-300 line-through' : 'text-[#0075c9]'}`}>{c.code}</span>
+                  <span className={`font-mono text-base font-black tracking-wider ${c.is_used ? 'text-slate-300 line-through' : 'text-brand-blue'}`}>{c.code}</span>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{new Date(c.created_at).toLocaleDateString('de-DE')}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -637,7 +637,7 @@ export default function PartnerNetworkPage() {
         <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-brand-blue-soft text-brand-blue flex items-center justify-center">
                 <Info className="w-5 h-5" />
               </div>
               <h4 className="font-bold text-slate-800">Sicheres Onboarding</h4>

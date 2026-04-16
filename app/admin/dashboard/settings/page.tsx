@@ -64,7 +64,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function SettingsPage() {
     <div className="space-y-6 animate-in fade-in duration-500 pb-10 font-sans">
       <div>
         <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-          <Settings className="w-7 h-7 text-[#0075c9]" />
+          <Settings className="w-7 h-7 text-brand-blue" />
           Globale Einstellungen
         </h2>
         <p className="text-sm text-slate-500 mt-1">Verwalten Sie plattformweite Parameter und Abrechnungsdaten.</p>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
 
           <section className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500">
+              <div className="w-12 h-12 rounded-2xl bg-brand-blue-soft flex items-center justify-center text-brand-blue">
                 <Wallet className="w-6 h-6" />
               </div>
               <div>
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                       type="number"
                       value={minTopup}
                       onChange={(event) => setMinTopup(event.target.value)}
-                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-blue-500 transition-colors font-bold text-slate-700"
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-bold text-slate-700"
                     />
                     <button
                       onClick={() => handleUpdateSetting('min_topup_amount', Number(minTopup), `Mindest-Aufladebetrag wurde auf €${Number(minTopup).toFixed(2)} gesetzt.`)}
@@ -148,33 +148,33 @@ export default function SettingsPage() {
                   value={billingSettings.beneficiary}
                   onChange={(event) => setBillingSettings((currentSettings) => ({ ...currentSettings, beneficiary: event.target.value }))}
                   placeholder="Empfänger"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
                 />
                 <input
                   type="text"
                   value={billingSettings.iban}
                   onChange={(event) => setBillingSettings((currentSettings) => ({ ...currentSettings, iban: event.target.value }))}
                   placeholder="IBAN"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
                 />
                 <input
                   type="text"
                   value={billingSettings.bic}
                   onChange={(event) => setBillingSettings((currentSettings) => ({ ...currentSettings, bic: event.target.value }))}
                   placeholder="BIC"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
                 />
                 <textarea
                   rows={3}
                   value={billingSettings.note}
                   onChange={(event) => setBillingSettings((currentSettings) => ({ ...currentSettings, note: event.target.value }))}
                   placeholder="Hinweis für Partner"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 resize-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10 resize-none"
                 />
                 <button
                   onClick={() => handleUpdateSetting('billing_settings', billingSettings, 'Bankdaten für Partner wurden gespeichert.')}
                   disabled={saving}
-                  className="px-6 py-3 bg-[#0075c9] text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-[#005ea6] transition-colors disabled:opacity-50"
+                  className="px-6 py-3 bg-brand-blue text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-brand-blue-hover transition-colors disabled:opacity-50"
                 >
                   Bankdaten speichern
                 </button>

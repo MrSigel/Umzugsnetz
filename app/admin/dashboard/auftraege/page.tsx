@@ -142,7 +142,7 @@ export default function OrdersPage() {
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <h2 className="text-3xl font-bold text-slate-900">{selectedOrder.customer_name}</h2>
               <span className={`px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-widest ${
-                selectedOrder.status === 'Neu' ? 'bg-blue-50 text-blue-600' :
+                selectedOrder.status === 'Neu' ? 'bg-brand-blue-soft text-brand-blue' :
                 selectedOrder.status === 'In Bearbeitung' ? 'bg-amber-50 text-amber-600' :
                 selectedOrder.status === 'Abgeschlossen' ? 'bg-emerald-50 text-emerald-600' :
                 'bg-red-50 text-red-600'
@@ -166,7 +166,7 @@ export default function OrdersPage() {
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status ändern</label>
             <select value={selectedOrder.status} onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
               disabled={updating}
-              className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 shadow-sm appearance-none min-w-[180px] disabled:opacity-50">
+              className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10 shadow-sm appearance-none min-w-[180px] disabled:opacity-50">
               <option value="Neu">Neu</option>
               <option value="In Bearbeitung">In Bearbeitung</option>
               <option value="Abgeschlossen">Abgeschlossen</option>
@@ -179,7 +179,7 @@ export default function OrdersPage() {
           {/* Kontaktdaten */}
           <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+              <div className="w-10 h-10 rounded-xl bg-brand-blue-soft flex items-center justify-center text-brand-blue">
                 <User className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-bold text-slate-800">Kontaktdaten</h3>
@@ -191,13 +191,13 @@ export default function OrdersPage() {
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">E-Mail Adresse</p>
-                <a href={`mailto:${selectedOrder.customer_email}`} className="text-sm font-bold text-[#0075c9] hover:underline">
+                <a href={`mailto:${selectedOrder.customer_email}`} className="text-sm font-bold text-brand-blue hover:underline">
                   {selectedOrder.customer_email}
                 </a>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Telefonnummer</p>
-                <a href={`tel:${selectedOrder.customer_phone}`} className="text-sm font-bold text-slate-800 hover:text-[#0075c9]">
+                <a href={`tel:${selectedOrder.customer_phone}`} className="text-sm font-bold text-slate-800 hover:text-brand-blue">
                   {selectedOrder.customer_phone}
                 </a>
               </div>
@@ -300,7 +300,7 @@ export default function OrdersPage() {
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Zusatzleistungen</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedOrder.additional_services.map((s: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">{s}</span>
+                        <span key={i} className="px-3 py-1 bg-brand-blue-soft text-brand-blue text-xs font-bold rounded-full">{s}</span>
                       ))}
                     </div>
                   </div>
@@ -324,7 +324,7 @@ export default function OrdersPage() {
               {matchedPartners.length > 0 ? (
                 matchedPartners.map((purchase: any, i: number) => (
                   <div key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-[#0075c9]">
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-brand-blue">
                       <Truck className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
@@ -353,11 +353,11 @@ export default function OrdersPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <a href={`mailto:${selectedOrder.customer_email}?subject=Ihre Umzugsanfrage&body=Sehr geehrte/r ${selectedOrder.customer_name},%0D%0A%0D%0Avielen Dank für Ihre Anfrage.`}
-                className="flex items-center gap-3 p-4 bg-blue-50 rounded-2xl border border-blue-100 hover:bg-blue-100 transition-colors">
-                <Mail className="w-5 h-5 text-blue-500" />
+                className="flex items-center gap-3 p-4 bg-brand-blue-soft rounded-2xl border border-brand-blue/20 hover:bg-brand-blue/15 transition-colors">
+                <Mail className="w-5 h-5 text-brand-blue" />
                 <div>
-                  <p className="text-xs font-bold text-blue-700">E-Mail senden</p>
-                  <p className="text-[10px] text-blue-500">{selectedOrder.customer_email}</p>
+                  <p className="text-xs font-bold text-brand-blue">E-Mail senden</p>
+                  <p className="text-[10px] text-brand-blue">{selectedOrder.customer_email}</p>
                 </div>
               </a>
               <a href={`tel:${selectedOrder.customer_phone}`}
@@ -409,13 +409,13 @@ export default function OrdersPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Name, E-Mail, Ort oder Auftragsnr..." 
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-medium" />
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-3.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium" />
           </div>
         </div>
         <div>
           <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Stadt</label>
           <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-bold appearance-none">
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-bold appearance-none">
             <option>Alle Städte</option>
             {uniqueCities.map(city => <option key={city} value={city}>{city}</option>)}
           </select>
@@ -423,7 +423,7 @@ export default function OrdersPage() {
         <div>
           <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Dienstleistung</label>
           <select value={filterService} onChange={(e) => setFilterService(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-bold appearance-none">
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-bold appearance-none">
             <option>Alle Leistungen</option>
             <option value="PRIVATUMZUG">Privatumzug</option>
             <option value="FIRMENUMZUG">Firmenumzug</option>
@@ -437,7 +437,7 @@ export default function OrdersPage() {
         <div className="overflow-x-auto p-8">
           {loading ? (
             <div className="flex items-center justify-center h-40">
-              <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
             <table className="w-full text-left">
@@ -462,7 +462,7 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-6 text-center">
                       <span className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
-                        order.service_category === 'PRIVATUMZUG' ? 'bg-blue-50 text-blue-600' :
+                        order.service_category === 'PRIVATUMZUG' ? 'bg-brand-blue-soft text-brand-blue' :
                         order.service_category === 'FIRMENUMZUG' ? 'bg-purple-50 text-purple-600' :
                         'bg-emerald-50 text-emerald-600'
                       }`}>
@@ -489,7 +489,7 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-6 text-center">
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
-                        order.status === 'Neu' ? 'bg-blue-50 text-blue-600' :
+                        order.status === 'Neu' ? 'bg-brand-blue-soft text-brand-blue' :
                         order.status === 'In Bearbeitung' ? 'bg-amber-50 text-amber-600' :
                         order.status === 'Abgeschlossen' ? 'bg-emerald-50 text-emerald-600' :
                         'bg-red-50 text-red-600'
@@ -499,7 +499,7 @@ export default function OrdersPage() {
                     </td>
                     <td className="py-6 text-right">
                       <button onClick={() => handleOpenDetail(order)}
-                        className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-all flex items-center gap-1 ml-auto group/btn">
+                        className="text-[11px] font-bold text-slate-400 hover:text-brand-blue transition-all flex items-center gap-1 ml-auto group/btn">
                         Details <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                       </button>
                     </td>

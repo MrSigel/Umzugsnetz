@@ -213,7 +213,7 @@ export default function AdminChatPage() {
               placeholder="Chats suchen..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 transition-all font-sans"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all font-sans"
             />
           </div>
           </div>
@@ -231,7 +231,7 @@ export default function AdminChatPage() {
                 activeSessionId === session.id ? 'bg-slate-50' : ''
               }`}
             >
-              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-[#0075c9]">
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-brand-blue">
                 <User className="w-6 h-6" />
               </div>
               <div className="flex-1 min-w-0">
@@ -242,7 +242,7 @@ export default function AdminChatPage() {
                 <p className="text-xs text-slate-500 truncate">{session.lastMessage}</p>
               </div>
               {session.unread > 0 && (
-                <div className="w-5 h-5 bg-[#0075c9] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <div className="w-5 h-5 bg-brand-blue text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                   {session.unread}
                 </div>
               )}
@@ -264,7 +264,7 @@ export default function AdminChatPage() {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0075c9]">
+            <div className="w-10 h-10 rounded-full bg-brand-blue-soft flex items-center justify-center text-brand-blue">
               <User className="w-5 h-5" />
             </div>
             <div>
@@ -305,7 +305,7 @@ export default function AdminChatPage() {
                 <div 
                   className={`max-w-[70%] rounded-2xl p-4 shadow-sm ${
                     msg.sender === 'admin' 
-                      ? 'bg-[#0075c9] text-white rounded-br-sm' 
+                      ? 'bg-brand-blue text-white rounded-br-sm' 
                       : 'bg-white border border-slate-100 text-slate-700 rounded-bl-sm'
                   }`}
                 >
@@ -328,12 +328,12 @@ export default function AdminChatPage() {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Nachricht schreiben..."
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 transition-all font-sans"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm text-black focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all font-sans"
             />
             <button
               type="submit"
               disabled={!inputText.trim()}
-              className="bg-[#0075c9] text-white px-8 rounded-2xl font-bold hover:bg-[#005ea6] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              className="bg-brand-blue text-white px-8 rounded-2xl font-bold hover:bg-brand-blue-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               Senden
               <Send className="w-4 h-4" />

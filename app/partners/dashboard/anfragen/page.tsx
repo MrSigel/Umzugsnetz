@@ -212,7 +212,7 @@ export default function MarketplacePage() {
               </div>
               <div className="flex justify-between border-t border-slate-200 pt-3">
                 <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Preis</span>
-                <span className="text-lg font-black text-[#0075c9]">€{getLeadPrice(pricingConfig, partner?.category, confirmOrder.service_category).toFixed(2)}</span>
+                <span className="text-lg font-black text-brand-blue">€{getLeadPrice(pricingConfig, partner?.category, confirmOrder.service_category).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Kunden-Schätzpreis</span>
@@ -229,7 +229,7 @@ export default function MarketplacePage() {
               <button onClick={() => setConfirmOrder(null)} className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-colors">
                 Abbrechen
               </button>
-              <button onClick={handlePurchaseConfirm} className="flex-1 py-3 bg-[#0075c9] text-white rounded-2xl font-bold text-sm hover:bg-[#005ea6] transition-colors shadow-lg shadow-blue-500/20">
+              <button onClick={handlePurchaseConfirm} className="flex-1 py-3 bg-brand-blue text-white rounded-2xl font-bold text-sm hover:bg-brand-blue-hover transition-colors shadow-lg shadow-brand-blue/20">
                 Jetzt kaufen
               </button>
             </div>
@@ -241,7 +241,7 @@ export default function MarketplacePage() {
         <div>
           <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Marktplatz</h1>
           <p className="text-slate-400 font-medium text-sm flex items-center gap-2">
-            Tarif: <span className="text-[#0075c9] font-bold">{partner?.category || 'Lädt...'}</span>
+            Tarif: <span className="text-brand-blue font-bold">{partner?.category || 'Lädt...'}</span>
             <span className="w-1 h-1 bg-slate-300 rounded-full" />
             Guthaben: <span className="font-bold text-slate-600">€{Number(partner?.balance || 0).toFixed(2)}</span>
           </p>
@@ -281,7 +281,7 @@ export default function MarketplacePage() {
             placeholder="Stadt, PLZ oder Leistung..."
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none focus:border-[#0075c9] transition-all text-black"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none focus:border-brand-blue transition-all text-black"
           />
         </div>
       </div>
@@ -289,7 +289,7 @@ export default function MarketplacePage() {
       <div className="space-y-6">
         {loading ? (
           <div className="p-20 flex flex-col items-center justify-center bg-white rounded-[2.5rem] border border-slate-100">
-            <RefreshCw className="w-8 h-8 animate-spin mb-4 text-[#0075c9]" />
+            <RefreshCw className="w-8 h-8 animate-spin mb-4 text-brand-blue" />
             <p className="text-slate-400 italic text-sm">Lade Marktplatz...</p>
           </div>
         ) : filteredOrders.length > 0 ? (
@@ -299,11 +299,11 @@ export default function MarketplacePage() {
               const isPurchasing = purchasing === order.id;
 
               return (
-                <motion.div key={order.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all overflow-hidden flex flex-col group">
+                <motion.div key={order.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-brand-blue/10 transition-all overflow-hidden flex flex-col group">
                   <div className="p-8 flex-1">
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${order.service_category === 'ENTRÜMPELUNG' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${order.service_category === 'ENTRÜMPELUNG' ? 'bg-emerald-50 text-emerald-600' : 'bg-brand-blue-soft text-brand-blue'}`}>
                           {order.service_category === 'ENTRÜMPELUNG' ? <Package className="w-6 h-6" /> : <Truck className="w-6 h-6" />}
                         </div>
                         <div>
@@ -311,7 +311,7 @@ export default function MarketplacePage() {
                             {order.von_city}{order.nach_city ? ` → ${order.nach_city}` : ''}
                           </h3>
                           <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                            <span className={order.service_category === 'ENTRÜMPELUNG' ? 'text-emerald-600' : 'text-blue-600'}>
+                            <span className={order.service_category === 'ENTRÜMPELUNG' ? 'text-emerald-600' : 'text-brand-blue'}>
                               {order.service_category}
                             </span>
                           </div>
@@ -356,7 +356,7 @@ export default function MarketplacePage() {
                           <CheckCircle2 className="w-3.5 h-3.5" /> Kontaktdaten freigeschaltet
                         </p>
                         <p className="text-sm font-bold text-slate-800">{order.customer_name}</p>
-                        <p className="text-sm text-[#0075c9] font-medium">{order.customer_email}</p>
+                        <p className="text-sm text-brand-blue font-medium">{order.customer_email}</p>
                         <p className="text-sm text-slate-600 font-medium">{order.customer_phone}</p>
                       </div>
                     )}
@@ -371,7 +371,7 @@ export default function MarketplacePage() {
                       <button
                         onClick={() => setConfirmOrder(order)}
                         disabled={isPurchasing}
-                        className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-[#0075c9] transition-all flex items-center gap-2 shadow-lg shadow-black/5 disabled:opacity-50"
+                        className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-brand-blue transition-all flex items-center gap-2 shadow-lg shadow-black/5 disabled:opacity-50"
                       >
                         {isPurchasing ? (
                           <><RefreshCw className="w-4 h-4 animate-spin" /> Kauft...</>

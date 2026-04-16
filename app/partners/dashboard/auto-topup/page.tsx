@@ -161,17 +161,17 @@ export default function AutoTopupPage() {
                    <button
                     key={mode.id}
                     onClick={() => setLogicMode(mode.id as LogicMode)}
-                    className={`p-6 rounded-3xl border-2 text-left transition-all group ${
-                      logicMode === mode.id 
-                        ? 'border-[#0075c9] bg-blue-50/30' 
+                       className={`p-6 rounded-3xl border-2 text-left transition-all group ${
+                       logicMode === mode.id 
+                        ? 'border-brand-blue bg-brand-blue/5' 
                         : 'border-slate-50 bg-slate-50/50 hover:border-slate-200'
-                    }`}
-                   >
-                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all ${
-                       logicMode === mode.id ? 'bg-[#0075c9] text-white' : 'bg-white text-slate-400 group-hover:text-slate-600'
-                     }`}>
-                        <mode.icon className="w-5 h-5" />
-                     </div>
+                     }`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all ${
+                        logicMode === mode.id ? 'bg-brand-blue text-white' : 'bg-white text-slate-400 group-hover:text-slate-600'
+                      }`}>
+                         <mode.icon className="w-5 h-5" />
+                      </div>
                      <h4 className={`font-bold text-sm mb-1 ${logicMode === mode.id ? 'text-slate-900' : 'text-slate-500'}`}>{mode.label}</h4>
                      <p className="text-[10px] text-slate-400 leading-relaxed font-medium">{mode.desc}</p>
                    </button>
@@ -189,7 +189,7 @@ export default function AutoTopupPage() {
                       type="number" 
                       value={topupAmount}
                       onChange={(e) => setTopupAmount(e.target.value)}
-                      className="w-full bg-white border border-slate-100 rounded-2xl pl-10 pr-6 py-4 text-lg font-black text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all"
+                      className="w-full bg-white border border-slate-100 rounded-2xl pl-10 pr-6 py-4 text-lg font-black text-slate-800 focus:outline-none focus:border-brand-blue transition-all"
                     />
                  </div>
               </div>
@@ -201,10 +201,10 @@ export default function AutoTopupPage() {
                       <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg font-black text-slate-300">€</span>
                       <input 
                         type="number" 
-                        value={thresholdValue}
-                        onChange={(e) => setThresholdValue(e.target.value)}
-                        className="w-full bg-white border border-slate-100 rounded-2xl pl-10 pr-6 py-4 text-lg font-black text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all"
-                      />
+                         value={thresholdValue}
+                         onChange={(e) => setThresholdValue(e.target.value)}
+                         className="w-full bg-white border border-slate-100 rounded-2xl pl-10 pr-6 py-4 text-lg font-black text-slate-800 focus:outline-none focus:border-brand-blue transition-all"
+                       />
                   </div>
                 </motion.div>
               )}
@@ -218,10 +218,10 @@ export default function AutoTopupPage() {
                       </span>
                       <input 
                         type="number" 
-                        value={topupInterval}
-                        onChange={(e) => setTopupInterval(e.target.value)}
-                        className="w-full bg-white border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-lg font-black text-slate-800 focus:outline-none focus:border-[#0075c9] transition-all"
-                      />
+                         value={topupInterval}
+                         onChange={(e) => setTopupInterval(e.target.value)}
+                         className="w-full bg-white border border-slate-100 rounded-2xl pl-12 pr-6 py-4 text-lg font-black text-slate-800 focus:outline-none focus:border-brand-blue transition-all"
+                       />
                   </div>
                 </motion.div>
               )}
@@ -235,7 +235,7 @@ export default function AutoTopupPage() {
                 className={`px-10 py-5 rounded-2xl font-black text-sm transition-all flex items-center gap-3 shadow-xl ${
                   saved 
                     ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
-                    : 'bg-[#0075c9] text-white hover:bg-[#005ea6] shadow-blue-500/20 active:scale-95'
+                    : 'bg-brand-blue text-white hover:bg-brand-blue-hover shadow-brand-blue/20 active:scale-95'
                 }`}
               >
                 {saving ? (

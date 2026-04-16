@@ -136,10 +136,10 @@ export default function RatgeberDetail({ params }: { params: Promise<{ slug: str
       {/* ARTICLE CONTENT */}
       <main className="max-w-4xl mx-auto px-4 py-16">
         <div className="mb-8">
-          <Link href="/#ratgeber" className="inline-flex items-center gap-2 text-slate-500 hover:text-[#00a8f3] transition-colors font-bold text-sm mb-8">
+          <Link href="/#ratgeber" className="inline-flex items-center gap-2 text-slate-500 hover:text-brand-blue transition-colors font-bold text-sm mb-8">
             <ArrowRight className="w-4 h-4 rotate-180" /> Zurück zum Ratgeber
           </Link>
-          <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-blue-50 border border-blue-100 text-[#00a8f3] text-xs font-bold uppercase tracking-widest">
+          <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-brand-blue-soft border border-brand-blue/20 text-brand-blue text-xs font-bold uppercase tracking-widest">
             {article.tag}
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-[#1e293b] leading-tight mb-8">
@@ -192,7 +192,7 @@ export default function RatgeberDetail({ params }: { params: Promise<{ slug: str
                     type="text"
                     value={contactForm.firstName}
                     onChange={(event) => setContactForm((currentForm) => ({ ...currentForm, firstName: event.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors"
                     placeholder="Max"
                     required
                   />
@@ -203,7 +203,7 @@ export default function RatgeberDetail({ params }: { params: Promise<{ slug: str
                     type="text"
                     value={contactForm.lastName}
                     onChange={(event) => setContactForm((currentForm) => ({ ...currentForm, lastName: event.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors"
                     placeholder="Mustermann"
                     required
                   />
@@ -212,14 +212,14 @@ export default function RatgeberDetail({ params }: { params: Promise<{ slug: str
               
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700">E-Mail Adresse</label>
-                <input
-                  type="email"
-                  value={contactForm.email}
-                  onChange={(event) => setContactForm((currentForm) => ({ ...currentForm, email: event.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors"
-                  placeholder="max@beispiel.de"
-                  required
-                />
+                  <input
+                    type="email"
+                    value={contactForm.email}
+                    onChange={(event) => setContactForm((currentForm) => ({ ...currentForm, email: event.target.value }))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors"
+                    placeholder="max@beispiel.de"
+                    required
+                  />
               </div>
 
               <div className="space-y-2">
@@ -228,13 +228,13 @@ export default function RatgeberDetail({ params }: { params: Promise<{ slug: str
                   rows={4}
                   value={contactForm.message}
                   onChange={(event) => setContactForm((currentForm) => ({ ...currentForm, message: event.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00a8f3] transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors"
                   placeholder="Ihre Anfrage an uns..."
                   required
                 />
               </div>
 
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={submitting} className="w-full bg-[#00a8f3] flex justify-center items-center gap-2 text-white px-8 py-4 rounded-xl font-bold hover:bg-[#0092d6] transition-colors disabled:opacity-60">
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={submitting} className="w-full bg-brand-blue flex justify-center items-center gap-2 text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-blue-hover transition-colors disabled:opacity-60">
                 {submitting ? 'Wird gesendet...' : 'Nachricht senden'} <Send className="w-5 h-5" />
               </motion.button>
             </form>

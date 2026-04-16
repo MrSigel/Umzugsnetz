@@ -81,7 +81,7 @@ export default function PartnerDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function PartnerDashboard() {
         <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col justify-between h-48 group">
           <div className="flex justify-between items-start">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Verfügbares Guthaben</span>
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0075c9] flex items-center justify-center group-hover:bg-[#0075c9] group-hover:text-white transition-all">
+            <div className="w-10 h-10 rounded-xl bg-brand-blue-soft text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-all">
               <Wallet className="w-5 h-5" />
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function PartnerDashboard() {
               €{Number(partner?.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
             </h3>
             <button onClick={() => router.push('/partners/dashboard/finanzen')}
-              className="w-full mt-4 bg-[#0075c9] text-white py-2.5 rounded-full font-bold text-xs hover:bg-[#005ea6] transition-all shadow-lg shadow-blue-500/10">
+              className="w-full mt-4 bg-brand-blue text-white py-2.5 rounded-full font-bold text-xs hover:bg-brand-blue-hover transition-all shadow-lg shadow-brand-blue/10">
               Guthaben & Finanzen
             </button>
           </div>
@@ -210,11 +210,11 @@ export default function PartnerDashboard() {
         <div className="p-8 border-b border-slate-50 flex items-center justify-between">
           <h3 className="text-lg font-bold text-slate-800">Letzte Transaktionen</h3>
           <div className="flex items-center gap-3">
-            <button onClick={fetchData} className="p-2 text-slate-400 hover:text-[#0075c9] transition-colors">
+            <button onClick={fetchData} className="p-2 text-slate-400 hover:text-brand-blue transition-colors">
               <RefreshCw className="w-4 h-4" />
             </button>
             <button onClick={() => router.push('/partners/dashboard/finanzen')}
-              className="text-xs font-bold text-slate-400 hover:text-[#0075c9] transition-colors uppercase tracking-widest">
+              className="text-xs font-bold text-slate-400 hover:text-brand-blue transition-colors uppercase tracking-widest">
               Alle anzeigen →
             </button>
           </div>
@@ -230,7 +230,7 @@ export default function PartnerDashboard() {
               Ihr Transaktionsverlauf erscheint hier, sobald Sie Kundenaufträge im Marktplatz kaufen oder Guthaben erhalten.
             </p>
             <button onClick={() => router.push('/partners/dashboard/anfragen')}
-              className="mt-6 px-6 py-3 bg-[#0075c9] text-white rounded-2xl font-bold text-sm hover:bg-[#005ea6] transition-all shadow-lg shadow-blue-500/10">
+              className="mt-6 px-6 py-3 bg-brand-blue text-white rounded-2xl font-bold text-sm hover:bg-brand-blue-hover transition-all shadow-lg shadow-brand-blue/10">
               Zum Marktplatz
             </button>
           </div>

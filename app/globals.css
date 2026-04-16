@@ -10,6 +10,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand colors */
+  --color-brand-blue: #005ea6;
+  --color-brand-blue-hover: #004b85;
+  --color-brand-blue-2: #0b6bbf;
+  --color-brand-blue-3: #1c78cc;
+  --color-brand-blue-soft: #e8f2ff;
+
+  --color-brand-green: #00b67a;
+  --color-brand-green-hover: #009968;
 }
 
 @media (prefers-color-scheme: dark) {

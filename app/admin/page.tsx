@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4 font-sans">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#0075c9] via-[#00b67a] to-[#0075c9]"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-blue via-brand-green to-brand-blue"></div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -123,7 +123,7 @@ export default function AdminLoginPage() {
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-100 mb-4">
-            <ShieldCheck className="w-8 h-8 text-[#0075c9]" />
+            <ShieldCheck className="w-8 h-8 text-brand-blue" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Admin Portal</h1>
           <p className="text-slate-500 mt-2">
@@ -171,7 +171,7 @@ export default function AdminLoginPage() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 focus:border-[#0075c9] transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-slate-900"
                     placeholder="admin"
                     required
                   />
@@ -186,7 +186,7 @@ export default function AdminLoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 focus:border-[#0075c9] transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-slate-900"
                     placeholder="••••••••"
                     required
                   />
@@ -216,7 +216,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#0075c9] hover:bg-[#005ea6] text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
+                className="w-full bg-brand-blue hover:bg-brand-blue-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-blue/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -238,7 +238,7 @@ export default function AdminLoginPage() {
                     type="text"
                     value={registerUsername}
                     onChange={(e) => setRegisterUsername(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 focus:border-[#0075c9] transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-slate-900"
                     placeholder="admin"
                     required
                   />
@@ -253,7 +253,7 @@ export default function AdminLoginPage() {
                     type="password"
                     value={registerPassword}
                     onChange={(e) => setRegisterPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 focus:border-[#0075c9] transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-slate-900"
                     placeholder="Mindestens 8 Zeichen"
                     required
                   />
@@ -268,7 +268,7 @@ export default function AdminLoginPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 focus:border-[#0075c9] transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-slate-900"
                     placeholder="Passwort wiederholen"
                     required
                   />
@@ -283,7 +283,7 @@ export default function AdminLoginPage() {
                     type="text"
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 focus:border-[#0075c9] transition-all text-slate-900"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-slate-900"
                     placeholder="Einladungscode eingeben"
                     required
                   />

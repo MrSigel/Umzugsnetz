@@ -14,11 +14,10 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const c_primary = theme === 'green' ? '#00b67a' : '#00a8f3';
-  const c_hover = theme === 'green' ? '#009968' : '#0092d6';
-  const bg_class = theme === 'green' ? 'bg-[#00b67a]' : 'bg-[#00a8f3]';
-  const text_hoverClass = theme === 'green' ? 'hover:text-[#00b67a]' : 'hover:text-[#00a8f3]';
-  const text_activeClass = theme === 'green' ? 'text-[#00b67a]' : 'text-[#00a8f3]';
+  const c_primary = theme === 'green' ? '#00b67a' : '#005ea6';
+  const bg_class = theme === 'green' ? 'bg-brand-green' : 'bg-brand-blue';
+  const text_hoverClass = theme === 'green' ? 'hover:text-brand-green' : 'hover:text-brand-blue';
+  const text_activeClass = theme === 'green' ? 'text-brand-green' : 'text-brand-blue';
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText('kontakt@umzugsnetz.de');
@@ -49,7 +48,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
           </div>
           <div className="w-px h-4 bg-white/40 flex-shrink-0" />
           <div className="relative group flex items-center">
-            <button onClick={handleCopyEmail} className="flex items-center gap-2 whitespace-nowrap hover:text-blue-100 transition-colors cursor-pointer focus:outline-none">
+            <button onClick={handleCopyEmail} className="flex items-center gap-2 whitespace-nowrap hover:text-white/90 transition-colors cursor-pointer focus:outline-none">
               <Mail className="w-4 h-4 flex-shrink-0" />
               <span>kontakt@umzugsnetz.de</span>
             </button>
@@ -166,9 +165,9 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
 
 export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
   
-  const bg_class = theme === 'green' ? 'bg-[#004d33]' : 'bg-[#0075c9]';
+  const bg_class = theme === 'green' ? 'bg-[#004d33]' : 'bg-brand-blue';
   const text_highlight = theme === 'green' ? 'text-[#00ff9d]' : 'text-[#00ff9d]';
-  const hover_bg = theme === 'green' ? 'hover:text-[#004d33]' : 'hover:text-[#0075c9]';
+  const hover_bg = theme === 'green' ? 'hover:text-[#004d33]' : 'hover:text-brand-blue';
 
   const handleServiceClick = (service?: string) => {
     // If not on home page, use standard link with hash

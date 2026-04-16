@@ -108,7 +108,7 @@ export default function PartnerRegisterPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0075c9] to-[#00b67a] flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
               <ShieldCheck className="w-10 h-10" />
             </div>
           </Link>
@@ -130,11 +130,11 @@ export default function PartnerRegisterPage() {
           <form onSubmit={handleRegister} className="space-y-5">
             <div className="relative">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-              <input 
-                type="text" required placeholder="Firmenname"
-                value={form.firmenname} onChange={e => setForm({...form, firmenname: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
-              />
+                <input 
+                  type="text" required placeholder="Firmenname"
+                  value={form.firmenname} onChange={e => setForm({...form, firmenname: e.target.value})}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
+                />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -143,7 +143,7 @@ export default function PartnerRegisterPage() {
                 <input 
                   type="text" required placeholder="Ihr Name"
                   value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
                 />
               </div>
               <div className="relative">
@@ -151,7 +151,7 @@ export default function PartnerRegisterPage() {
                 <input 
                   type="tel" required placeholder="Telefon"
                   value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
                 />
               </div>
             </div>
@@ -161,7 +161,7 @@ export default function PartnerRegisterPage() {
               <input 
                 type="email" required placeholder="E-Mail Adresse"
                 value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
               />
             </div>
 
@@ -170,7 +170,7 @@ export default function PartnerRegisterPage() {
               <input 
                 type="password" required placeholder="Passwort wählen"
                 value={form.password} onChange={e => setForm({...form, password: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
               />
             </div>
 
@@ -189,14 +189,14 @@ export default function PartnerRegisterPage() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0075c9] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-[#005ea6] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {loading ? 'Wird erstellt...' : 'Konto erstellen'} <ArrowRight className="w-5 h-5" />
             </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-500 font-medium">
-            Bereits Partner? <Link href="/partners/login" className="text-[#0075c9] font-bold hover:underline">Hier einloggen</Link>
+            Bereits Partner? <Link href="/partners/login" className="text-brand-blue font-bold hover:underline">Hier einloggen</Link>
           </p>
         </motion.div>
       </div>

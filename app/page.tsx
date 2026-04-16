@@ -145,27 +145,27 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             {/* Badge 1 */}
             <motion.div 
               whileHover={{ y: -3, boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)" }}
-              className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-blue-100 flex items-center gap-2 cursor-default transition-colors shadow-sm"
+              className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-brand-blue/20 flex items-center gap-2 cursor-default transition-colors shadow-sm"
             >
-              <Award className="w-5 h-5 text-[#00a8f3]" />
+              <Award className="w-5 h-5 text-brand-blue" />
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Bester Service</span>
             </motion.div>
 
             {/* Badge 2 */}
             <motion.div 
               whileHover={{ y: -3, boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)" }}
-              className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-blue-100 flex items-center gap-2 cursor-default transition-colors shadow-sm"
+              className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-brand-blue/20 flex items-center gap-2 cursor-default transition-colors shadow-sm"
             >
-              <ShieldCheck className="w-5 h-5 text-[#00a8f3]" />
+              <ShieldCheck className="w-5 h-5 text-brand-blue" />
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">100% Sicher</span>
             </motion.div>
 
             {/* Badge 3 */}
             <motion.div 
               whileHover={{ y: -3, boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)" }}
-              className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-blue-100 flex items-center gap-2 cursor-default transition-colors shadow-sm"
+              className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-brand-blue/20 flex items-center gap-2 cursor-default transition-colors shadow-sm"
             >
-              <BadgeCheck className="w-5 h-5 text-[#00a8f3]" />
+              <BadgeCheck className="w-5 h-5 text-brand-blue" />
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Geprüfte Firmen</span>
             </motion.div>
           </motion.div>
@@ -180,7 +180,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               In unter 2 Minuten Angebote für <br />
               
               <span className="inline-block transition-all duration-300 hover:scale-105 hover:drop-shadow-md cursor-default origin-left">
-                <span className="text-[#00a8f3]">Umzug</span> & <span className="text-[#00b67a]">Entrümpelung</span>
+                 <span className="text-brand-blue">Umzug</span> & <span className="text-[#00b67a]">Entrümpelung</span>
               </span> <br />
               
               vergleichen und sparen.
@@ -200,7 +200,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 <p className="text-lg md:text-xl text-slate-800 font-medium mb-3 leading-relaxed max-w-xl">
                   Vergleichen Sie kostenlos Angebote geprüfter Umzugs- und Entrümpelungsunternehmen aus Ihrer Region.
                 </p>
-                <p className="text-md font-bold text-[#00a8f3]">
+                <p className="text-md font-bold text-brand-blue">
                   Über 6.000 Anfragen deutschlandweit über unsere Plattform
                 </p>
               </div>
@@ -212,7 +212,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[2]" src="/2.jpeg" width={44} height={44} alt="Trustpilot Bewertung 2" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[3]" src="/3.jpeg" width={44} height={44} alt="Trustpilot Bewertung 3" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[4]" src="/4.jpeg" width={44} height={44} alt="Trustpilot Bewertung 4" sizes="44px" />
-                    <div className="w-11 h-11 rounded-full border-2 border-white bg-[#0075c9] text-white flex items-center justify-center text-xl font-bold shadow-sm relative z-[5]">+</div>
+                    <div className="w-11 h-11 rounded-full border-2 border-white bg-brand-blue text-white flex items-center justify-center text-xl font-bold shadow-sm relative z-[5]">+</div>
                   </div>
                 
                 <a 
@@ -238,7 +238,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={(e) => scrollTo(e as any, 'rechner')}
-                  className="w-full bg-[#00a8f3] text-white px-8 md:px-12 py-4 rounded-full font-extrabold text-lg shadow-xl hover:bg-[#0092d6] transition-colors flex items-center justify-center gap-3"
+                  className="w-full bg-brand-blue text-white px-8 md:px-12 py-4 rounded-full font-extrabold text-lg shadow-xl hover:bg-brand-blue-hover transition-colors flex items-center justify-center gap-3"
                 >
                   Jetzt kostenlos anfragen <ChevronRight className="w-6 h-6" />
                 </motion.button>
@@ -257,7 +257,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'privatumzug' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-[#00a8f3]/10 hover:bg-[#00a8f3] border border-[#00a8f3]/20 hover:border-[#00a8f3] backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-brand-blue/10 hover:bg-brand-blue border border-brand-blue/20 hover:border-brand-blue backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -265,8 +265,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
                       className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
                     />
-                    <Calculator className="w-3.5 h-3.5 text-[#00a8f3] group-hover:text-white flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-[#00a8f3] group-hover:text-white leading-tight text-center transition-colors">
+                    <Calculator className="w-3.5 h-3.5 text-brand-blue group-hover:text-white flex-shrink-0 transition-colors" />
+                    <span className="text-[10px] md:text-[11px] font-bold text-brand-blue group-hover:text-white leading-tight text-center transition-colors">
                       Umzugskosten<br/>berechnen
                     </span>
                   </motion.button>
@@ -334,7 +334,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
       <section id="funktion" className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
         
         {/* Dekorative Hintergrund-Elemente (weiche Farbkleckse) */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-100/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-blue/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-100/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -344,11 +344,11 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn}
             className="text-center max-w-3xl mx-auto mb-20"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-[#00a8f3] font-bold text-sm mb-6 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-blue-soft border border-brand-blue/20 text-brand-blue font-bold text-sm mb-6 shadow-sm">
               <Star className="w-4 h-4 fill-current" /> Einfach, schnell & sicher
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-[#1e293b] tracking-tight mb-6">
-              Ihr Umzug in nur <span className="text-[#00a8f3]">3 einfachen Schritten</span>
+              Ihr Umzug in nur <span className="text-brand-blue">3 einfachen Schritten</span>
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed">
               Sparen Sie sich stundenlange Recherche. Teilen Sie uns Ihre Eckdaten mit und wir übernehmen den Rest – komplett kostenlos.
@@ -374,8 +374,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 </div>
                 
                 {/* Icon Container */}
-                <div className="w-20 h-20 bg-blue-50 group-hover:bg-[#00a8f3] transition-colors duration-300 rounded-2xl flex items-center justify-center mb-8 rotate-3 group-hover:rotate-0 shadow-inner">
-                  <ClipboardSignature className="w-10 h-10 text-[#00a8f3] group-hover:text-white transition-colors duration-300" />
+                <div className="w-20 h-20 bg-brand-blue-soft group-hover:bg-brand-blue transition-colors duration-300 rounded-2xl flex items-center justify-center mb-8 rotate-3 group-hover:rotate-0 shadow-inner">
+                  <ClipboardSignature className="w-10 h-10 text-brand-blue group-hover:text-white transition-colors duration-300" />
                 </div>
                 
                 <h3 className="text-2xl font-extrabold text-slate-800 mb-4">Anfrage stellen</h3>
@@ -406,11 +406,11 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.6, delay: 0.5 }}
                 className="group relative bg-white p-8 md:p-10 rounded-[2rem] shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-slate-100 flex flex-col items-center text-center"
               >
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#00a8f3] text-white px-5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest shadow-md">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-blue text-white px-5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest shadow-md">
                   Schritt 3
                 </div>
-                <div className="w-20 h-20 bg-blue-50 group-hover:bg-[#00a8f3] transition-colors duration-300 rounded-2xl flex items-center justify-center mb-8 rotate-3 group-hover:rotate-0 shadow-inner">
-                  <Truck className="w-10 h-10 text-[#00a8f3] group-hover:text-white transition-colors duration-300" />
+                <div className="w-20 h-20 bg-brand-blue-soft group-hover:bg-brand-blue transition-colors duration-300 rounded-2xl flex items-center justify-center mb-8 rotate-3 group-hover:rotate-0 shadow-inner">
+                  <Truck className="w-10 h-10 text-brand-blue group-hover:text-white transition-colors duration-300" />
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-800 mb-4">Vergleichen & Buchen</h3>
                 <p className="text-slate-600 leading-relaxed">
@@ -426,7 +426,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.8 }}
             className="mt-16 text-center"
           >
-            <a href="#rechner" onClick={(e) => scrollTo(e, 'rechner')} className="inline-flex items-center justify-center gap-2 text-[#00a8f3] font-bold hover:text-[#0092d6] transition-colors group">
+            <a href="#rechner" onClick={(e) => scrollTo(e, 'rechner')} className="inline-flex items-center justify-center gap-2 text-brand-blue font-bold hover:text-brand-blue-hover transition-colors group">
               Direkt zum Kostenrechner <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
           </motion.div>
@@ -439,7 +439,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
-              Umzugskosten <span className="text-[#00a8f3]">sofort schätzen</span>
+              Umzugskosten <span className="text-brand-blue">sofort schätzen</span>
             </h2>
             <p className="text-slate-600">Nutzen Sie unseren Schieberegler, um einen ersten Richtwert zu erhalten.</p>
           </div>
@@ -447,7 +447,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
         </div>
       </section>
 {/* PARTNER BEREICH (B2B) */}
-      <section id="partner" className="bg-[#0075c9] py-16 lg:py-20 overflow-hidden">
+  <section id="partner" className="bg-brand-blue py-16 lg:py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             
@@ -463,7 +463,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 Sind Sie ein Umzugs- oder <br className="hidden md:block" />
                 Entrümpelungsunternehmen?
               </h2>
-              <p className="text-blue-50 text-lg md:text-xl font-medium leading-relaxed opacity-90 break-words hyphens-auto">
+              <p className="text-white/90 text-lg md:text-xl font-medium leading-relaxed opacity-90 break-words hyphens-auto">
                 Werden Sie Teil unseres Premium-Netzwerks von über 500 geprüften Partnern und erhalten Sie hochwertige Anfragen direkt in Ihr Postfach.
               </p>
             </motion.div>
@@ -524,8 +524,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               className="lg:col-span-7"
             >
               {/* Kleiner Badge oben */}
-              <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-blue-50 border border-blue-100">
-                <span className="text-xs font-bold text-[#00a8f3] uppercase tracking-widest">Sicherheit & Vertrauen</span>
+              <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-brand-blue-soft border border-brand-blue/20">
+                <span className="text-xs font-bold text-brand-blue uppercase tracking-widest">Sicherheit & Vertrauen</span>
               </div>
               
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1e293b] leading-tight mb-8">
@@ -561,7 +561,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     className="flex gap-6 group"
                   >
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#00a8f3] shadow-sm group-hover:bg-[#00a8f3] group-hover:text-white transition-all duration-300">
+                      <div className="w-12 h-12 rounded-2xl bg-brand-blue-soft flex items-center justify-center text-brand-blue shadow-sm group-hover:bg-brand-blue group-hover:text-white transition-all duration-300">
                         <CheckCircle2 className="w-6 h-6" />
                       </div>
                     </div>
@@ -583,14 +583,14 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               className="lg:col-span-5 relative"
             >
               {/* Dekorativer Hintergrund-Shape */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-blue-100 to-emerald-100 rounded-[3rem] blur-2xl opacity-40 -z-10"></div>
+              <div className="absolute -inset-4 bg-gradient-to-tr from-brand-blue/15 to-emerald-100 rounded-[3rem] blur-2xl opacity-40 -z-10"></div>
               
               <div className="bg-white p-1 md:p-2 rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
                 <div className="relative rounded-[2rem] overflow-hidden bg-slate-50 px-8 py-12 text-center">
                   
                   {/* Icon Badge */}
                   <div className="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-8">
-                    <div className="w-12 h-12 bg-[#00a8f3] rounded-xl flex items-center justify-center text-white">
+                    <div className="w-12 h-12 bg-brand-blue rounded-xl flex items-center justify-center text-white">
                       <MapPin className="w-6 h-6" />
                     </div>
                   </div>
@@ -642,26 +642,26 @@ setTimeout(() => setCopyStatus('idle'), 2000);
       
       {/* LINKS: Titel & Support */}
       <div className="lg:w-1/3">
-        <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-blue-100/50 border border-blue-200 text-[#00a8f3] text-xs font-bold uppercase tracking-widest">
+        <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-brand-blue/10 border border-brand-blue/25 text-brand-blue text-xs font-bold uppercase tracking-widest">
           Fragen & Antworten
         </div>
         <h2 className="text-4xl font-black text-[#1e293b] leading-tight mb-6">
-          Häufig gestellte <br/><span className="text-[#00a8f3]">Fragen</span>
+          Häufig gestellte <br/><span className="text-brand-blue">Fragen</span>
         </h2>
         <p className="text-slate-600 mb-10">
           Noch Zweifel? Hier finden Sie schnelle Antworten auf die wichtigsten Fragen zu unserem Service.
         </p>
 
-        <div className="bg-[#0075c9] p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+        <div className="bg-brand-blue p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8"></div>
           <div className="relative z-10 text-white">
             <h4 className="text-xl font-bold mb-2">Noch Fragen?</h4>
-            <p className="text-blue-100 text-sm mb-8">
+            <p className="text-white/80 text-sm mb-8">
               Unser Support-Team ist werktags von 09:00 bis 18:00 Uhr persönlich für Sie da.
             </p>
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('openChat'))}
-              className="w-full bg-white text-[#0075c9] py-4 rounded-2xl font-bold text-sm hover:bg-blue-50 transition-colors uppercase cursor-pointer"
+              className="w-full bg-white text-brand-blue py-4 rounded-2xl font-bold text-sm hover:bg-brand-blue/10 transition-colors uppercase cursor-pointer"
             >
               Support kontaktieren
             </button>
@@ -701,15 +701,15 @@ setTimeout(() => setCopyStatus('idle'), 2000);
           const isOpen = activeFaq === item.id;
 
           return (
-            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm transition-all hover:border-blue-200">
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm transition-all hover:border-brand-blue/30">
               <button 
                 onClick={() => setActiveFaq(isOpen ? null : item.id)}
                 className="w-full p-6 text-left flex justify-between items-center gap-4 focus:outline-none"
               >
-                <span className={`font-bold text-lg transition-colors ${isOpen ? 'text-[#00a8f3]' : 'text-slate-800'}`}>
+                <span className={`font-bold text-lg transition-colors ${isOpen ? 'text-brand-blue' : 'text-slate-800'}`}>
                   {item.q}
                 </span>
-                <ChevronDown className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#00a8f3]' : 'text-slate-400'}`} />
+                <ChevronDown className={`w-6 h-6 transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-blue' : 'text-slate-400'}`} />
               </button>
               
               <AnimatePresence>
@@ -747,11 +747,11 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               viewport={{ once: true }}
               className="max-w-2xl"
             >
-              <div className="inline-block px-4 py-1.5 mb-4 rounded-full bg-blue-50 border border-blue-100 text-[#00a8f3] text-xs font-bold uppercase tracking-widest">
+              <div className="inline-block px-4 py-1.5 mb-4 rounded-full bg-brand-blue-soft border border-brand-blue/20 text-brand-blue text-xs font-bold uppercase tracking-widest">
                 Ratgeber
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-[#1e293b] leading-tight mb-4">
-                Wissen für Ihren <span className="text-[#00a8f3]">Umzug</span>
+                Wissen für Ihren <span className="text-brand-blue">Umzug</span>
               </h2>
               <p className="text-lg text-slate-600">
                 Profitieren Sie von unseren Experten-Tipps für eine stressfreie Planung und Durchführung Ihres Vorhabens.
@@ -818,13 +818,13 @@ setTimeout(() => setCopyStatus('idle'), 2000);
 
                   {/* Text-Inhalt */}
                   <div className="px-2">
-                    <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-[#00a8f3] transition-colors leading-snug">
+                    <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-brand-blue transition-colors leading-snug">
                       {article.title}
                     </h3>
                     <p className="text-slate-600 text-sm leading-relaxed mb-4 line-clamp-2">
                       {article.desc}
                     </p>
-                    <div className="flex items-center gap-2 text-[#00a8f3] text-sm font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-brand-blue text-sm font-bold uppercase tracking-wider">
                       Weiterlesen <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
@@ -838,7 +838,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
 {/* FINAL CALL TO ACTION & SHARE */}
       <section className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
         {/* Dekorative Hintergrund-Elemente für Tiefe */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-100/30 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/10 rounded-full blur-3xl -z-10"></div>
         
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div
@@ -849,7 +849,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
           >
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#1e293b] leading-tight mb-8">
               Bereit für einen <br />
-              <span className="text-[#00a8f3]">stressfreien Umzug?</span>
+              <span className="text-brand-blue">stressfreien Umzug?</span>
             </h2>
             
             <p className="text-lg md:text-xl text-slate-600 mb-12 leading-relaxed max-w-2xl mx-auto">
@@ -883,7 +883,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   { icon: Twitter, label: "X", action: 'x', color: "hover:text-black hover:bg-black/5" },
                   { icon: MessageCircle, label: "WhatsApp", action: 'whatsapp', color: "hover:text-[#25D366] hover:bg-[#25D366]/10" },
                   { icon: Instagram, label: "Instagram", action: 'instagram', color: "hover:text-[#E4405F] hover:bg-[#E4405F]/10" },
-                  { icon: Send, label: "E-Mail", action: 'email', color: "hover:text-[#00a8f3] hover:bg-[#00a8f3]/10" },
+                  { icon: Send, label: "E-Mail", action: 'email', color: "hover:text-brand-blue hover:bg-brand-blue/10" },
                   { icon: Link2, label: "Link kopieren", action: 'copy', color: "hover:text-slate-900 hover:bg-slate-200" }
                 ].map((social, idx) => (
                   <motion.button
@@ -912,20 +912,20 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div 
-      className={`bg-white rounded-2xl border transition-all duration-300 ${
-        isOpen ? 'border-blue-200 shadow-xl' : 'border-slate-200 hover:border-blue-200 shadow-sm'
+      <div 
+        className={`bg-white rounded-2xl border transition-all duration-300 ${
+        isOpen ? 'border-brand-blue/30 shadow-xl' : 'border-slate-200 hover:border-brand-blue/30 shadow-sm'
       }`}
     >
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="w-full p-6 text-left flex justify-between items-center gap-4 focus:outline-none"
       >
-        <span className={`text-lg font-bold transition-colors ${isOpen ? 'text-[#00a8f3]' : 'text-slate-800'}`}>
+        <span className={`text-lg font-bold transition-colors ${isOpen ? 'text-brand-blue' : 'text-slate-800'}`}>
           {question}
         </span>
         <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-          isOpen ? 'rotate-180 bg-[#00a8f3] text-white' : 'bg-slate-100 text-slate-400'
+          isOpen ? 'rotate-180 bg-brand-blue text-white' : 'bg-slate-100 text-slate-400'
         }`}>
           <ChevronDown className="w-5 h-5" />
         </div>

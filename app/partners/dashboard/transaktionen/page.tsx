@@ -97,7 +97,7 @@ export default function TransactionsPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
@@ -137,7 +137,7 @@ export default function TransactionsPage() {
               </h3>
             </div>
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
-              card.color === 'blue' ? 'bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white' :
+              card.color === 'blue' ? 'bg-brand-blue-soft text-brand-blue group-hover:bg-brand-blue group-hover:text-white' :
               card.color === 'emerald' ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white' :
               'bg-slate-50 text-slate-500 group-hover:bg-slate-800 group-hover:text-white'
             }`}>
@@ -158,7 +158,7 @@ export default function TransactionsPage() {
               <Download className="w-3.5 h-3.5" /> Export
             </button>
             <Link href="/partners/dashboard/finanzen">
-              <button className="flex items-center gap-2 px-6 py-3 bg-[#0075c9] text-white rounded-xl text-xs font-bold hover:bg-[#005ea6] transition-all shadow-lg shadow-blue-500/10 active:scale-95">
+              <button className="flex items-center gap-2 px-6 py-3 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-brand-blue-hover transition-all shadow-lg shadow-brand-blue/10 active:scale-95">
                 <Plus className="w-4 h-4" />
                 Guthaben aufladen
               </button>
@@ -172,7 +172,7 @@ export default function TransactionsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" placeholder="Transaktionen durchsuchen..." value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-[#0075c9] transition-all text-black" />
+              className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-brand-blue transition-all text-black" />
           </div>
           <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
             className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:outline-none cursor-pointer">
@@ -244,7 +244,7 @@ export default function TransactionsPage() {
               {!searchTerm && typeFilter === 'Alle' && (
                 <div className="mt-8 flex gap-3">
                   <Link href="/partners/dashboard/finanzen">
-                    <button className="px-6 py-2.5 bg-[#0075c9] text-white rounded-xl text-xs font-bold hover:bg-[#005ea6] transition-all">
+                    <button className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-brand-blue-hover transition-all">
                       Guthaben aufladen
                     </button>
                   </Link>

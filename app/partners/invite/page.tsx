@@ -60,7 +60,7 @@ export default function PartnerInviteAcceptPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
-        <div className="w-10 h-10 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -69,7 +69,7 @@ export default function PartnerInviteAcceptPage() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
         <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-10 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0075c9] to-[#00b67a] flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white mb-6">
             <ShieldCheck className="w-10 h-10" />
           </div>
           <h1 className="text-2xl font-black text-slate-800">Einladung nicht aktiv</h1>
@@ -77,7 +77,7 @@ export default function PartnerInviteAcceptPage() {
             Der Einladungslink ist abgelaufen oder wurde bereits verwendet. Bitte melden Sie sich an oder lassen Sie sich erneut einladen.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
-            <Link href="/partners/login" className="px-6 py-3 bg-[#0075c9] text-white rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-[#005ea6] transition-colors">
+            <Link href="/partners/login" className="px-6 py-3 bg-brand-blue text-white rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-brand-blue-hover transition-colors">
               Zum Login
             </Link>
           </div>
@@ -91,7 +91,7 @@ export default function PartnerInviteAcceptPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0075c9] to-[#00b67a] flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
               <ShieldCheck className="w-10 h-10" />
             </div>
           </Link>
@@ -111,7 +111,7 @@ export default function PartnerInviteAcceptPage() {
                 placeholder="Neues Passwort (min. 8 Zeichen)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
               />
             </div>
 
@@ -123,14 +123,14 @@ export default function PartnerInviteAcceptPage() {
                 placeholder="Passwort bestätigen"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-[#0075c9] transition-all font-medium text-black"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-[#0075c9] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 hover:bg-[#005ea6] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {submitting ? 'Wird gespeichert...' : 'Passwort setzen'} <ArrowRight className="w-5 h-5" />
             </button>
@@ -140,4 +140,3 @@ export default function PartnerInviteAcceptPage() {
     </div>
   );
 }
-

@@ -89,14 +89,14 @@ export default function TeamPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-             <ShieldCheck className="w-7 h-7 text-[#0075c9]" />
+             <ShieldCheck className="w-7 h-7 text-brand-blue" />
              Team-Verwaltung
           </h2>
           <p className="text-sm text-slate-500 mt-1">Verwalten Sie interne Mitarbeiter und Administratoren.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#0075c9] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#005ea6] transition-all flex items-center gap-2 shadow-lg shadow-blue-500/10 group"
+          className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition-all flex items-center gap-2 shadow-lg shadow-brand-blue/10 group"
         >
           <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
           Mitglied hinzufügen
@@ -133,7 +133,7 @@ export default function TeamPage() {
                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
                       member.role === 'ADMIN' 
                         ? 'bg-amber-50 text-amber-600 border border-amber-100' 
-                        : 'bg-blue-50 text-blue-600 border border-blue-100'
+                        : 'bg-brand-blue-soft text-brand-blue border border-brand-blue/20'
                     }`}>
                       {member.role === 'ADMIN' ? 'Administrator' : 'Mitarbeiter'}
                     </span>
@@ -180,7 +180,7 @@ export default function TeamPage() {
               <div className="p-5 sm:p-8">
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#0075c9]">
+                    <div className="w-12 h-12 rounded-2xl bg-brand-blue-soft flex items-center justify-center text-brand-blue">
                       <UserPlus className="w-6 h-6" />
                     </div>
                     <div>
@@ -204,7 +204,7 @@ export default function TeamPage() {
                         value={newEmail}
                         onChange={(e) => setNewEmail(e.target.value)}
                         placeholder="mitarbeiter@umzugsnetz.de"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-medium"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium"
                       />
                     </div>
                   </div>
@@ -217,7 +217,7 @@ export default function TeamPage() {
                         onClick={() => setNewRole('EMPLOYEE')}
                         className={`p-4 rounded-2xl border transition-all flex flex-col gap-2 items-center ${
                           newRole === 'EMPLOYEE' 
-                            ? 'bg-blue-50 border-[#0075c9] text-[#0075c9]' 
+                            ? 'bg-brand-blue-soft border-brand-blue text-brand-blue' 
                             : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
                         }`}
                       >
@@ -249,7 +249,7 @@ export default function TeamPage() {
                     </button>
                     <button 
                       type="submit"
-                      className="flex-1 px-6 py-4 bg-[#0075c9] text-white rounded-2xl font-bold hover:bg-[#005ea6] shadow-lg shadow-blue-500/20 transition-all"
+                      className="flex-1 px-6 py-4 bg-brand-blue text-white rounded-2xl font-bold hover:bg-brand-blue-hover shadow-lg shadow-brand-blue/20 transition-all"
                     >
                       Speichern
                     </button>

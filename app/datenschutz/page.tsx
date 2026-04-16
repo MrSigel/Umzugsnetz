@@ -28,7 +28,7 @@ export default function DatenschutzPage() {
             
             <section>
               <h2 className="text-2xl font-black mb-4 flex items-center gap-3">
-                <Lock className="w-6 h-6 text-[#00a8f3]" /> 1. Datenschutz auf einen Blick
+                <Lock className="w-6 h-6 text-brand-blue" /> 1. Datenschutz auf einen Blick
               </h2>
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 italic text-slate-600">
                 Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
@@ -49,7 +49,7 @@ export default function DatenschutzPage() {
 
             <section>
               <h2 className="text-2xl font-black mb-4 flex items-center gap-3">
-                <Eye className="w-6 h-6 text-[#00a8f3]" /> 2. Allgemeine Hinweise und Pflichtinformationen
+                <Eye className="w-6 h-6 text-brand-blue" /> 2. Allgemeine Hinweise und Pflichtinformationen
               </h2>
               <h3 className="text-xl font-bold mb-4">Hinweis zur verantwortlichen Stelle</h3>
               <div className="text-slate-600 leading-relaxed pl-4 border-l-4 border-emerald-500 py-2">
@@ -63,7 +63,7 @@ export default function DatenschutzPage() {
 
             <section>
               <h2 className="text-2xl font-black mb-4 flex items-center gap-3">
-                <CheckCircle2 className="w-6 h-6 text-[#00a8f3]" /> 3. Datenerfassung im Kostenrechner
+                <CheckCircle2 className="w-6 h-6 text-brand-blue" /> 3. Datenerfassung im Kostenrechner
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 Wenn Sie unseren Kostenrechner nutzen, werden die von Ihnen eingegebenen Daten (z. B. Wohnfläche, Adressen, Name, Telefonnummer, E-Mail) zum Zweck der Angebotserstellung an bis zu 5 qualifizierte Partnerunternehmen in unserem Netzwerk weitergeleitet. Dies erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen).
@@ -72,7 +72,7 @@ export default function DatenschutzPage() {
 
             <section>
               <h2 className="text-2xl font-black mb-4 flex items-center gap-3">
-                <ShieldCheck className="w-6 h-6 text-[#00a8f3]" /> 4. Cookies
+                <ShieldCheck className="w-6 h-6 text-brand-blue" /> 4. Cookies
               </h2>
               <p className="text-slate-600 leading-relaxed mb-4">
                 Unsere Internetseiten verwenden so genannte „Cookies“. Cookies sind kleine Textdateien und richten auf Ihrem Endgerät keinen Schaden an. Sie werden entweder vorübergehend für die Dauer einer Sitzung (Session-Cookies) oder dauerhaft (permanente Cookies) auf Ihrem Endgerät gespeichert.

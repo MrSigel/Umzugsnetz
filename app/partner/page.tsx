@@ -77,7 +77,7 @@ export default function PartnerPage() {
       <SiteHeader activeNav="partner" theme="blue" />
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0075c9] via-[#0093e0] to-[#00a8f3] text-white py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-blue-hover via-brand-blue to-brand-blue-3 text-white py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-80px] right-[-120px] w-[500px] h-[500px] bg-white/5 rounded-full" />
           <div className="absolute bottom-[-60px] left-[-80px] w-[350px] h-[350px] bg-white/5 rounded-full" />
@@ -114,7 +114,7 @@ export default function PartnerPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-[#00a8f3]">Umzugsnetz-Partner</span> werden?</h2>
+            <h2 className="text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz-Partner</span> werden?</h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">Profitieren Sie von unserem deutschlandweiten Netzwerk und erhalten Sie regelmäßig neue Aufträge.</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -122,10 +122,10 @@ export default function PartnerPage() {
               <motion.div
                 key={title}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }}
-                className="group bg-slate-50 hover:bg-[#00a8f3] rounded-[2rem] p-8 transition-all duration-300 cursor-default border-2 border-transparent hover:border-[#00a8f3] hover:shadow-2xl"
+                className="group bg-slate-50 hover:bg-brand-blue rounded-[2rem] p-8 transition-all duration-300 cursor-default border-2 border-transparent hover:border-brand-blue hover:shadow-2xl"
               >
-                <div className="w-14 h-14 rounded-2xl bg-[#00a8f3]/10 group-hover:bg-white/20 flex items-center justify-center mb-6 transition-colors">
-                  <Icon className="w-7 h-7 text-[#00a8f3] group-hover:text-white transition-colors" />
+                <div className="w-14 h-14 rounded-2xl bg-brand-blue/10 group-hover:bg-white/20 flex items-center justify-center mb-6 transition-colors">
+                  <Icon className="w-7 h-7 text-brand-blue group-hover:text-white transition-colors" />
                 </div>
                 <h3 className="text-xl font-black text-slate-800 group-hover:text-white mb-3 transition-colors">{title}</h3>
                 <p className="text-slate-500 group-hover:text-white/80 text-sm leading-relaxed transition-colors">{desc}</p>
@@ -142,12 +142,12 @@ export default function PartnerPage() {
 
             {/* LEFT - Info */}
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-              <div className="inline-flex items-center gap-2 bg-[#00a8f3]/10 border border-[#00a8f3]/20 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-widest text-[#00a8f3] mb-8">
+              <div className="inline-flex items-center gap-2 bg-brand-blue/10 border border-brand-blue/20 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-widest text-brand-blue mb-8">
                 Jetzt starten
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-[#1e293b] leading-tight mb-6">
                 Starten Sie hier<br />
-                <span className="text-[#00a8f3]">kostenlos durch</span>
+                <span className="text-brand-blue">kostenlos durch</span>
               </h2>
               <p className="text-slate-500 text-lg mb-10 leading-relaxed">
                 Füllen Sie das Formular aus und wir melden uns innerhalb von 24 Stunden bei Ihnen. Nach der Freischaltung erhalten Sie sofort Zugang zu Kundenanfragen aus Ihrer Region.
@@ -179,7 +179,7 @@ export default function PartnerPage() {
                     { icon: Building2, label: 'Firmenumzüge' },
                   ].map(({ icon: Icon, label }) => (
                     <div key={label} className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border border-slate-200 flex-1 text-center">
-                      <Icon className="w-6 h-6 text-[#00a8f3]" />
+                      <Icon className="w-6 h-6 text-brand-blue" />
                       <span className="text-xs font-bold text-slate-600">{label}</span>
                     </div>
                   ))}
@@ -197,8 +197,8 @@ export default function PartnerPage() {
                     className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-10"
                   >
                     <div className="flex items-center gap-3 mb-8">
-                      <div className="p-3 bg-[#00a8f3]/10 rounded-2xl">
-                        <BadgeCheck className="w-7 h-7 text-[#00a8f3]" />
+                      <div className="p-3 bg-brand-blue/10 rounded-2xl">
+                        <BadgeCheck className="w-7 h-7 text-brand-blue" />
                       </div>
                       <div>
                         <h3 className="text-2xl font-black text-[#1e293b]">Partner werden</h3>
@@ -213,7 +213,7 @@ export default function PartnerPage() {
                           <input
                             type="text" value={form.firmenname} onChange={e => handleChange('firmenname', e.target.value)}
                             placeholder="z. B. Müller Umzüge GmbH"
-                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
+                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
                           />
                         </div>
                         <div>
@@ -221,7 +221,7 @@ export default function PartnerPage() {
                           <input
                             type="text" value={form.name} onChange={e => handleChange('name', e.target.value)}
                             placeholder="Max Mustermann"
-                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
+                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
                           />
                         </div>
                       </div>
@@ -234,7 +234,7 @@ export default function PartnerPage() {
                             <input
                               type="text" value={form.standort} onChange={e => handleChange('standort', e.target.value)}
                               placeholder="z. B. Berlin"
-                              className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl pl-10 pr-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
+                              className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl pl-10 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
                             />
                           </div>
                         </div>
@@ -243,7 +243,7 @@ export default function PartnerPage() {
                           <div className="relative">
                             <select
                               value={form.radius} onChange={e => handleChange('radius', e.target.value)}
-                              className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-bold text-black appearance-none cursor-pointer text-sm"
+                              className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-bold text-black appearance-none cursor-pointer text-sm"
                             >
                               {RADIUS_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
                             </select>
@@ -258,7 +258,7 @@ export default function PartnerPage() {
                           <input
                             type="email" value={form.email} onChange={e => handleChange('email', e.target.value)}
                             placeholder="z. B. max@firma.de"
-                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
+                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
                           />
                         </div>
                         <div>
@@ -266,7 +266,7 @@ export default function PartnerPage() {
                           <input
                             type="tel" value={form.telefon} onChange={e => handleChange('telefon', e.target.value)}
                             placeholder="z. B. 0171 1234567"
-                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
+                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
                           />
                         </div>
                       </div>
@@ -276,7 +276,7 @@ export default function PartnerPage() {
                         <div className="relative">
                           <select
                             value={form.dienstleistung} onChange={e => handleChange('dienstleistung', e.target.value)}
-                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#00a8f3] transition-colors font-medium text-black appearance-none cursor-pointer text-sm"
+                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black appearance-none cursor-pointer text-sm"
                           >
                             {SERVICES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                           </select>
@@ -284,7 +284,7 @@ export default function PartnerPage() {
                         </div>
                       </div>
 
-                      <div className="bg-[#00a8f3]/5 border border-[#00a8f3]/15 rounded-2xl p-4">
+                      <div className="bg-brand-blue/5 border border-brand-blue/15 rounded-2xl p-4">
                         <p className="text-slate-600 text-sm leading-relaxed">
                           Nach Ihrer Freischaltung können Sie im Dashboard Ihre Testphase starten und bis zu 5 Kundeanfragen in Ihrer Region kostenfrei erhalten. Abhängig von Menge und Verfügbarkeit.
                         </p>
@@ -293,12 +293,12 @@ export default function PartnerPage() {
                       <label className="flex items-start gap-3 cursor-pointer group">
                         <div
                           onClick={() => setDatenschutz(!datenschutz)}
-                          className={`w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${datenschutz ? 'bg-[#00a8f3] border-[#00a8f3]' : 'border-slate-300 bg-white group-hover:border-[#00a8f3]/50'}`}
+                          className={`w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${datenschutz ? 'bg-brand-blue border-brand-blue' : 'border-slate-300 bg-white group-hover:border-brand-blue/50'}`}
                         >
                           {datenschutz && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                         </div>
                         <span className="text-slate-500 text-sm leading-relaxed" onClick={() => setDatenschutz(!datenschutz)}>
-                          Ich habe die <Link href="/datenschutz" className="text-[#00a8f3] hover:underline font-semibold">Datenschutzerklärung</Link> gelesen und stimme dieser zu.
+                          Ich habe die <Link href="/datenschutz" className="text-brand-blue hover:underline font-semibold">Datenschutzerklärung</Link> gelesen und stimme dieser zu.
                         </span>
                       </label>
 
@@ -332,7 +332,7 @@ export default function PartnerPage() {
                         }}
                         className={`w-full py-5 rounded-2xl font-extrabold text-lg flex items-center justify-center gap-3 transition-all ${
                           isValid
-                            ? 'bg-[#00a8f3] text-white shadow-xl hover:bg-[#0092d6] cursor-pointer'
+                            ? 'bg-brand-blue text-white shadow-xl hover:bg-brand-blue-hover cursor-pointer'
                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         }`}
                       >
@@ -358,7 +358,7 @@ export default function PartnerPage() {
                       Ihre Anfrage ist eingegangen. Unser Team wird sich innerhalb von <strong className="text-slate-700">24 Stunden</strong> bei Ihnen melden und Sie freischalten.
                     </p>
                     <Link href="/">
-                      <motion.button whileHover={{ scale: 1.02 }} className="inline-flex items-center gap-2 text-[#00a8f3] font-bold hover:text-[#0092d6] transition-colors">
+                      <motion.button whileHover={{ scale: 1.02 }} className="inline-flex items-center gap-2 text-brand-blue font-bold hover:text-brand-blue-hover transition-colors">
                         <ArrowRight className="w-4 h-4 rotate-180" /> Zurück zur Startseite
                       </motion.button>
                     </Link>

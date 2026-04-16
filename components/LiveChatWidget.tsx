@@ -211,7 +211,7 @@ export default function LiveChatWidget() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[350px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
           >
-            <div className="bg-gradient-to-r from-[#0075c9] to-[#00b67a] p-4 text-white flex justify-between items-center">
+            <div className="bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white flex justify-between items-center">
               <div>
                 <h3 className="font-bold">Live Support</h3>
                 <p className="text-white/80 text-xs">Wir antworten in der Regel sofort</p>
@@ -227,8 +227,8 @@ export default function LiveChatWidget() {
             <div className="h-[70vh] sm:h-[400px] flex flex-col">
               {step === 'name' ? (
                 <div className="p-6 flex-1 flex flex-col justify-center">
-                  <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <User className="w-8 h-8 text-[#0075c9]" />
+                  <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <User className="w-8 h-8 text-brand-blue" />
                   </div>
                   <h4 className="text-center font-bold text-slate-800 mb-2">Hallo!</h4>
                   <p className="text-center text-sm text-slate-900 mb-6">
@@ -241,7 +241,7 @@ export default function LiveChatWidget() {
                       value={firstName}
                       onChange={(event) => setFirstName(event.target.value)}
                       required
-                      className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#0075c9] transition-colors text-sm text-black placeholder:text-slate-900"
+                      className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-900"
                     />
                     <input
                       type="text"
@@ -249,12 +249,12 @@ export default function LiveChatWidget() {
                       value={lastName}
                       onChange={(event) => setLastName(event.target.value)}
                       required
-                      className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#0075c9] transition-colors text-sm text-black placeholder:text-slate-900"
+                      className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-900"
                     />
                     <button
                       type="submit"
                       disabled={sending}
-                      className="w-full bg-gradient-to-r from-[#0075c9] to-[#00b67a] text-white py-3 rounded-xl font-bold hover:shadow-lg transition-shadow mt-4 disabled:opacity-60"
+                      className="w-full bg-gradient-to-r from-brand-blue to-brand-green text-white py-3 rounded-xl font-bold hover:shadow-lg transition-shadow mt-4 disabled:opacity-60"
                     >
                       {sending ? 'Startet...' : 'Chat starten'}
                     </button>
@@ -268,7 +268,7 @@ export default function LiveChatWidget() {
                         <div
                           className={`max-w-[80%] rounded-2xl p-3 text-sm ${
                             message.sender === 'user'
-                              ? 'bg-[#0075c9] text-white rounded-br-sm'
+                              ? 'bg-brand-blue text-white rounded-br-sm'
                               : 'bg-white border border-slate-100 text-slate-700 rounded-bl-sm shadow-sm'
                           }`}
                         >
@@ -286,12 +286,12 @@ export default function LiveChatWidget() {
                         placeholder="Ihre Nachricht..."
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 focus:outline-none focus:border-[#0075c9] transition-colors text-sm text-black placeholder:text-slate-600"
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-600"
                       />
                       <button
                         type="submit"
                         disabled={!input.trim() || sending}
-                        className="w-10 h-10 flex-shrink-0 bg-[#0075c9] text-white rounded-full flex items-center justify-center hover:bg-[#005ea6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="w-10 h-10 flex-shrink-0 bg-brand-blue text-white rounded-full flex items-center justify-center hover:bg-brand-blue-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <Send className="w-4 h-4 ml-0.5" />
                       </button>
@@ -308,7 +308,7 @@ export default function LiveChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
-        className="ml-auto w-16 h-16 rounded-full bg-gradient-to-r from-[#0075c9] to-[#00b67a] shadow-2xl flex items-center justify-center text-white relative focus:outline-none"
+        className="ml-auto w-16 h-16 rounded-full bg-gradient-to-r from-brand-blue to-brand-green shadow-2xl flex items-center justify-center text-white relative focus:outline-none"
       >
         {isOpen ? <X className="w-7 h-7" /> : <MessageCircle className="w-7 h-7" />}
         {!isOpen && hasUnreadReply && (

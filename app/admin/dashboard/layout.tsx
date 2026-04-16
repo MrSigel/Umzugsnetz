@@ -180,7 +180,7 @@ export default function AdminDashboardLayout({
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -210,7 +210,7 @@ export default function AdminDashboardLayout({
           {/* Logo/Toggle Section */}
           <div className={`p-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
             {!isCollapsed && (
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0075c9] to-[#00b67a] flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white shadow-lg shadow-brand-blue/20">
                 <ShieldCheck className="w-6 h-6" />
               </div>
             )}
@@ -222,7 +222,7 @@ export default function AdminDashboardLayout({
             </button>
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:text-[#0075c9] hover:bg-white hover:shadow-sm transition-all shadow-inner"
+              className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:text-brand-blue hover:bg-white hover:shadow-sm transition-all shadow-inner"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -244,11 +244,11 @@ export default function AdminDashboardLayout({
                       href={item.href}
                       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group relative ${
                         isActive 
-                          ? 'bg-gradient-to-r from-[#0075c9] to-[#00b67a] text-white shadow-lg shadow-blue-500/20' 
+                          ? 'bg-gradient-to-r from-brand-blue to-brand-green text-white shadow-lg shadow-brand-blue/20' 
                           : 'text-slate-600 hover:bg-slate-50'
                       } ${isCollapsed ? 'justify-center' : ''}`}
                     >
-                      <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#0075c9]'}`} />
+                      <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-brand-blue'}`} />
                       {!isCollapsed && <span className="font-bold text-sm tracking-tight">{item.label}</span>}
                       {item.badge && !isActive && !isCollapsed && (
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
@@ -297,7 +297,7 @@ export default function AdminDashboardLayout({
 
           <div className="hidden lg:block">
             <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
-              <div className="w-1.5 h-6 bg-[#0075c9] rounded-full"></div>
+              <div className="w-1.5 h-6 bg-brand-blue rounded-full"></div>
               {navGroups.flatMap(g => g.items).find(item => pathname === item.href)?.label || 'Dashboard'}
             </h1>
           </div>
@@ -305,9 +305,9 @@ export default function AdminDashboardLayout({
           <div className="flex items-center gap-4">
             {/* Notification Bell */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all relative ${isNotifOpen ? 'bg-blue-50 text-blue-600 ring-2 ring-blue-100' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-[#0075c9]'}`}
+                className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all relative ${isNotifOpen ? 'bg-brand-blue-soft text-brand-blue ring-2 ring-brand-blue/20' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-brand-blue'}`}
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -336,7 +336,7 @@ export default function AdminDashboardLayout({
                      >
                       <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                         <h3 className="font-bold text-slate-800">Benachrichtigungen</h3>
-                        <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest">{unreadCount} Neu</span>
+                        <span className="text-[10px] font-black text-brand-blue bg-brand-blue-soft px-2 py-1 rounded-full uppercase tracking-widest">{unreadCount} Neu</span>
                       </div>
                       <div className="max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar">
                         {notifications.length > 0 ? (
@@ -348,10 +348,10 @@ export default function AdminDashboardLayout({
                                 if (n.link) router.push(n.link);
                                 setIsNotifOpen(false);
                               }}
-                              className={`w-full p-4 text-left border-b border-slate-50 hover:bg-slate-50 transition-colors relative flex gap-4 ${!n.is_read ? 'bg-blue-50/30' : ''}`}
+                              className={`w-full p-4 text-left border-b border-slate-50 hover:bg-slate-50 transition-colors relative flex gap-4 ${!n.is_read ? 'bg-brand-blue/5' : ''}`}
                             >
                               <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                                n.type === 'NEW_ORDER' ? 'bg-blue-100 text-blue-600' : 
+                                n.type === 'NEW_ORDER' ? 'bg-brand-blue/10 text-brand-blue' : 
                                 n.type === 'NEW_PARTNER' || n.type === 'PARTNER_APPLICATION' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'
                               }`}>
                                 {n.type === 'NEW_ORDER' ? <ClipboardList className="w-5 h-5" /> : 
@@ -362,7 +362,7 @@ export default function AdminDashboardLayout({
                                 <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">{n.message}</p>
                                 <p className="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-wider">{new Date(n.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</p>
                               </div>
-                              {!n.is_read && <span className="absolute top-4 right-4 w-2 h-2 bg-blue-500 rounded-full"></span>}
+                              {!n.is_read && <span className="absolute top-4 right-4 w-2 h-2 bg-brand-blue rounded-full"></span>}
                             </button>
                           ))
                         ) : (
@@ -375,7 +375,7 @@ export default function AdminDashboardLayout({
                         )}
                       </div>
                       <button 
-                        className="w-full p-4 text-xs font-bold text-slate-400 hover:text-blue-600 transition-colors border-t border-slate-50 hover:bg-slate-50"
+                        className="w-full p-4 text-xs font-bold text-slate-400 hover:text-brand-blue transition-colors border-t border-slate-50 hover:bg-slate-50"
                         onClick={() => router.push('/admin/dashboard/auftraege')}
                       >
                         Alle Benachrichtigungen anzeigen
@@ -391,10 +391,10 @@ export default function AdminDashboardLayout({
                 <p className="text-sm font-bold text-slate-800 leading-none">{adminName}</p>
                 <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Super Admin</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0075c9] to-[#00b67a] p-[2px]">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-blue to-brand-green p-[2px]">
                 <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
                    <img 
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=0075c9&color=fff`} 
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(adminName)}&background=005ea6&color=fff`} 
                     alt="Admin Avatar"
                     className="w-full h-full object-cover"
                    />

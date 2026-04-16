@@ -30,7 +30,7 @@ function addPresentation(rawTiers: typeof DEFAULT_PRICING_CONFIG.umzug): Editabl
     label: `Kategorie ${index + 1}`,
     price: String(tier.price),
     icon: index === 0 ? Zap : index === 1 ? Star : ShieldCheck,
-    iconColor: index === 0 ? 'text-blue-400' : index === 1 ? 'text-amber-400' : 'text-emerald-400',
+    iconColor: index === 0 ? 'text-brand-blue-2' : index === 1 ? 'text-amber-400' : 'text-emerald-400',
   }));
 }
 
@@ -105,7 +105,7 @@ export default function RevenuePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-[#0075c9] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -119,8 +119,8 @@ export default function RevenuePage() {
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center gap-4 text-blue-700">
-        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-blue-500 flex-shrink-0 shadow-sm">
+      <div className="bg-brand-blue-soft border border-brand-blue/20 rounded-2xl p-4 flex items-center gap-4 text-slate-800">
+        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-brand-blue flex-shrink-0 shadow-sm">
           <Info className="w-5 h-5" />
         </div>
         <p className="text-sm font-medium">
@@ -131,7 +131,7 @@ export default function RevenuePage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <div className="w-10 h-10 rounded-xl bg-brand-blue text-white flex items-center justify-center shadow-lg shadow-brand-blue/20">
               <Truck className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold text-slate-800">Umzug</h3>
@@ -150,7 +150,7 @@ export default function RevenuePage() {
                       type="text"
                       value={tier.name}
                       onChange={(event) => updatePricingField('umzug', tier.id, 'name', event.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-sans"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-sans"
                     />
                   </div>
                   <div className="relative">
@@ -159,7 +159,7 @@ export default function RevenuePage() {
                       type="number"
                       value={tier.price}
                       onChange={(event) => updatePricingField('umzug', tier.id, 'price', event.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-8 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-sans"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-8 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-sans"
                     />
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export default function RevenuePage() {
             <button
               onClick={() => handleSave('umzug')}
               disabled={saving}
-              className="w-full bg-[#0075c9] text-white py-4 rounded-2xl font-bold hover:bg-[#005ea6] transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/10 mt-4 group disabled:opacity-50"
+              className="w-full bg-brand-blue text-white py-4 rounded-2xl font-bold hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/10 mt-4 group disabled:opacity-50"
             >
               <Save className="w-5 h-5 group-hover:scale-110 transition-transform" />
               {saving ? 'Speichern...' : 'Umzug speichern'}
@@ -198,7 +198,7 @@ export default function RevenuePage() {
                       type="text"
                       value={tier.name}
                       onChange={(event) => updatePricingField('entruempelung', tier.id, 'name', event.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-sans"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-sans"
                     />
                   </div>
                   <div className="relative">
@@ -207,7 +207,7 @@ export default function RevenuePage() {
                       type="number"
                       value={tier.price}
                       onChange={(event) => updatePricingField('entruempelung', tier.id, 'price', event.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-8 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0075c9]/10 transition-all font-sans"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-8 pr-4 py-4 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-sans"
                     />
                   </div>
                 </div>

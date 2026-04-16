@@ -18,7 +18,7 @@ export default function ImpressumPage() {
           className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 md:p-16"
         >
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-[#00a8f3]">
+            <div className="w-12 h-12 bg-brand-blue/10 rounded-2xl flex items-center justify-center text-brand-blue">
               <FileText className="w-6 h-6" />
             </div>
             <h1 className="text-4xl font-black text-[#1e293b]">Impressum</h1>
@@ -28,7 +28,7 @@ export default function ImpressumPage() {
             {/* Betreiber */}
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <Building className="w-5 h-5 text-[#00a8f3]" /> Angaben gemäß § 5 TMG
+                <Building className="w-5 h-5 text-brand-blue" /> Angaben gemäß § 5 TMG
               </h2>
               <div className="text-slate-600 space-y-2 leading-relaxed pl-7">
                 <p className="font-bold text-slate-800 text-lg">Umzugsnetz Digital GmbH</p>
@@ -40,7 +40,7 @@ export default function ImpressumPage() {
             {/* Vertretung */}
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#00a8f3]" /> Vertreten durch
+                <FileText className="w-5 h-5 text-brand-blue" /> Vertreten durch
               </h2>
               <div className="text-slate-600 leading-relaxed pl-7">
                 <p>Max Mustermann (Geschäftsführer)</p>
@@ -50,7 +50,7 @@ export default function ImpressumPage() {
             {/* Kontakt */}
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <Mail className="w-5 h-5 text-[#00a8f3]" /> Kontakt
+                <Mail className="w-5 h-5 text-brand-blue" /> Kontakt
               </h2>
               <div className="text-slate-600 space-y-3 leading-relaxed pl-7">
                 <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ export default function ImpressumPage() {
             {/* Registereintrag */}
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <Building className="w-5 h-5 text-[#00a8f3]" /> Registereintrag
+                <Building className="w-5 h-5 text-brand-blue" /> Registereintrag
               </h2>
               <div className="text-slate-600 space-y-2 leading-relaxed pl-7">
                 <p>Eintragung im Handelsregister.</p>
@@ -79,7 +79,7 @@ export default function ImpressumPage() {
             {/* Umsatzsteuer-ID */}
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#00a8f3]" /> Umsatzsteuer-ID
+                <FileText className="w-5 h-5 text-brand-blue" /> Umsatzsteuer-ID
               </h2>
               <div className="text-slate-600 leading-relaxed pl-7">
                 <p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:</p>
@@ -92,7 +92,7 @@ export default function ImpressumPage() {
               <h2 className="text-xl font-bold text-slate-800 mb-4">EU-Streitbeilegung</h2>
               <p className="text-slate-600 leading-relaxed mb-6">
                 Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
-                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-[#00a8f3] hover:underline ml-1">
+                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-brand-blue hover:underline ml-1">
                   https://ec.europa.eu/consumers/odr/
                 </a>.
               </p>

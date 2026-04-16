@@ -28,7 +28,7 @@ export default function AGBPage() {
             
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                <Gavel className="w-5 h-5 text-[#00a8f3]" /> § 1 Geltungsbereich & Dienstleistung
+                <Gavel className="w-5 h-5 text-brand-blue" /> § 1 Geltungsbereich & Dienstleistung
               </h2>
               <p>
                 Die Umzugsnetz Digital GmbH (nachfolgend „Betreiber“) betreibt ein Internetportal zur Vermittlung von Umzugs- und Entrümpelungsdienstleistungen. Der Betreiber tritt ausschließlich als Vermittler zwischen Kunden und Dienstleistern (Partnerunternehmen) auf. Ein Vertrag über die eigentliche Dienstleistung kommt ausschließlich zwischen dem Kunden und dem gewählten Partnerunternehmen zustande.
@@ -37,7 +37,7 @@ export default function AGBPage() {
 
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                <FileCheck className="w-5 h-5 text-[#00a8f3]" /> § 2 Kosten der Vermittlung
+                <FileCheck className="w-5 h-5 text-brand-blue" /> § 2 Kosten der Vermittlung
               </h2>
               <p>
                 Die Nutzung des Portals und die Vermittlung von Anfragen sind für den Kunden vollständig kostenlos und unverbindlich. Die Partnerunternehmen zahlen dem Betreiber eine Gebühr für die Bereitstellung der Leads.
@@ -46,7 +46,7 @@ export default function AGBPage() {
 
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-[#00a8f3]" /> § 3 Haftungsbeschränkung
+                <AlertCircle className="w-5 h-5 text-brand-blue" /> § 3 Haftungsbeschränkung
               </h2>
               <p>
                 Der Betreiber übernimmt keine Gewähr für die Richtigkeit der Angaben der Partnerunternehmen oder die Qualität der von diesen erbrachten Leistungen. Die Haftung des Betreibers ist auf Vorsatz und grobe Fahrlässigkeit beschränkt. Für Schäden, die aus dem Vertragsverhältnis zwischen Kunde und Partnerunternehmen entstehen, haftet der Betreiber nicht.
@@ -55,7 +55,7 @@ export default function AGBPage() {
 
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-3">
-                <Scale className="w-5 h-5 text-[#00a8f3]" /> § 4 Pflichten des Nutzers
+                <Scale className="w-5 h-5 text-brand-blue" /> § 4 Pflichten des Nutzers
               </h2>
               <p>
                 Der Nutzer verpflichtet sich, im Kostenrechner ausschließlich wahrheitsgemäße Angaben zu machen. Die missbräuchliche Nutzung des Portals (z.B. Fake-Anfragen) ist untersagt und kann rechtliche Schritte nach sich ziehen.

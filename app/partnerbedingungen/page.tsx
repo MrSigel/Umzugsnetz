@@ -18,7 +18,7 @@ export default function PartnerbedingungenPage() {
           className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 md:p-16"
         >
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-[#00a8f3]">
+            <div className="w-12 h-12 bg-brand-blue/10 rounded-2xl flex items-center justify-center text-brand-blue">
               <Briefcase className="w-6 h-6" />
             </div>
             <h1 className="text-4xl font-black text-[#1e293b]">Partnerbedingungen</h1>
@@ -31,7 +31,7 @@ export default function PartnerbedingungenPage() {
           <div className="space-y-12">
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <BadgeCheck className="w-5 h-5 text-[#00a8f3]" /> 1. Qualifikation & Prüfung
+                <BadgeCheck className="w-5 h-5 text-brand-blue" /> 1. Qualifikation & Prüfung
               </h2>
               <p className="text-slate-600 leading-relaxed mb-4">
                 Jeder Partner muss über die notwendigen Genehmigungen zur Ausübung seines Gewerbes verfügen. Dies beinhaltet insbesondere:
@@ -52,7 +52,7 @@ export default function PartnerbedingungenPage() {
 
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <ShieldAlert className="w-5 h-5 text-[#00a8f3]" /> 2. Umgang mit Kundendaten
+                <ShieldAlert className="w-5 h-5 text-brand-blue" /> 2. Umgang mit Kundendaten
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 Partner verpflichten sich, die übermittelten Kundenanfragen ausschließlich zum Zweck der Angebotserstellung für das konkrete Projekt zu nutzen. Eine Weitergabe der Daten an Dritte oder eine Nutzung für andere Werbezwecke ist ausdrücklich untersagt und führt zum sofortigen Ausschluss aus dem Netzwerk.
@@ -61,7 +61,7 @@ export default function PartnerbedingungenPage() {
 
             <section>
               <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-[#00a8f3]" /> 3. Feedback & Qualität
+                <CheckCircle2 className="w-5 h-5 text-brand-blue" /> 3. Feedback & Qualität
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 Der Betreiber führt regelmäßige Qualitätskontrollen durch. Erhält ein Partner wiederholt begründete negative Bewertungen durch Kunden, behält sich der Betreiber das Recht vor, die Partnerschaft einseitig zu beenden.
