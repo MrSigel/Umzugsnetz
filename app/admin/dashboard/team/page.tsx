@@ -175,9 +175,9 @@ export default function TeamPage() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl z-[101] overflow-hidden border border-slate-100"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] sm:w-full max-w-md bg-white rounded-3xl sm:rounded-[2.5rem] shadow-2xl z-[101] overflow-hidden border border-slate-100 max-h-[85dvh] overflow-y-auto modal-scrollbar"
             >
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <div className="flex justify-between items-start mb-8">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#0075c9]">

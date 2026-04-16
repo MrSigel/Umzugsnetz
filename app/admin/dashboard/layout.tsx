@@ -28,7 +28,7 @@ export default function AdminDashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [adminName, setAdminName] = useState('Admin User');
   
@@ -189,12 +189,12 @@ export default function AdminDashboardLayout({
     <div className="min-h-screen bg-[#f8fafc] flex">
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
-        {!isSidebarOpen && (
+        {isSidebarOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsSidebarOpen(true)}
+            onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
@@ -285,7 +285,7 @@ export default function AdminDashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-screen">
+      <main className="flex-1 flex flex-col min-h-screen min-w-0">
         {/* Top Header */}
         <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-4 lg:px-8 flex items-center justify-between">
           <button 
@@ -328,12 +328,12 @@ export default function AdminDashboardLayout({
                       className="fixed inset-0 z-40"
                       onClick={() => setIsNotifOpen(false)}
                     />
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
-                    >
+                     <motion.div 
+                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                       animate={{ opacity: 1, y: 0, scale: 1 }}
+                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                       className="absolute right-0 mt-3 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
+                     >
                       <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                         <h3 className="font-bold text-slate-800">Benachrichtigungen</h3>
                         <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest">{unreadCount} Neu</span>

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Network, Mail, MapPin, Phone } from 'lucide-react';
+import { ShieldCheck, Network, Mail, MapPin, Phone, Menu, X } from 'lucide-react';
 
 const Facebook = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const Twitter = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>;
@@ -12,6 +12,7 @@ const Instagram = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/
 /** activeNav: which nav item is highlighted ('startseite' | 'rechner' | 'ratgeber' | 'partner') */
 export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activeNav?: string, theme?: 'blue' | 'green' }) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const c_primary = theme === 'green' ? '#00b67a' : '#00a8f3';
   const c_hover = theme === 'green' ? '#009968' : '#0092d6';
@@ -72,7 +73,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
       </div>
 
       {/* HEADER */}
-      <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-100">
+      <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-100 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center flex-shrink-0">
             <motion.img whileHover={{ scale: 1.05 }} src="/logo_transparent.png" alt="Umzugsnetz Logo" className="h-12 w-auto object-contain" />
@@ -87,14 +88,77 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
             ))}
           </nav>
 
-          <Link href="/#rechner">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-              style={{ backgroundColor: c_primary }}
-              className={`text-white px-8 py-3 rounded-full font-bold shadow-md transition-colors hover:opacity-90`}>
-              Kostenlos anfragen
-            </motion.button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {/* Desktop CTA */}
+            <Link href="/#rechner" className="hidden md:block">
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                style={{ backgroundColor: c_primary }}
+                className={`text-white px-8 py-3 rounded-full font-bold shadow-md transition-colors hover:opacity-90`}>
+                Kostenlos anfragen
+              </motion.button>
+            </Link>
+
+            {/* Mobile Burger */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              aria-label={isMobileMenuOpen ? 'Menü schließen' : 'Menü öffnen'}
+              aria-expanded={isMobileMenuOpen}
+              className="md:hidden w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-100 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="fixed top-20 left-0 right-0 z-50 md:hidden"
+              >
+                <div className="mx-4 sm:mx-6 rounded-3xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
+                  <div className="p-4 space-y-2">
+                    {navLinks.map(({ href, label, key }) => (
+                      <Link
+                        key={key}
+                        href={href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`block px-4 py-3 rounded-2xl font-bold transition-colors ${
+                          activeNav === key ? 'bg-slate-50 text-slate-900' : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="p-4 pt-0">
+                    <Link href="/#rechner" onClick={() => setIsMobileMenuOpen(false)} className="block">
+                      <button
+                        type="button"
+                        style={{ backgroundColor: c_primary }}
+                        className="w-full text-white py-3.5 rounded-2xl font-black shadow-md hover:opacity-95 transition-opacity"
+                      >
+                        Kostenlos anfragen
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </header>
     </>
   );

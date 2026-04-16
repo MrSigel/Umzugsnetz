@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
-import { Send, User, Search, MoreVertical, Phone, Video } from 'lucide-react';
+import { Send, User, Search, MoreVertical, Phone, Video, Menu, X } from 'lucide-react';
 
 interface ChatMessage {
   sender: 'user' | 'admin' | 'bot';
@@ -28,6 +28,7 @@ export default function AdminChatPage() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSessionsOpen, setIsSessionsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -179,11 +180,33 @@ export default function AdminChatPage() {
   const currentSession = sessions.find(s => s.id === activeSessionId);
 
   return (
-    <div className="h-[calc(100vh-160px)] flex bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div className="h-[calc(100dvh-160px)] flex bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden relative">
+      {/* Mobile overlay for sessions */}
+      <AnimatePresence>
+        {isSessionsOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSessionsOpen(false)}
+            className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sessions Sidebar */}
-      <div className="w-80 border-r border-slate-100 flex flex-col">
+      <aside className={`absolute inset-y-0 left-0 w-80 max-w-[85vw] bg-white border-r border-slate-100 flex flex-col z-50 transition-transform duration-300 lg:static lg:translate-x-0 ${isSessionsOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-4 border-b border-slate-50">
-          <div className="relative">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsSessionsOpen(false)}
+              className="lg:hidden w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-100 transition-colors"
+              aria-label="Chatliste schließen"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text" 
@@ -193,6 +216,7 @@ export default function AdminChatPage() {
               className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-[#0075c9]/20 transition-all font-sans"
             />
           </div>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto">
           {filteredSessions.map(session => (
@@ -201,6 +225,7 @@ export default function AdminChatPage() {
               onClick={() => {
                 setActiveSessionId(session.id);
                 setSessions(prev => prev.map(s => s.id === session.id ? { ...s, unread: 0 } : s));
+                setIsSessionsOpen(false);
               }}
               className={`w-full p-4 flex gap-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 text-left ${
                 activeSessionId === session.id ? 'bg-slate-50' : ''
@@ -224,13 +249,21 @@ export default function AdminChatPage() {
             </button>
           ))}
         </div>
-      </div>
+      </aside>
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col bg-slate-50/50">
         {/* Chat Header */}
         <div className="p-4 bg-white border-b border-slate-100 flex justify-between items-center">
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setIsSessionsOpen(true)}
+              className="lg:hidden w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-100 transition-colors"
+              aria-label="Chatliste öffnen"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
             <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0075c9]">
               <User className="w-5 h-5" />
             </div>

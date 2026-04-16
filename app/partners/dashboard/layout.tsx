@@ -29,7 +29,7 @@ export default function PartnerDashboardLayout({
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [partner, setPartner] = useState<any>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -108,19 +108,19 @@ export default function PartnerDashboardLayout({
     <div className="min-h-screen bg-[#f8fafc] flex font-sans">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
-        {!isSidebarOpen && (
+        {isSidebarOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsSidebarOpen(true)}
+            onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 left-0 h-screen bg-white border-r border-slate-200 z-50 transition-all duration-300 ${isSidebarOpen ? 'w-72 translate-x-0' : 'w-0 -translate-x-full lg:translate-x-0 lg:w-20'}`}>
+      <aside className={`fixed lg:sticky top-0 left-0 h-screen bg-white border-r border-slate-200 z-50 transition-all duration-300 w-72 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex flex-col h-full overflow-hidden">
           <div className="p-6 flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0075c9] to-[#00b67a] flex items-center justify-center text-white shadow-lg shadow-blue-500/10 flex-shrink-0">
@@ -140,16 +140,16 @@ export default function PartnerDashboardLayout({
               return (
                 <Link key={item.id} href={item.href} className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all group relative ${isActive ? 'bg-[#0075c9] text-white shadow-lg shadow-blue-500/20' : 'text-slate-600 hover:bg-slate-50'}`}>
                   <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#0075c9]'}`} />
-                  {isSidebarOpen && <span className="font-bold text-sm tracking-tight">{item.label}</span>}
+                  <span className="font-bold text-sm tracking-tight">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
           <div className="p-6 border-t border-slate-100">
-             <button onClick={handleLogout} className={`w-full flex items-center gap-3 px-4 py-3 text-red-500 rounded-xl font-bold transition-all hover:bg-red-50 group ${!isSidebarOpen ? 'justify-center p-3' : ''}`}>
+             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 rounded-xl font-bold transition-all hover:bg-red-50 group">
                <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-               {isSidebarOpen && <span>Abmelden</span>}
+               <span>Abmelden</span>
              </button>
           </div>
         </div>
