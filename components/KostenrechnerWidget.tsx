@@ -67,6 +67,8 @@ const ETAGEN = ['EG', '1. OG', '2. OG', '3. OG', '4. OG+'];
 
 type Step = 'rechner' | 'details' | 'kontakt' | 'success';
 
+const CALCULATOR_STORAGE_KEY = 'umzugsnetz_rechner_state_v1';
+
 function ProgressBar({ step }: { step: Step }) {
   const steps: Step[] = ['rechner', 'details', 'kontakt', 'success'];
   const idx = steps.indexOf(step);
@@ -191,6 +193,43 @@ export default function KostenrechnerWidget() {
 
   const isEntruempelung = selectedService === 'entruempelung';
 
+  const wohnflaecheCost = wohnflaeche * 4.412;
+  const entfernungCost = entfernung * 2.52962;
+  const umzugExtras = [
+    { label: 'Langer Trageweg', active: trageweg, amount: 80 },
+    { label: 'Halteverbotszone', active: halteverbot, amount: 60 },
+    { label: 'Schwere Sondergüter', active: sperrgut, amount: 120 },
+    { label: 'Verpackungsservice', active: verpackung, amount: 200 },
+  ].filter((item) => item.active);
+  const umzugExtrasCost = umzugExtras.reduce((sum, item) => sum + item.amount, 0);
+  const entruempelItemsBreakdown = ENTRUEMPEL_ITEMS
+    .map((item) => ({
+      label: item.label,
+      count: itemCounts[item.id],
+      amount: itemCounts[item.id] * item.pricePerUnit,
+    }))
+    .filter((item) => item.count > 0);
+  const entruempelEtageCost = ETAGEN.indexOf(etage) > 0 && aufzug === 'nein' ? ETAGEN.indexOf(etage) * 30 : 0;
+  const entruempelExtras = [
+    { label: 'Erschwerter Zugang', active: erschwerterZugang, amount: 50 },
+    { label: 'Parkverbot', active: parkverbot, amount: 30 },
+  ].filter((item) => item.active);
+
+  const priceBreakdown = isEntruempelung
+    ? [
+        ...entruempelItemsBreakdown.map((item) => ({
+          label: `${item.label}${item.count > 1 ? ` x${item.count}` : ''}`,
+          amount: item.amount,
+        })),
+        ...(entruempelEtageCost > 0 ? [{ label: 'Etagenzuschlag', amount: entruempelEtageCost }] : []),
+        ...entruempelExtras.map((item) => ({ label: item.label, amount: item.amount })),
+      ]
+    : [
+        { label: 'Wohnfläche', amount: wohnflaecheCost, suffix: `${wohnflaeche} m²` },
+        { label: 'Entfernung', amount: entfernungCost, suffix: `${entfernung} km` },
+        ...umzugExtras.map((item) => ({ label: item.label, amount: item.amount })),
+      ];
+
   // Lausche auf Custom Events und URL-Parameter
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -210,6 +249,109 @@ export default function KostenrechnerWidget() {
     window.addEventListener('openRechner', handler);
     return () => window.removeEventListener('openRechner', handler);
   }, []);
+
+  useEffect(() => {
+    try {
+      const rawValue = localStorage.getItem(CALCULATOR_STORAGE_KEY);
+      if (!rawValue) {
+        return;
+      }
+
+      const saved = JSON.parse(rawValue);
+
+      if (saved.selectedService) setSelectedService(saved.selectedService);
+      if (typeof saved.wohnflaeche === 'number') setWohnflaeche(saved.wohnflaeche);
+      if (typeof saved.entfernung === 'number') setEntfernung(saved.entfernung);
+      if (saved.von) setVon(saved.von);
+      if (saved.nach) setNach(saved.nach);
+      if (saved.datum) setDatum(saved.datum);
+      if (saved.etageAuszug) setEtageAuszug(saved.etageAuszug);
+      if (saved.etageEinzug) setEtageEinzug(saved.etageEinzug);
+      if (saved.aufzugAuszug) setAufzugAuszug(saved.aufzugAuszug);
+      if (saved.aufzugEinzug) setAufzugEinzug(saved.aufzugEinzug);
+      if (typeof saved.trageweg === 'boolean') setTrageweg(saved.trageweg);
+      if (typeof saved.halteverbot === 'boolean') setHalteverbot(saved.halteverbot);
+      if (typeof saved.sperrgut === 'boolean') setSperrgut(saved.sperrgut);
+      if (typeof saved.verpackung === 'boolean') setVerpackung(saved.verpackung);
+      if (saved.umzugNotizen) setUmzugNotizen(saved.umzugNotizen);
+      if (saved.itemCounts) setItemCounts(saved.itemCounts);
+      if (saved.etage) setEtage(saved.etage);
+      if (saved.aufzug) setAufzug(saved.aufzug);
+      if (typeof saved.erschwerterZugang === 'boolean') setErschwerterZugang(saved.erschwerterZugang);
+      if (typeof saved.parkverbot === 'boolean') setParkverbot(saved.parkverbot);
+      if (saved.entruempelNotizen) setEntruempelNotizen(saved.entruempelNotizen);
+      if (saved.vorname) setVorname(saved.vorname);
+      if (saved.nachname) setNachname(saved.nachname);
+      if (saved.email) setEmail(saved.email);
+      if (saved.telefon) setTelefon(saved.telefon);
+      if (saved.erreichbarAb) setErreichbarAb(saved.erreichbarAb);
+      if (saved.kontaktNotizen) setKontaktNotizen(saved.kontaktNotizen);
+    } catch {
+      localStorage.removeItem(CALCULATOR_STORAGE_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    const payload = {
+      selectedService,
+      wohnflaeche,
+      entfernung,
+      von,
+      nach,
+      datum,
+      etageAuszug,
+      etageEinzug,
+      aufzugAuszug,
+      aufzugEinzug,
+      trageweg,
+      halteverbot,
+      sperrgut,
+      verpackung,
+      umzugNotizen,
+      itemCounts,
+      etage,
+      aufzug,
+      erschwerterZugang,
+      parkverbot,
+      entruempelNotizen,
+      vorname,
+      nachname,
+      email,
+      telefon,
+      erreichbarAb,
+      kontaktNotizen,
+    };
+
+    localStorage.setItem(CALCULATOR_STORAGE_KEY, JSON.stringify(payload));
+  }, [
+    selectedService,
+    wohnflaeche,
+    entfernung,
+    von,
+    nach,
+    datum,
+    etageAuszug,
+    etageEinzug,
+    aufzugAuszug,
+    aufzugEinzug,
+    trageweg,
+    halteverbot,
+    sperrgut,
+    verpackung,
+    umzugNotizen,
+    itemCounts,
+    etage,
+    aufzug,
+    erschwerterZugang,
+    parkverbot,
+    entruempelNotizen,
+    vorname,
+    nachname,
+    email,
+    telefon,
+    erreichbarAb,
+    kontaktNotizen,
+  ]);
 
   const estimatedPrice = wohnflaeche === 0 && entfernung === 0
     ? '0,00'
@@ -283,6 +425,7 @@ export default function KostenrechnerWidget() {
       }]);
 
       setStep('success');
+      localStorage.removeItem(CALCULATOR_STORAGE_KEY);
     } catch (err: any) {
       console.error('Fehler beim Senden der Anfrage:', err);
       showToast('error', 'Fehler beim Senden', err.message || 'Bitte versuchen Sie es erneut.');
@@ -328,6 +471,26 @@ export default function KostenrechnerWidget() {
                 <div className="bg-white p-8 rounded-[2rem] shadow-inner border border-slate-100 text-center flex flex-col items-center justify-center min-h-[280px]">
                   <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Geschätzter Festpreis ab</p>
                   <div className="text-5xl md:text-6xl font-black text-brand-blue mb-8 tracking-tight">{estimatedPrice} €</div>
+                  <div className="w-full rounded-[1.5rem] border border-brand-blue/10 bg-brand-blue-soft/40 p-4 text-left mb-6">
+                    <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue mb-3">
+                      <span>Preisaufteilung</span>
+                      <span>Orientierung</span>
+                    </div>
+                    <div className="space-y-2">
+                      {priceBreakdown.slice(0, 3).map((item) => (
+                        <div key={item.label} className="flex items-center justify-between gap-3 text-sm">
+                          <div className="min-w-0">
+                            <span className="font-bold text-slate-700">{item.label}</span>
+                            {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
+                          </div>
+                          <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                      Diese erste Schätzung basiert auf Wohnfläche und Entfernung. Im nächsten Schritt verfeinern Sonderleistungen und Zugangssituation den Preis.
+                    </p>
+                  </div>
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       onClick={() => setStep('details')}
@@ -418,15 +581,30 @@ export default function KostenrechnerWidget() {
                     </div>
 
                     {/* Live Preis */}
-                    <div className="bg-white border-2 border-slate-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+                    <div className="bg-white border-2 border-slate-100 rounded-2xl p-4">
+                      <div className="flex items-center justify-between gap-4">
                       <div>
                         <div className="text-xs font-black text-slate-400 uppercase tracking-wider">Geschätzter Fixpreis</div>
-                        <div className="text-3xl font-black text-[#00b67a]">ab {entruempelPrice.toLocaleString('de-DE')} €</div>
+                        <div className="text-3xl font-black text-brand-blue">ab {entruempelPrice.toLocaleString('de-DE')} €</div>
                         <div className="text-xs text-slate-400 mt-0.5">inkl. Fahrtkosten & fachgerechter Entsorgung</div>
                       </div>
                       <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline">
                         <Info className="w-3.5 h-3.5" /> Live-Kalkulation
                       </button>
+                      </div>
+                      <div className="mt-4 rounded-xl border border-brand-blue/10 bg-brand-blue-soft/35 p-3">
+                        <div className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue">Zusammensetzung</div>
+                        <div className="space-y-2">
+                          {priceBreakdown.length > 0 ? priceBreakdown.map((item) => (
+                            <div key={item.label} className="flex items-center justify-between gap-3 text-sm">
+                              <span className="font-medium text-slate-600">{item.label}</span>
+                              <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE')} €</span>
+                            </div>
+                          )) : (
+                            <div className="text-sm text-slate-500">Wählen Sie Gegenstände oder Zusatzoptionen, um die Schätzung zu verfeinern.</div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 ) : (
@@ -516,10 +694,11 @@ export default function KostenrechnerWidget() {
                     </div>
 
                     {/* Live Preis */}
-                    <div className="bg-white border-2 border-slate-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+                    <div className="bg-white border-2 border-slate-100 rounded-2xl p-4">
+                      <div className="flex items-center justify-between gap-4">
                       <div>
                         <div className="text-xs font-black text-slate-400 uppercase tracking-wider">Aktualisierter Schätzpreis</div>
-                        <div className="text-3xl font-black text-[#00b67a]">
+                        <div className="text-3xl font-black text-brand-blue">
                           ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} €
                         </div>
                         <div className="text-xs text-slate-400 mt-0.5">inkl. ausgewählter Sonderleistungen</div>
@@ -527,6 +706,24 @@ export default function KostenrechnerWidget() {
                       <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline">
                         <Info className="w-3.5 h-3.5" /> Info
                       </button>
+                      </div>
+                      <div className="mt-4 rounded-xl border border-brand-blue/10 bg-brand-blue-soft/35 p-3">
+                        <div className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue">Zusammensetzung</div>
+                        <div className="space-y-2">
+                          {priceBreakdown.map((item) => (
+                            <div key={item.label} className="flex items-center justify-between gap-3 text-sm">
+                              <div className="min-w-0">
+                                <span className="font-medium text-slate-600">{item.label}</span>
+                                {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
+                              </div>
+                              <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                          Der Endpreis wird nach Ihren Detailangaben präziser. Etagen, Aufzug und Zusatzleistungen beeinflussen das Ergebnis direkt.
+                        </p>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -598,6 +795,20 @@ export default function KostenrechnerWidget() {
                     {!isEntruempelung && nach && <div><span className="font-bold text-slate-400">Nach:</span> {nach}</div>}
                     {!isEntruempelung && datum && <div><span className="font-bold text-slate-400">Termin:</span> {new Date(datum).toLocaleDateString('de-DE')}</div>}
                     <div><span className="font-bold text-slate-400">Schätzpreis:</span> ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} €</div>
+                  </div>
+                  <div className="mt-3 rounded-xl bg-white/70 p-3">
+                    <div className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue">Wie sich der Preis zusammensetzt</div>
+                    <div className="space-y-2">
+                      {priceBreakdown.map((item) => (
+                        <div key={item.label} className="flex items-center justify-between gap-3 text-xs">
+                          <div className="min-w-0">
+                            <span className="font-medium text-slate-600">{item.label}</span>
+                            {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
+                          </div>
+                          <span className="font-black text-slate-800">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

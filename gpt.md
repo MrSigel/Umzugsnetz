@@ -28,6 +28,9 @@ Erwarteter Effekt:
 
 ## Etappe 2: Kostenrechner glaubwürdiger machen
 
+Status:
+Erledigt
+
 Ziel:
 Der geschätzte Preis soll nachvollziehbarer und hochwertiger wirken.
 
