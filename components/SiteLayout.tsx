@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -242,12 +242,12 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
         <div className="col-span-1">
           <h4 className="font-bold text-white uppercase tracking-wider mb-6">Kontakt</h4>
           <ul className="space-y-4 text-white/80">
-            <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-white/60" /> Berlin, Deutschland</li>
+            <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-white/60" /> Heinrich Pierson Straße 20</li>
             <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-white/60" /> kontakt@umzugsnetz.de</li>
-            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-white/60" /> 0800 123 456 789</li>
+            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-white/60" /> 01722699945</li>
           </ul>
           <div className="mt-8 text-white/60 text-[10px]">
-            © {new Date().getFullYear()} Umzugsnetz. Alle Rechte vorbehalten.
+            © {new Date().getFullYear()} Umzugsnetz · Dean Zander
           </div>
         </div>
       </div>
@@ -258,8 +258,10 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
       <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-white/10 flex justify-center gap-6 text-white/80 text-xs font-medium">
         <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
         <Link href="/partnerbedingungen" className="hover:text-white transition-colors">Partnerbedingungen</Link>
-        <Link href="/datenschutz" className="hover:text-white transition-colors">Cookies & Datenschutz</Link>
+        <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
+        <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
       </div>
     </footer>
   );
 }
+

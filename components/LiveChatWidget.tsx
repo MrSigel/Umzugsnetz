@@ -202,14 +202,14 @@ export default function LiveChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 z-[100] font-sans">
+    <div className="pointer-events-none fixed bottom-24 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 z-[100] font-sans">
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[350px] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
+            className="pointer-events-auto absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[350px] bg-white/98 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col backdrop-blur-md"
           >
             <div className="bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white flex justify-between items-center">
               <div>
@@ -308,7 +308,7 @@ export default function LiveChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
-        className="ml-auto w-16 h-16 rounded-full bg-gradient-to-r from-brand-blue to-brand-green shadow-2xl flex items-center justify-center text-white relative focus:outline-none"
+        className="pointer-events-auto ml-auto w-16 h-16 rounded-full bg-gradient-to-r from-brand-blue/95 to-brand-green/95 shadow-2xl flex items-center justify-center text-white relative focus:outline-none backdrop-blur-md"
       >
         {isOpen ? <X className="w-7 h-7" /> : <MessageCircle className="w-7 h-7" />}
         {!isOpen && hasUnreadReply && (

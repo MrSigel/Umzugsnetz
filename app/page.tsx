@@ -261,7 +261,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'privatumzug' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-brand-blue/10 hover:bg-brand-blue border border-brand-blue/20 hover:border-brand-blue backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-brand-blue/18 hover:bg-brand-blue border border-brand-blue/30 hover:border-brand-blue backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md md:bg-brand-blue/10 md:border-brand-blue/20"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -286,7 +286,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'entruempelung' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-[#00b67a]/10 hover:bg-[#00b67a] border border-[#00b67a]/20 hover:border-[#00b67a] backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-[#00b67a]/18 hover:bg-[#00b67a] border border-[#00b67a]/30 hover:border-[#00b67a] backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:shadow-md md:bg-[#00b67a]/10 md:border-[#00b67a]/20"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -343,7 +343,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={(e) => scrollTo(e as any, 'rechner')}
-            className="flex-shrink-0 rounded-full bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20"
+            className="pointer-events-auto flex-shrink-0 rounded-full bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20"
           >
             Rechner öffnen
           </motion.button>

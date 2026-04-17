@@ -50,7 +50,9 @@ export default function SettingsPage() {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from('system_settings').upsert({ key, value });
+      const { error } = await supabase
+        .from('system_settings')
+        .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
       if (error) throw error;
 
       showToast('success', 'Einstellung gespeichert', successMessage);

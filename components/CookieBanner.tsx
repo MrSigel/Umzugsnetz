@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,8 +69,8 @@ export default function CookieBanner() {
                 <div className="flex-1 text-center md:text-left">
                   <h3 className="text-xl font-black text-slate-800 mb-2">Ihre Privatsphäre ist uns wichtig</h3>
                   <p className="text-slate-500 text-sm leading-relaxed">
-                    Wir nutzen Cookies, um unsere Website für Sie optimal zu gestalten und fortlaufend zu verbessern. 
-                    Weitere Informationen finden Sie in unserer <Link href="/datenschutz" className="text-brand-blue font-bold hover:underline">Datenschutzerklärung</Link>.
+                    Wir nutzen Cookies, um unsere Website für Sie optimal zu gestalten und fortlaufend zu verbessern.
+                    Weitere Informationen finden Sie in unserer <Link href="/datenschutz" className="text-brand-blue font-bold hover:underline">Datenschutzerklärung</Link> und in unserer <Link href="/cookies" className="text-brand-blue font-bold hover:underline">Cookie-Richtlinie</Link>.
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-3">
@@ -166,3 +166,4 @@ export default function CookieBanner() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -150,7 +150,7 @@ export default function FinancePage() {
     }
 
     if (!finalAmount || finalAmount < minTopupAmount) {
-      showToast('warning', 'Ungültiger Betrag', `Der Mindestbetrag liegt bei €${minTopupAmount.toFixed(2)}.`);
+      showToast('warning', 'UngÃ¼ltiger Betrag', `Der Mindestbetrag liegt bei â‚¬${minTopupAmount.toFixed(2)}.`);
       return;
     }
 
@@ -192,23 +192,35 @@ export default function FinancePage() {
     .filter((transaction) => Number(transaction.amount) > 0)
     .reduce((accumulator, transaction) => accumulator + Number(transaction.amount), 0), [transactions]);
 
+  const averageLeadPrice = useMemo(() => {
+    const purchases = transactions.filter((transaction) => transaction.type === 'LEAD_PURCHASE');
+    if (purchases.length === 0) {
+      return 0;
+    }
+
+    const spent = purchases.reduce((accumulator, transaction) => accumulator + Math.abs(Number(transaction.amount)), 0);
+    return spent / purchases.length;
+  }, [transactions]);
+
+  const lastTopupRequest = useMemo(() => topupRequests[0] || null, [topupRequests]);
+
   const leadPriceLabel = useMemo(() => {
     if (!partner) {
-      return 'Lädt...';
+      return 'LÃ¤dt...';
     }
 
     const movePrice = getLeadPrice(pricingConfig, partner.category, 'PRIVATUMZUG');
-    const clearancePrice = getLeadPrice(pricingConfig, partner.category, 'ENTRÜMPELUNG');
+    const clearancePrice = getLeadPrice(pricingConfig, partner.category, 'ENTRÃœMPELUNG');
 
     if (partner.service === 'UMZUG') {
-      return `€${movePrice.toFixed(2)} pro Umzugsanfrage`;
+      return `â‚¬${movePrice.toFixed(2)} pro Umzugsanfrage`;
     }
 
-    if (partner.service === 'ENTRÜMPELUNG') {
-      return `€${clearancePrice.toFixed(2)} pro Entrümpelungsanfrage`;
+    if (partner.service === 'ENTRÃœMPELUNG') {
+      return `â‚¬${clearancePrice.toFixed(2)} pro EntrÃ¼mpelungsanfrage`;
     }
 
-    return `Umzug €${movePrice.toFixed(2)} / Entrümpelung €${clearancePrice.toFixed(2)}`;
+    return `Umzug â‚¬${movePrice.toFixed(2)} / EntrÃ¼mpelung â‚¬${clearancePrice.toFixed(2)}`;
   }, [partner, pricingConfig]);
 
   if (loading) {
@@ -228,18 +240,22 @@ export default function FinancePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Aktuelles Guthaben</p>
-          <p className="text-3xl font-black text-brand-blue">€{Number(partner?.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+          <p className="text-3xl font-black text-brand-blue">â‚¬{Number(partner?.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
         </div>
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Gesamtausgaben</p>
-          <p className="text-3xl font-black text-red-500">€{totalSpent.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+          <p className="text-3xl font-black text-red-500">â‚¬{totalSpent.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
         </div>
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Gesamtgutschriften</p>
-          <p className="text-3xl font-black text-emerald-500">€{totalReceived.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+          <p className="text-3xl font-black text-emerald-500">â‚¬{totalReceived.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+        </div>
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Ø Leadpreis</p>
+          <p className="text-3xl font-black text-slate-900">â‚¬{averageLeadPrice.toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
         </div>
       </div>
 
@@ -269,7 +285,7 @@ export default function FinancePage() {
                     }`}>Anfrage</div>
                   <div className={`text-xl font-black ${
                     selectedAmount === amount && !customAmount ? 'text-slate-900' : 'text-slate-600'
-                  }`}>€ {amount}</div>
+                  }`}>â‚¬ {amount}</div>
                    {selectedAmount === amount && !customAmount && (
                      <div className="absolute top-2 right-2">
                       <div className="w-5 h-5 bg-brand-blue rounded-full flex items-center justify-center text-white">
@@ -283,10 +299,10 @@ export default function FinancePage() {
 
             <div className="mb-8">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 block">
-                Anderer Betrag (Min. €{minTopupAmount.toFixed(2)})
+                Anderer Betrag (Min. â‚¬{minTopupAmount.toFixed(2)})
               </label>
               <div className="relative group">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-300 group-focus-within:text-brand-blue transition-colors">€</div>
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-300 group-focus-within:text-brand-blue transition-colors">â‚¬</div>
                 <input
                   type="number"
                   placeholder={String(minTopupAmount)}
@@ -301,7 +317,7 @@ export default function FinancePage() {
             <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 mb-6 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-amber-700 font-medium">
-                Statt eines Mock-Buttons wird jetzt eine echte Aufladeanfrage gespeichert. Das Admin-Team prüft diese und bucht das Guthaben anschließend auf Ihr Wallet.
+                Statt eines Mock-Buttons wird jetzt eine echte Aufladeanfrage gespeichert. Das Admin-Team prÃ¼ft diese und bucht das Guthaben anschlieÃŸend auf Ihr Wallet.
               </p>
             </div>
 
@@ -310,7 +326,7 @@ export default function FinancePage() {
               disabled={isTopupLoading || !finalAmount || finalAmount < minTopupAmount}
               className="w-full bg-brand-blue text-white py-6 rounded-[2rem] font-black text-lg shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-hover hover:scale-[1.01] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
-              {isTopupLoading ? 'Wird angefragt...' : `Jetzt €${finalAmount || 0} anfragen`}
+              {isTopupLoading ? 'Wird angefragt...' : `Jetzt â‚¬${finalAmount || 0} anfragen`}
               <CreditCard className="w-6 h-6" />
             </button>
           </div>
@@ -331,7 +347,7 @@ export default function FinancePage() {
                   <tr className="bg-slate-50/50">
                     <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategorie</th>
                     <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Umzug</th>
-                    <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Entrümpelung</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">EntrÃ¼mpelung</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -347,8 +363,8 @@ export default function FinancePage() {
                             <span className="ml-3 text-[9px] bg-brand-blue text-white px-2 py-0.5 rounded-full uppercase tracking-widest">Aktuell</span>
                             )}
                         </td>
-                        <td className="px-8 py-6 text-right font-black text-slate-800">€{moveTier.price.toFixed(2)}</td>
-                        <td className="px-8 py-6 text-right font-black text-slate-800">€{clearanceTier.price.toFixed(2)}</td>
+                        <td className="px-8 py-6 text-right font-black text-slate-800">â‚¬{moveTier.price.toFixed(2)}</td>
+                        <td className="px-8 py-6 text-right font-black text-slate-800">â‚¬{clearanceTier.price.toFixed(2)}</td>
                       </tr>
                     );
                   })}
@@ -412,7 +428,7 @@ export default function FinancePage() {
                           </div>
                         </td>
                         <td className={`px-8 py-5 text-right font-black ${isCredit ? 'text-emerald-500' : 'text-red-500'}`}>
-                          {isCredit ? '+' : '-'}€{Math.abs(Number(transaction.amount)).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
+                          {isCredit ? '+' : '-'}â‚¬{Math.abs(Number(transaction.amount)).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
                     );
@@ -436,17 +452,25 @@ export default function FinancePage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-500 font-medium">Aktuelles Guthaben</span>
-                <span className="text-slate-900 font-bold">€{Number(partner?.balance || 0).toFixed(2)}</span>
+                <span className="text-slate-900 font-bold">â‚¬{Number(partner?.balance || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500 font-medium">Gewählter Betrag</span>
-                <span className="text-emerald-500 font-bold">+ €{finalAmount || 0}</span>
+                <span className="text-slate-500 font-medium">GewÃ¤hlter Betrag</span>
+                <span className="text-emerald-500 font-bold">+ â‚¬{finalAmount || 0}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500 font-medium">Letzte Aufladeanfrage</span>
+                <span className="text-slate-900 font-bold">{lastTopupRequest ? `â‚¬${lastTopupRequest.amount.toFixed(2)}` : 'Noch keine'}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500 font-medium">Ø Leadpreis</span>
+                <span className="text-slate-900 font-bold">â‚¬{averageLeadPrice.toFixed(2)}</span>
               </div>
               <div className="h-px bg-slate-50 my-2" />
               <div className="flex justify-between items-center">
                 <span className="text-slate-900 font-black">Neu Gesamt</span>
                 <span className="text-2xl font-black text-brand-blue">
-                  €{((Number(partner?.balance) || 0) + (finalAmount || 0)).toFixed(2)}
+                  â‚¬{((Number(partner?.balance) || 0) + (finalAmount || 0)).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -458,6 +482,14 @@ export default function FinancePage() {
                 </p>
               </div>
             </div>
+            <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Orientierung</p>
+              <p className="text-sm text-slate-600 font-medium">
+                {Number(partner?.balance || 0) >= Math.max(averageLeadPrice, minTopupAmount)
+                  ? 'Ihr aktuelles Guthaben deckt mindestens einen typischen Leadkauf ab.'
+                  : 'Ihr Guthaben liegt unter Ihrem typischen Leadpreis. Eine neue Aufladung ist sinnvoll.'}
+              </p>
+            </div>
             <div className="flex items-center justify-center gap-2 pt-2">
               <ShieldCheck className="w-4 h-4 text-slate-400" />
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Daten direkt aus Supabase</span>
@@ -468,14 +500,14 @@ export default function FinancePage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl" />
             <div className="flex items-center gap-3 relative z-10">
               <Building className="w-5 h-5 text-brand-blue-2" />
-              <h3 className="text-lg font-bold">Banküberweisung</h3>
+              <h3 className="text-lg font-bold">BankÃ¼berweisung</h3>
             </div>
             <div className="bg-white/5 rounded-3xl p-6 space-y-4 border border-white/10 relative z-10">
               {[
-                { label: 'Empfänger', value: billingSettings.beneficiary },
+                { label: 'EmpfÃ¤nger', value: billingSettings.beneficiary },
                 { label: 'IBAN', value: billingSettings.iban, copyable: true },
                 { label: 'BIC', value: billingSettings.bic, copyable: true },
-                { label: 'Verwendungszweck', value: `Partner-ID: ${partner?.id?.slice(0, 8) || '—'}`, highlight: true },
+                { label: 'Verwendungszweck', value: `Partner-ID: ${partner?.id?.slice(0, 8) || 'â€”'}`, highlight: true },
               ].map((item) => (
                 <div key={item.label}>
                   <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">{item.label}</p>
@@ -507,7 +539,7 @@ export default function FinancePage() {
               ) : topupRequests.map((request) => (
                 <div key={request.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                   <div className="flex items-center justify-between gap-3 mb-2">
-                    <span className="text-sm font-bold text-slate-800">€{request.amount.toFixed(2)}</span>
+                    <span className="text-sm font-bold text-slate-800">â‚¬{request.amount.toFixed(2)}</span>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-widest ${
                       request.status === 'COMPLETED'
                         ? 'bg-emerald-100 text-emerald-600'
@@ -529,3 +561,7 @@ export default function FinancePage() {
     </div>
   );
 }
+
+
+
+

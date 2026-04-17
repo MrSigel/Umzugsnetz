@@ -82,6 +82,9 @@ Erwarteter Effekt:
 
 ## Etappe 4: Partner-Dashboard nÃ¼tzlicher machen
 
+Status:
+Erledigt
+
 Ziel:
 Partner sollen schneller erkennen, welche Leads relevant sind und wie ihre Performance aussieht.
 
@@ -173,5 +176,6 @@ Grund:
 - direkter Einfluss auf Anfragen
 - direkter Einfluss auf Conversion
 - sichtbarster Nutzen fuer Nutzer und Betreiber
+
 
 
