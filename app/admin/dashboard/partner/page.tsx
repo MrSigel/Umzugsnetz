@@ -44,6 +44,7 @@ export default function PartnerNetworkPage() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Alle Status');
+  const [selectedPartnerIds, setSelectedPartnerIds] = useState<string[]>([]);
   const [creditAmount, setCreditAmount] = useState('');
   const [creditReason, setCreditReason] = useState('');
   const [isCrediting, setIsCrediting] = useState(false);
@@ -154,6 +155,12 @@ export default function PartnerNetworkPage() {
     }
   };
 
+  const statusBadgeClasses: Record<string, string> = {
+    ACTIVE: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    PENDING: 'bg-amber-50 text-amber-700 border-amber-200',
+    SUSPENDED: 'bg-red-50 text-red-600 border-red-200',
+  };
+
   async function fetchInviteCodes() {
     try {
       const { data, error } = await supabase
@@ -205,6 +212,57 @@ export default function PartnerNetworkPage() {
     const matchesStatus = statusFilter === 'Alle Status' || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const allFilteredSelected = filteredPartners.length > 0 && filteredPartners.every((partner) => selectedPartnerIds.includes(partner.id));
+
+  const togglePartnerSelection = (partnerId: string) => {
+    setSelectedPartnerIds((prev) =>
+      prev.includes(partnerId) ? prev.filter((id) => id !== partnerId) : [...prev, partnerId],
+    );
+  };
+
+  const toggleSelectAllFiltered = () => {
+    setSelectedPartnerIds((prev) => {
+      if (allFilteredSelected) {
+        return prev.filter((id) => !filteredPartners.some((partner) => partner.id === id));
+      }
+
+      const next = new Set(prev);
+      filteredPartners.forEach((partner) => next.add(partner.id));
+      return Array.from(next);
+    });
+  };
+
+  const handleBulkStatusUpdate = async (status: 'ACTIVE' | 'SUSPENDED') => {
+    if (selectedPartnerIds.length === 0) {
+      showToast('warning', 'Keine Partner ausgewählt', 'Bitte wählen Sie mindestens einen Partner aus.');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('partners')
+        .update({ status, updated_at: new Date().toISOString() })
+        .in('id', selectedPartnerIds);
+
+      if (error) throw error;
+
+      showToast(
+        'success',
+        status === 'ACTIVE' ? 'Partner freigeschaltet' : 'Partner gesperrt',
+        `${selectedPartnerIds.length} Partner wurden aktualisiert.`,
+      );
+
+      setPartners((prev) => prev.map((partner) => (
+        selectedPartnerIds.includes(partner.id)
+          ? { ...partner, status, updated_at: new Date().toISOString() }
+          : partner
+      )));
+      setSelectedPartnerIds([]);
+    } catch (err: any) {
+      showToast('error', 'Bulk-Aktion fehlgeschlagen', err.message);
+    }
+  };
 
   const openApplications = partnerApplications.filter((application) => application.status !== 'ARCHIVED');
 
@@ -512,6 +570,42 @@ export default function PartnerNetworkPage() {
         </div>
       </div>
 
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-5 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Bulk-Aktionen</p>
+          <p className="text-sm text-slate-500 mt-1">
+            {selectedPartnerIds.length > 0
+              ? `${selectedPartnerIds.length} Partner ausgewählt`
+              : 'Mehrere Partner auswählen und gesammelt freischalten oder sperren.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleSelectAllFiltered}
+            className="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider hover:border-brand-blue/20 hover:text-brand-blue transition-colors"
+          >
+            {allFilteredSelected ? 'Auswahl aufheben' : 'Gefilterte wählen'}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkStatusUpdate('ACTIVE')}
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            disabled={selectedPartnerIds.length === 0}
+          >
+            Mehrere freischalten
+          </button>
+          <button
+            type="button"
+            onClick={() => handleBulkStatusUpdate('SUSPENDED')}
+            className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-slate-700 transition-colors disabled:opacity-50"
+            disabled={selectedPartnerIds.length === 0}
+          >
+            Mehrere sperren
+          </button>
+        </div>
+      </div>
+
       {loading ? (
         <div className="flex items-center justify-center h-40">
           <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
@@ -522,6 +616,15 @@ export default function PartnerNetworkPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-50">
+                  <th className="px-6 py-5">
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleSelectAllFiltered}
+                      className="h-4 w-4 rounded border-slate-300 text-brand-blue focus:ring-brand-blue"
+                      aria-label="Alle gefilterten Partner auswählen"
+                    />
+                  </th>
                   <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Unternehmen</th>
                   <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Dienst</th>
                   <th className="px-8 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Status</th>
@@ -532,6 +635,15 @@ export default function PartnerNetworkPage() {
               <tbody className="divide-y divide-slate-50">
                 {filteredPartners.map((partner) => (
                   <tr key={partner.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-6">
+                      <input
+                        type="checkbox"
+                        checked={selectedPartnerIds.includes(partner.id)}
+                        onChange={() => togglePartnerSelection(partner.id)}
+                        className="h-4 w-4 rounded border-slate-300 text-brand-blue focus:ring-brand-blue"
+                        aria-label={`${partner.name} auswählen`}
+                      />
+                    </td>
                     <td className="px-8 py-6">
                       <p className="text-sm font-bold text-slate-800">{partner.name}</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">{partner.email}</p>
@@ -541,9 +653,8 @@ export default function PartnerNetworkPage() {
                       <p className="text-sm font-medium text-slate-600">{partner.service}</p>
                     </td>
                     <td className="px-8 py-6">
-                      <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit ${
-                        partner.status === 'ACTIVE' ? 'bg-[#00b67a]/10 text-[#00b67a]' : 
-                        partner.status === 'PENDING' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-500'
+                      <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full w-fit border ${
+                        statusBadgeClasses[partner.status] || 'bg-slate-100 text-slate-700 border-slate-200'
                       }`}>
                         {partner.status === 'ACTIVE' ? <CheckCircle2 className="w-3.5 h-3.5" /> : 
                          partner.status === 'SUSPENDED' ? <XCircle className="w-3.5 h-3.5" /> :
@@ -575,7 +686,7 @@ export default function PartnerNetworkPage() {
                 ))}
                 {filteredPartners.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-8 py-12 text-center text-slate-400 text-sm italic">
+                    <td colSpan={6} className="px-8 py-12 text-center text-slate-400 text-sm italic">
                       {searchTerm ? 'Keine Partner gefunden.' : 'Noch keine Partner registriert.'}
                     </td>
                   </tr>

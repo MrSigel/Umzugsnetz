@@ -171,6 +171,17 @@ export default function AdminDashboardLayout({
     setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
+  const markAllNotificationsAsRead = async () => {
+    const unreadIds = notifications.filter((notification) => !notification.is_read).map((notification) => notification.id);
+    if (unreadIds.length === 0) {
+      return;
+    }
+
+    await supabase.from('notifications').update({ is_read: true }).in('id', unreadIds);
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, is_read: true })));
+    setUnreadCount(0);
+  };
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -336,7 +347,16 @@ export default function AdminDashboardLayout({
                      >
                       <div className="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                         <h3 className="font-bold text-slate-800">Benachrichtigungen</h3>
-                        <span className="text-[10px] font-black text-brand-blue bg-brand-blue-soft px-2 py-1 rounded-full uppercase tracking-widest">{unreadCount} Neu</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black text-brand-blue bg-brand-blue-soft px-2 py-1 rounded-full uppercase tracking-widest">{unreadCount} Neu</span>
+                          <button
+                            type="button"
+                            onClick={markAllNotificationsAsRead}
+                            className="text-[10px] font-bold text-slate-500 hover:text-brand-blue transition-colors uppercase tracking-widest"
+                          >
+                            Alle lesen
+                          </button>
+                        </div>
                       </div>
                       <div className="max-h-[400px] overflow-y-auto overflow-x-hidden custom-scrollbar">
                         {notifications.length > 0 ? (
