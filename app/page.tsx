@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { 
-Send, Link2, MessageCircle, Building2, Users, X, Info, ChevronRight, CheckCircle2, MapPin, ArrowRight, Star, FileText, Inbox, HeartHandshake, ShieldCheck, Network, Mail, Check, Calculator, Trash2, Award, BadgeCheck, ClipboardSignature, Mails, Truck, Phone
+Send, Link2, MessageCircle, Building2, Users, X, Info, ChevronRight, CheckCircle2, MapPin, ArrowRight, Star, FileText, Inbox, HeartHandshake, ShieldCheck, Network, Mail, Check, Calculator, Trash2, Award, BadgeCheck, ClipboardSignature, Mails, Truck, Phone, Plus
 } from 'lucide-react';
 import { ChevronDown } from 'lucide-react';
 import KostenrechnerWidget from '@/components/KostenrechnerWidget';
@@ -212,7 +212,11 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[2]" src="/2.jpeg" width={44} height={44} alt="Trustpilot Bewertung 2" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[3]" src="/3.jpeg" width={44} height={44} alt="Trustpilot Bewertung 3" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[4]" src="/4.jpeg" width={44} height={44} alt="Trustpilot Bewertung 4" sizes="44px" />
-                    <div className="w-11 h-11 rounded-full border-2 border-white bg-brand-blue text-white flex items-center justify-center text-xl font-bold shadow-sm relative z-[5]">+</div>
+                    <div className="w-11 h-11 rounded-full border-2 border-white bg-brand-blue text-white flex items-center justify-center shadow-sm relative z-[5]">
+                      <div className="w-7 h-7 rounded-full bg-white/12 flex items-center justify-center">
+                        <Plus className="w-4 h-4 stroke-[3]" />
+                      </div>
+                    </div>
                   </div>
                 
                 <a 

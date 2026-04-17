@@ -308,26 +308,26 @@ export default function KostenrechnerWidget() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
                       <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Wohnfläche</label>
-                      <span className="text-2xl font-black text-[#1e293b]">{wohnflaeche} <span className="text-lg font-medium text-slate-400">m²</span></span>
+                      <span className="text-2xl font-black text-brand-blue">{wohnflaeche} <span className="text-lg font-medium text-brand-blue/45">m²</span></span>
                     </div>
                     <input type="range" min="0" max="500" step="5" value={wohnflaeche} onChange={e => setWohnflaeche(+e.target.value)}
-                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-blue" />
+                      className="brand-range w-full cursor-pointer" />
                     <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase"><span>0 m²</span><span>500+ m²</span></div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
                       <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Entfernung</label>
-                      <span className="text-2xl font-black text-[#1e293b]">{entfernung} <span className="text-lg font-medium text-slate-400">km</span></span>
+                      <span className="text-2xl font-black text-brand-blue">{entfernung} <span className="text-lg font-medium text-brand-blue/45">km</span></span>
                     </div>
                     <input type="range" min="0" max="1000" step="10" value={entfernung} onChange={e => setEntfernung(+e.target.value)}
-                      className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-blue" />
+                      className="brand-range w-full cursor-pointer" />
                     <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase"><span>0 km</span><span>1000 km</span></div>
                   </div>
                 </div>
 
                 <div className="bg-white p-8 rounded-[2rem] shadow-inner border border-slate-100 text-center flex flex-col items-center justify-center min-h-[280px]">
                   <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Geschätzter Festpreis ab</p>
-                  <div className="text-5xl md:text-6xl font-black text-[#00b67a] mb-8 tracking-tight">{estimatedPrice} €</div>
+                  <div className="text-5xl md:text-6xl font-black text-brand-blue mb-8 tracking-tight">{estimatedPrice} €</div>
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       onClick={() => setStep('details')}

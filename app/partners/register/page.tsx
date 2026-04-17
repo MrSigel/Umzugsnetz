@@ -104,100 +104,186 @@ export default function PartnerRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-block mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-blue to-brand-green flex items-center justify-center text-white shadow-xl mx-auto ring-4 ring-white">
-              <ShieldCheck className="w-10 h-10" />
-            </div>
-          </Link>
-          <h1 className="text-3xl font-black text-slate-800">Partner werden</h1>
-          <p className="text-slate-500 mt-2 font-medium">Registrieren Sie Ihr Unternehmen</p>
-        </div>
-
-        <motion.div 
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 font-sans text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(28,120,204,0.24),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(0,182,122,0.18),transparent_28%)]" />
+      <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-10"
+          className="w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/8 shadow-[0_35px_90px_rgba(15,23,42,0.45)] backdrop-blur-xl"
         >
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold border border-red-100 italic">
-              {error}
-            </div>
-          )}
+          <div className="grid lg:grid-cols-[1fr_1fr]">
+            <div className="relative min-h-[320px] overflow-hidden lg:min-h-[760px]">
+              <img src="/1.jpeg" alt="Umzugsnetz Partner Registrierung" className="absolute inset-0 h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-950/88 via-brand-blue-hover/66 to-brand-green/52" />
+              <div className="relative z-10 flex h-full flex-col justify-between p-6 sm:p-8 lg:p-10">
+                <Link href="/" className="inline-flex w-max items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-bold text-white/90 transition-colors hover:bg-white/16">
+                  <ShieldCheck className="h-4 w-4" />
+                  Umzugsnetz Partner
+                </Link>
 
-          <form onSubmit={handleRegister} className="space-y-5">
-            <div className="relative">
-              <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                <input 
-                  type="text" required placeholder="Firmenname"
-                  value={form.firmenname} onChange={e => setForm({...form, firmenname: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
-                />
-            </div>
+                <div className="max-w-lg space-y-6 py-12">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.24em] text-white/80">
+                    Premium Netzwerk
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+                      Werden Sie Teil des Umzugsnetz Partnerbereichs.
+                    </h1>
+                    <p className="mt-4 max-w-md text-base leading-relaxed text-white/72 sm:text-lg">
+                      Registrierung, Freischaltcode und Firmendaten sind auf eine einzige hochwertige Oberfläche verdichtet.
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {[
+                      { value: '500+', label: 'Partner' },
+                      { value: 'Live', label: 'Leadfluss' },
+                      { value: 'Smart', label: 'Freischaltung' },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-3xl border border-white/12 bg-white/10 px-4 py-4">
+                        <div className="text-2xl font-black text-white">{item.value}</div>
+                        <div className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-white/65">{item.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                <input 
-                  type="text" required placeholder="Ihr Name"
-                  value={form.name} onChange={e => setForm({...form, name: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
-                />
-              </div>
-              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                <input 
-                  type="tel" required placeholder="Telefon"
-                  value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-              <input 
-                type="email" required placeholder="E-Mail Adresse"
-                value={form.email} onChange={e => setForm({...form, email: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-              <input 
-                type="password" required placeholder="Passwort wählen"
-                value={form.password} onChange={e => setForm({...form, password: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-blue transition-all font-medium text-black"
-              />
-            </div>
-
-            <div className="pt-2 border-t border-slate-50 mt-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Einmal-Freischaltcode</label>
-              <div className="relative">
-                <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
-                <input 
-                  type="text" required placeholder="XXXX-XXXX"
-                  value={form.inviteCode} onChange={e => setForm({...form, inviteCode: e.target.value.toUpperCase()})}
-                  className="w-full bg-amber-50 border-2 border-amber-100 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-amber-500 transition-all font-bold text-amber-900 placeholder:text-amber-200"
-                />
+                <div className="rounded-[1.5rem] border border-white/12 bg-white/10 p-4 sm:p-5">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-white/60">Hinweis</p>
+                  <p className="mt-2 text-sm leading-relaxed text-white/78">
+                    Die Registrierung bleibt geschützt. Erst nach Freigabe im Admin-Dashboard wird der Account aktiv nutzbar.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-brand-blue text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-brand-blue/20 hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-            >
-              {loading ? 'Wird erstellt...' : 'Konto erstellen'} <ArrowRight className="w-5 h-5" />
-            </button>
-          </form>
+            <div className="bg-white p-6 text-slate-900 sm:p-8 lg:p-10">
+              <div className="mx-auto w-full max-w-md">
+                <div className="mb-8">
+                  <div className="inline-flex items-center justify-center rounded-3xl border border-brand-blue/10 bg-brand-blue-soft p-4 shadow-sm">
+                    <ShieldCheck className="h-8 w-8 text-brand-blue" />
+                  </div>
+                  <h2 className="mt-6 text-3xl font-black tracking-tight">Partner werden</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                    Registrieren Sie Ihr Unternehmen und reichen Sie den Freischaltcode direkt im ersten Schritt ein.
+                  </p>
+                </div>
 
-          <p className="mt-8 text-center text-sm text-slate-500 font-medium">
-            Bereits Partner? <Link href="/partners/login" className="text-brand-blue font-bold hover:underline">Hier einloggen</Link>
-          </p>
+                <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-7">
+                  {error && (
+                    <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">
+                      {error}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleRegister} className="space-y-5">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">Firmenname</label>
+                      <div className="relative">
+                        <Building2 className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+                        <input
+                          type="text"
+                          required
+                          placeholder="z. B. Mueller Umzuege GmbH"
+                          value={form.firmenname}
+                          onChange={e => setForm({ ...form, firmenname: e.target.value })}
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700">Ihr Name</label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+                          <input
+                            type="text"
+                            required
+                            placeholder="Max Mustermann"
+                            value={form.name}
+                            onChange={e => setForm({ ...form, name: e.target.value })}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700">Telefon</label>
+                        <div className="relative">
+                          <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+                          <input
+                            type="tel"
+                            required
+                            placeholder="+49 171 1234567"
+                            value={form.phone}
+                            onChange={e => setForm({ ...form, phone: e.target.value })}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">E-Mail Adresse</label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+                        <input
+                          type="email"
+                          required
+                          placeholder="partner@firma.de"
+                          value={form.email}
+                          onChange={e => setForm({ ...form, email: e.target.value })}
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">Passwort</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+                        <input
+                          type="password"
+                          required
+                          placeholder="Passwort waehlen"
+                          value={form.password}
+                          onChange={e => setForm({ ...form, password: e.target.value })}
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="rounded-[1.5rem] border border-amber-100 bg-amber-50 p-4">
+                      <label className="mb-2 block text-[11px] font-black uppercase tracking-[0.22em] text-amber-700">Einmal-Freischaltcode</label>
+                      <div className="relative">
+                        <Key className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
+                        <input
+                          type="text"
+                          required
+                          placeholder="XXXX-XXXX"
+                          value={form.inviteCode}
+                          onChange={e => setForm({ ...form, inviteCode: e.target.value.toUpperCase() })}
+                          className="w-full rounded-2xl border border-amber-200 bg-white px-12 py-4 font-bold text-amber-900 transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex w-full items-center justify-center gap-3 rounded-2xl bg-brand-blue py-4 font-black text-white shadow-xl shadow-brand-blue/20 transition-all hover:bg-brand-blue-hover disabled:opacity-50"
+                    >
+                      {loading ? 'Wird erstellt...' : 'Konto erstellen'} <ArrowRight className="h-5 w-5" />
+                    </button>
+                  </form>
+                </div>
+
+                <p className="mt-6 text-center text-sm font-medium text-slate-500">
+                  Bereits Partner? <Link href="/partners/login" className="font-bold text-brand-blue hover:underline">Hier einloggen</Link>
+                </p>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
