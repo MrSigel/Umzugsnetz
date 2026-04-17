@@ -209,7 +209,7 @@ export default function LiveChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="pointer-events-auto absolute bottom-20 right-0 w-[calc(100vw-2rem)] sm:w-[350px] bg-white/98 rounded-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col backdrop-blur-md"
+            className="pointer-events-auto absolute bottom-20 right-0 flex w-full max-w-none flex-col overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white/98 shadow-2xl backdrop-blur-md max-sm:left-0 max-sm:right-0 max-sm:h-[min(68vh,36rem)] sm:w-[350px] sm:max-w-[350px]"
           >
             <div className="bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white flex justify-between items-center">
               <div>
@@ -224,9 +224,9 @@ export default function LiveChatWidget() {
               </button>
             </div>
 
-            <div className="h-[70vh] sm:h-[400px] flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col sm:h-[400px]">
               {step === 'name' ? (
-                <div className="p-6 flex-1 flex flex-col justify-center">
+                <div className="flex flex-1 flex-col justify-center overflow-y-auto p-5 sm:p-6">
                   <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-6">
                     <User className="w-8 h-8 text-brand-blue" />
                   </div>
@@ -262,11 +262,11 @@ export default function LiveChatWidget() {
                 </div>
               ) : (
                 <>
-                  <div className="p-4 flex-1 overflow-y-auto bg-slate-50 space-y-4">
+                  <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50 p-4 space-y-4">
                     {messages.map((message, index) => (
                       <div key={`${message.sender}-${index}`} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div
-                          className={`max-w-[80%] rounded-2xl p-3 text-sm ${
+                          className={`max-w-[85%] break-words rounded-2xl p-3 text-sm sm:max-w-[80%] ${
                             message.sender === 'user'
                               ? 'bg-brand-blue text-white rounded-br-sm'
                               : 'bg-white border border-slate-100 text-slate-700 rounded-bl-sm shadow-sm'
@@ -279,14 +279,14 @@ export default function LiveChatWidget() {
                     <div ref={scrollRef} />
                   </div>
 
-                  <div className="p-4 bg-white border-t border-slate-100">
+                  <div className="border-t border-slate-100 bg-white p-3 sm:p-4">
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                       <input
                         type="text"
                         placeholder="Ihre Nachricht..."
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-600"
+                        className="min-w-0 flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-600"
                       />
                       <button
                         type="submit"

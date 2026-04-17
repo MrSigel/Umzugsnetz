@@ -203,9 +203,9 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
           </p>
           <div className="flex items-center gap-3 pt-2">
             {[
-              { Icon: Instagram, link: 'https://instagram.com/' },
-              { Icon: Facebook, link: 'https://facebook.com/' },
-              { Icon: Twitter, link: 'https://twitter.com/' }
+              { Icon: Instagram, link: 'https://instagram.com/umzugsnetz' },
+              { Icon: Facebook, link: 'https://facebook.com/umzugsnetz' },
+              { Icon: Twitter, link: 'https://x.com/umzugsnetz' }
             ].map(({ Icon, link }, i) => (
               <a key={i} href={link} target="_blank" rel="noopener noreferrer" className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white ${hover_bg} transition-all`}>
                 <Icon className="w-4 h-4" />
