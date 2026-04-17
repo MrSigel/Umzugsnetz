@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ToastProvider';
 
 type WidgetMessage = {
-  sender: 'bot' | 'user' | 'admin';
+  sender: 'user' | 'admin';
   text: string;
 };
 
@@ -150,7 +150,7 @@ export default function LiveChatWidget() {
     try {
       setSending(true);
       const { error } = await supabase.from('chat_messages').insert([{
-        sender: 'bot',
+        sender: 'admin',
         session_id: sessionId,
         user_name: `${firstName.trim()} ${lastName.trim()}`,
         text: welcomeMessage,
@@ -160,7 +160,7 @@ export default function LiveChatWidget() {
         throw error;
       }
 
-      setMessages([{ sender: 'bot', text: welcomeMessage }]);
+      setMessages([{ sender: 'admin', text: welcomeMessage }]);
       setStep('chat');
     } catch (error: any) {
       showToast('error', 'Chat konnte nicht gestartet werden', error.message);

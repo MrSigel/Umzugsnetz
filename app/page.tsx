@@ -334,6 +334,22 @@ setTimeout(() => setCopyStatus('idle'), 2000);
         </div>
       </section>
 
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl md:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Kostenlos & unverbindlich</p>
+            <p className="truncate text-sm font-bold text-slate-900">Jetzt passende Umzugs- oder Entrümpelungsangebote anfragen</p>
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={(e) => scrollTo(e as any, 'rechner')}
+            className="flex-shrink-0 rounded-full bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20"
+          >
+            Rechner öffnen
+          </motion.button>
+        </div>
+      </div>
+
       {/* {/* WIE ES FUNKTIONIERT - PREMIUM UPDATE */}
       <section id="funktion" className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
         

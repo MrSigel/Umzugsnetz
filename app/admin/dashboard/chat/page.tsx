@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { Send, User, Search, MoreVertical, Phone, Video, Menu, X } from 'lucide-react';
 
 interface ChatMessage {
-  sender: 'user' | 'admin' | 'bot';
+  sender: 'user' | 'admin';
   text: string;
   name?: string;
   timestamp: string;
