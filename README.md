@@ -20,6 +20,24 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Benachrichtigungen
+
+Für den produktiven E-Mail-Versand können SMTP-Zugangsdaten als Umgebungsvariablen gesetzt werden:
+
+```env
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
+```
+
+Hinweise:
+
+- `SMTP_FROM` sollte die sichtbare Absenderadresse sein. Wenn nichts gesetzt ist, wird `SMTP_USER` verwendet.
+- E-Mail-Benachrichtigungen nutzen zuerst SMTP und fallen nur dann auf `EMAIL_WEBHOOK_URL` zurück, wenn kein SMTP konfiguriert ist.
+- SMS-Benachrichtigungen laufen weiterhin über `SMS_WEBHOOK_URL`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
