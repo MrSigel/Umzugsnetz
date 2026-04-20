@@ -43,6 +43,8 @@ export default function AdminChatPage() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [supportFilter, setSupportFilter] = useState<'ALLE' | 'PARTNER' | 'KUNDE'>('ALLE');
+  const [statusFilter, setStatusFilter] = useState<'ALLE' | 'OPEN' | 'CLOSED'>('ALLE');
   const [isSessionsOpen, setIsSessionsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -238,17 +240,63 @@ export default function AdminChatPage() {
     }
   };
 
-  const filteredSessions = useMemo(() => {
-    if (!searchTerm) {
-      return sessions;
-    }
+  const handleReopenSession = async () => {
+    if (!activeSessionId || !currentSession || currentSession.status === 'OPEN') return;
 
-    const term = searchTerm.toLowerCase();
-    return sessions.filter((session) =>
-      session.name.toLowerCase().includes(term) ||
-      session.lastMessage.toLowerCase().includes(term),
-    );
-  }, [searchTerm, sessions]);
+    const reopenText = 'Ticket wieder geöffnet';
+
+    try {
+      await insertChatMessage({
+        sender: 'admin',
+        session_id: activeSessionId,
+        support_category: currentSession.supportType,
+        user_name: currentSession.name,
+        text: reopenText,
+      });
+
+      setSessions((prev) => prev.map((session) =>
+        session.id === activeSessionId
+          ? {
+              ...session,
+              status: 'OPEN',
+              lastMessage: reopenText,
+              messages: [
+                ...session.messages,
+                {
+                  sender: 'admin',
+                  text: reopenText,
+                  name: currentSession.name,
+                  timestamp: new Date().toISOString(),
+                  supportCategory: currentSession.supportType,
+                },
+              ],
+            }
+          : session,
+      ));
+      showToast('success', 'Ticket wieder geöffnet');
+    } catch (err: any) {
+      showToast('error', 'Ticket konnte nicht wieder geöffnet werden', err.message);
+    }
+  };
+
+  const filteredSessions = useMemo(() => {
+    return sessions.filter((session) => {
+      const term = searchTerm.toLowerCase();
+      const matchesSearch = !searchTerm ||
+        session.name.toLowerCase().includes(term) ||
+        session.lastMessage.toLowerCase().includes(term);
+      const matchesSupportType = supportFilter === 'ALLE' || session.supportType === supportFilter;
+      const matchesStatus = statusFilter === 'ALLE' || session.status === statusFilter;
+      return matchesSearch && matchesSupportType && matchesStatus;
+    });
+  }, [searchTerm, sessions, supportFilter, statusFilter]);
+
+  const sessionStats = useMemo(() => ({
+    total: sessions.length,
+    open: sessions.filter((session) => session.status === 'OPEN').length,
+    partner: sessions.filter((session) => session.supportType === 'PARTNER').length,
+    customer: sessions.filter((session) => session.supportType === 'KUNDE').length,
+  }), [sessions]);
 
   const currentSession = sessions.find(s => s.id === activeSessionId);
 
@@ -287,6 +335,32 @@ export default function AdminChatPage() {
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm text-black focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all font-sans"
               />
             </div>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <select
+              value={supportFilter}
+              onChange={(e) => setSupportFilter(e.target.value as 'ALLE' | 'PARTNER' | 'KUNDE')}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-brand-blue"
+            >
+              <option value="ALLE">Alle Arten</option>
+              <option value="KUNDE">Kunden-Support</option>
+              <option value="PARTNER">Partner-Support</option>
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'ALLE' | 'OPEN' | 'CLOSED')}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-brand-blue"
+            >
+              <option value="ALLE">Alle Status</option>
+              <option value="OPEN">Offen</option>
+              <option value="CLOSED">Abgeschlossen</option>
+            </select>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">Gesamt: {sessionStats.total}</div>
+            <div className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-amber-700">Offen: {sessionStats.open}</div>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">Kunde: {sessionStats.customer}</div>
+            <div className="rounded-xl border border-brand-blue/15 bg-brand-blue/5 px-3 py-2 text-brand-blue">Partner: {sessionStats.partner}</div>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -364,6 +438,9 @@ export default function AdminChatPage() {
             </button>
             <button onClick={() => void handleCloseSession()} disabled={!currentSession || currentSession.status === 'CLOSED'} className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all disabled:opacity-50">
               <CheckCircle2 className="w-5 h-5" />
+            </button>
+            <button onClick={() => void handleReopenSession()} disabled={!currentSession || currentSession.status === 'OPEN'} className="p-2 text-slate-400 hover:text-brand-blue hover:bg-brand-blue/10 rounded-lg transition-all disabled:opacity-50">
+              <Clock3 className="w-5 h-5" />
             </button>
             <button onClick={() => {
               if (!currentSession?.id) {
