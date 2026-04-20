@@ -80,6 +80,7 @@ export default function CallListPage() {
   const [assigneeFilter, setAssigneeFilter] = useState('ALLE');
   const [drafts, setDrafts] = useState<DraftState>({});
   const [showOnboardingHint, setShowOnboardingHint] = useState(false);
+  const [supportsTeamOnboarding, setSupportsTeamOnboarding] = useState(true);
 
   useEffect(() => {
     void fetchData();
@@ -94,12 +95,30 @@ export default function CallListPage() {
       setCurrentEmail(normalizedEmail);
       setAssignmentFilter(access.level === 'employee' ? 'MEIN_BEREICH' : 'ALLE');
 
-      const [{ data: applicationData, error: applicationError }, { data: teamData, error: teamError }] = await Promise.all([
+      const [{ data: applicationData, error: applicationError }, teamResult] = await Promise.all([
         supabase.from('partner_applications').select('*').order('created_at', { ascending: false }),
         supabase.from('team').select('id, email, role, onboarding_seen_at, status').order('email', { ascending: true }),
       ]);
 
       if (applicationError) throw applicationError;
+
+      let teamData: TeamOption[] | null = (teamResult.data || null) as TeamOption[] | null;
+      let teamError = teamResult.error;
+      let teamOnboardingAvailable = true;
+
+      if (teamError?.message?.includes('onboarding_seen_at') || teamError?.message?.includes('status')) {
+        const fallbackTeamResult = await supabase
+          .from('team')
+          .select('id, email, role')
+          .order('email', { ascending: true });
+
+        teamData = ((fallbackTeamResult.data || []) as TeamOption[]);
+        teamError = fallbackTeamResult.error;
+        teamOnboardingAvailable = false;
+      }
+
+      setSupportsTeamOnboarding(teamOnboardingAvailable);
+
       if (teamError) throw teamError;
 
       const rows = (applicationData || []) as ApplicationRow[];
@@ -108,7 +127,7 @@ export default function CallListPage() {
       setApplications(rows);
       setTeamOptions(teamRows);
 
-      if (access.level === 'employee' && normalizedEmail) {
+      if (access.level === 'employee' && normalizedEmail && teamOnboardingAvailable) {
         const currentTeamEntry = teamRows.find((entry) => entry.email.toLowerCase() === normalizedEmail);
         setShowOnboardingHint(!currentTeamEntry?.onboarding_seen_at);
       } else {
@@ -138,6 +157,11 @@ export default function CallListPage() {
       return;
     }
 
+    if (!supportsTeamOnboarding) {
+      setShowOnboardingHint(false);
+      return;
+    }
+
     const now = new Date().toISOString();
     const { error } = await supabase
       .from('team')
@@ -153,6 +177,12 @@ export default function CallListPage() {
             : entry,
         ),
       );
+      return;
+    }
+
+    if (error.message?.includes('onboarding_seen_at') || error.message?.includes('status')) {
+      setSupportsTeamOnboarding(false);
+      setShowOnboardingHint(false);
     }
   }
 
