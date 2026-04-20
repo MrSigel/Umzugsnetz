@@ -53,42 +53,33 @@ export default function PartnerRegisterPage() {
       if (authError) throw authError;
       if (!authData.user) throw new Error('Registrierung fehlgeschlagen.');
 
-      const defaultSettings = {
-        emailNotif: true,
-        smsNotif: true,
-        smsNumber: form.phone,
-      };
+      const profileResponse = await fetch('/api/partners/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: authData.user.id,
+          companyName: form.firmenname,
+          email: form.email,
+          phone: form.phone,
+          inviteCode: form.inviteCode,
+        }),
+      });
 
-      const { data: partnerProfile, error: profileError } = await supabase.from('partners').insert([{
-        user_id: authData.user.id,
-        name: form.firmenname,
-        email: form.email,
-        phone: form.phone,
-        status: 'PENDING',
-        category: 'Standard Anfragen',
-        balance: 0,
-        settings: defaultSettings,
-      }]).select('id').single();
-
-      if (profileError) {
-        throw new Error(`Profil konnte nicht erstellt werden: ${profileError.message}`);
+      const profilePayload = await profileResponse.json().catch(() => null);
+      if (!profileResponse.ok) {
+        throw new Error(profilePayload?.error || 'Profil konnte nicht erstellt werden.');
       }
 
-      await supabase
-        .from('partner_invite_codes')
-        .update({ is_used: true, used_by: partnerProfile?.id || null })
-        .eq('id', codeData.id);
-
-      await supabase.from('notifications').insert([{
-        type: 'NEW_PARTNER',
-        title: 'Neue Partner-Registrierung',
-        message: `${form.firmenname} hat sich als Partner registriert und wartet auf Freischaltung.`,
-        link: '/admin/dashboard/partner',
-        is_read: false,
-      }]);
-
-      showToast('success', 'Registrierung erfolgreich', 'Ihr Konto wird automatisiert geprüft und anschließend freigeschaltet.');
-      router.push('/partners/dashboard');
+      showToast(
+        'success',
+        'Registrierung erfolgreich',
+        authData.session
+          ? 'Ihr Konto wurde erfolgreich angelegt und für die Freischaltung vorbereitet.'
+          : 'Ihr Konto wurde erfolgreich angelegt. Bitte bestätigen Sie jetzt Ihre E-Mail-Adresse, um den Zugang abzuschließen.',
+      );
+      router.push(authData.session ? '/partners/dashboard' : '/partners/login');
     } catch (err: any) {
       setError(err.message);
     } finally {
