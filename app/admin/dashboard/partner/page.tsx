@@ -270,15 +270,27 @@ export default function PartnerNetworkPage() {
     setSendingApplicationId(application.id);
 
     try {
-      const { data, error } = await supabase.functions.invoke('partner-invite', {
-        body: { applicationId: application.id },
-      });
-
-      if (error) {
-        throw error;
+      const { data: authData, error: authError } = await supabase.auth.getSession();
+      if (authError) {
+        throw authError;
       }
 
-      if (!data?.success) {
+      const accessToken = authData.session?.access_token;
+      if (!accessToken) {
+        throw new Error('Sitzung konnte nicht verifiziert werden.');
+      }
+
+      const response = await fetch('/api/partner-applications/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ applicationId: application.id }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
         throw new Error(data?.error || 'Die Einladung konnte nicht versendet werden.');
       }
 
