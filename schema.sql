@@ -313,6 +313,34 @@ ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partner_invite_codes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team ENABLE ROW LEVEL SECURITY;
 
+-- Hilfsfunktionen für Admin-/Mitarbeiterrechte
+CREATE OR REPLACE FUNCTION app_is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM team
+    WHERE lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+      AND role = 'ADMIN'
+  ) OR coalesce(lower(auth.jwt() -> 'user_metadata' ->> 'role'), '') = 'admin'
+     OR coalesce(lower(auth.jwt() -> 'app_metadata' ->> 'role'), '') = 'admin';
+$$;
+
+CREATE OR REPLACE FUNCTION app_is_employee()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM team
+    WHERE lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+      AND role = 'EMPLOYEE'
+  );
+$$;
+
 -- ORDERS: Jeder kann lesen (Landingpage INSERT), nur Auth-User können schreiben
 DROP POLICY IF EXISTS "orders_insert_anon" ON orders;
 CREATE POLICY "orders_insert_anon" ON orders FOR INSERT WITH CHECK (true);
@@ -398,33 +426,6 @@ DROP POLICY IF EXISTS "invite_codes_delete_authenticated" ON partner_invite_code
 CREATE POLICY "invite_codes_delete_authenticated" ON partner_invite_codes FOR DELETE USING (auth.role() = 'authenticated');
 
 -- TEAM: Nur authentifizierte Benutzer
-CREATE OR REPLACE FUNCTION app_is_admin()
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM team
-    WHERE lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
-      AND role = 'ADMIN'
-  ) OR coalesce(lower(auth.jwt() -> 'user_metadata' ->> 'role'), '') = 'admin'
-     OR coalesce(lower(auth.jwt() -> 'app_metadata' ->> 'role'), '') = 'admin';
-$$;
-
-CREATE OR REPLACE FUNCTION app_is_employee()
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM team
-    WHERE lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
-      AND role = 'EMPLOYEE'
-  );
-$$;
-
 DROP POLICY IF EXISTS "team_all_authenticated" ON team;
 DROP POLICY IF EXISTS "team_select_authenticated" ON team;
 DROP POLICY IF EXISTS "team_write_admin_only" ON team;
@@ -480,6 +481,12 @@ CREATE TABLE IF NOT EXISTS partner_applications (
   service       TEXT NOT NULL,
   source_page   TEXT,
   status        TEXT NOT NULL DEFAULT 'NEW' CHECK (status IN ('NEW', 'CONTACTED', 'IN_PROGRESS', 'FOLLOW_UP', 'COMPLETED', 'ARCHIVED')),
+  verification_status TEXT NOT NULL DEFAULT 'PENDING' CHECK (verification_status IN ('PENDING', 'VERIFIED', 'REVIEW')),
+  verification_score INTEGER NOT NULL DEFAULT 0,
+  verification_summary TEXT,
+  website_url   TEXT,
+  website_checked_at TIMESTAMPTZ,
+  approved_at   TIMESTAMPTZ,
   assigned_to_email TEXT,
   callback_at   TIMESTAMPTZ,
   internal_note TEXT,
@@ -491,6 +498,12 @@ CREATE TABLE IF NOT EXISTS partner_applications (
 );
 
 ALTER TABLE partner_applications
+  ADD COLUMN IF NOT EXISTS verification_status TEXT NOT NULL DEFAULT 'PENDING',
+  ADD COLUMN IF NOT EXISTS verification_score INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS verification_summary TEXT,
+  ADD COLUMN IF NOT EXISTS website_url TEXT,
+  ADD COLUMN IF NOT EXISTS website_checked_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS assigned_to_email TEXT,
   ADD COLUMN IF NOT EXISTS callback_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS internal_note TEXT,
@@ -505,6 +518,13 @@ ALTER TABLE partner_applications
 ALTER TABLE partner_applications
   ADD CONSTRAINT partner_applications_status_check
   CHECK (status IN ('NEW', 'CONTACTED', 'IN_PROGRESS', 'FOLLOW_UP', 'COMPLETED', 'ARCHIVED'));
+
+ALTER TABLE partner_applications
+  DROP CONSTRAINT IF EXISTS partner_applications_verification_status_check;
+
+ALTER TABLE partner_applications
+  ADD CONSTRAINT partner_applications_verification_status_check
+  CHECK (verification_status IN ('PENDING', 'VERIFIED', 'REVIEW'));
 
 CREATE TABLE IF NOT EXISTS contact_requests (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),

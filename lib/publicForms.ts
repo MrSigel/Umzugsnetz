@@ -33,29 +33,20 @@ function buildReference(prefix: string) {
 }
 
 export async function submitPartnerApplication(input: PartnerApplicationInput) {
-  const { error } = await supabase.from('partner_applications').insert([{
-    company_name: input.companyName,
-    contact_name: input.contactName,
-    email: input.email,
-    phone: input.phone,
-    location: input.location,
-    radius: input.radius,
-    service: input.service,
-    source_page: input.sourcePage,
-    status: 'NEW',
-  }]);
+  const response = await fetch('/api/partner-applications', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
 
-  if (error) {
-    throw error;
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(payload?.error || 'Partneranfrage konnte nicht gespeichert werden.');
   }
 
-  await supabase.from('notifications').insert([{
-    type: 'PARTNER_APPLICATION',
-    title: 'Neue Partner-Anfrage',
-    message: `${input.companyName} hat über ${input.sourcePage} eine Partner-Anfrage gestellt.`,
-    link: '/admin/dashboard/partner',
-    is_read: false,
-  }]);
+  return payload;
 }
 
 export async function submitContactRequest(input: ContactRequestInput) {
@@ -75,7 +66,7 @@ export async function submitContactRequest(input: ContactRequestInput) {
   await supabase.from('notifications').insert([{
     type: 'CONTACT_REQUEST',
     title: 'Neue Kontaktanfrage',
-    message: `${input.firstName} ${input.lastName} hat eine Anfrage über ${input.sourcePage} gesendet.`,
+    message: `${input.firstName} ${input.lastName} hat eine Anfrage ueber ${input.sourcePage} gesendet.`,
     link: '/admin/dashboard/chat',
     is_read: false,
   }]);
@@ -101,7 +92,7 @@ export async function createWalletTopupRequest(input: TopupRequestInput) {
   await supabase.from('notifications').insert([{
     type: 'TOPUP_REQUEST',
     title: 'Neue Guthaben-Anfrage',
-    message: `Partner ${input.partnerId} hat eine Aufladung über ${input.amount.toFixed(2)} € angefragt.`,
+    message: `Partner ${input.partnerId} hat eine Aufladung ueber ${input.amount.toFixed(2)} EUR angefragt.`,
     link: '/admin/dashboard/partner',
     is_read: false,
   }]);

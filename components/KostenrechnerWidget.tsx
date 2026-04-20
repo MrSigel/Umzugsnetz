@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ToastProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -377,11 +376,15 @@ export default function KostenrechnerWidget() {
     setIsSubmitting(true);
 
     try {
-      // Auftrag in Supabase speichern
-      const { error: orderError } = await supabase.from('orders').insert([{
-        service_category: selectedService === 'privatumzug' ? 'PRIVATUMZUG' : selectedService === 'firmenumzug' ? 'FIRMENUMZUG' : 'ENTRÜMPELUNG',
-        customer_name: `${vorname} ${nachname}`,
-        customer_email: email,
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service_category: selectedService === 'privatumzug' ? 'PRIVATUMZUG' : selectedService === 'firmenumzug' ? 'FIRMENUMZUG' : 'ENTRÜMPELUNG',
+          customer_name: `${vorname} ${nachname}`,
+          customer_email: email,
         customer_phone: telefon,
         move_date: datum || null,
         von_city: isEntruempelung ? 'Entrümpelung' : von,
@@ -405,24 +408,19 @@ export default function KostenrechnerWidget() {
           ...(erschwerterZugang ? ['Erschwerter Zugang'] : []),
           ...(parkverbot ? ['Parkverbot'] : []),
         ],
-        notes: isEntruempelung
-          ? entruempelNotizen + (kontaktNotizen ? ' | ' + kontaktNotizen : '')
-          : (umzugNotizen + (kontaktNotizen ? ' | ' + kontaktNotizen : '')),
-        erreichbarkeit: erreichbarAb,
-        estimated_price: livePrice > 0 ? livePrice : null,
-        status: 'Neu',
-      }]);
+          notes: isEntruempelung
+            ? entruempelNotizen + (kontaktNotizen ? ' | ' + kontaktNotizen : '')
+            : (umzugNotizen + (kontaktNotizen ? ' | ' + kontaktNotizen : '')),
+          erreichbarkeit: erreichbarAb,
+          estimated_price: livePrice > 0 ? livePrice : null,
+          status: 'Neu',
+        }),
+      });
 
-      if (orderError) throw orderError;
-
-      // Admin-Benachrichtigung erstellen
-      await supabase.from('notifications').insert([{
-        type: 'NEW_ORDER',
-        title: 'Neuer Kundenauftrag',
-        message: `${vorname} ${nachname} hat eine Anfrage für ${isEntruempelung ? 'Entrümpelung' : 'Umzug'} gestellt.`,
-        link: '/admin/dashboard/auftraege',
-        is_read: false,
-      }]);
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Kundenauftrag konnte nicht gesendet werden.');
+      }
 
       setStep('success');
       localStorage.removeItem(CALCULATOR_STORAGE_KEY);

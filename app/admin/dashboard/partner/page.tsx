@@ -519,6 +519,30 @@ export default function PartnerNetworkPage() {
                   <p><span className="font-bold text-slate-800">Service:</span> {application.service}</p>
                   <p><span className="font-bold text-slate-800">Quelle:</span> {application.source_page || 'Unbekannt'}</p>
                   <p><span className="font-bold text-slate-800">Eingang:</span> {new Date(application.created_at).toLocaleString('de-DE')}</p>
+                  {application.verification_status && (
+                    <p>
+                      <span className="font-bold text-slate-800">Vorpruefung:</span>{' '}
+                      <span className={`inline-flex rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${
+                        application.verification_status === 'VERIFIED'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {application.verification_status === 'VERIFIED' ? 'Automatisch verifiziert' : 'Manuelle Pruefung'}
+                      </span>
+                    </p>
+                  )}
+                  {typeof application.verification_score === 'number' && (
+                    <p><span className="font-bold text-slate-800">Pruefscore:</span> {application.verification_score}/100</p>
+                  )}
+                  {application.verification_summary && (
+                    <p><span className="font-bold text-slate-800">Pruefvermerk:</span> {application.verification_summary}</p>
+                  )}
+                  {application.website_url && (
+                    <p><span className="font-bold text-slate-800">Website:</span> {application.website_url}</p>
+                  )}
+                  {application.approved_at && (
+                    <p><span className="font-bold text-slate-800">Freigabe vorbereitet:</span> {new Date(application.approved_at).toLocaleString('de-DE')}</p>
+                  )}
                   {application.invite_sent_at && (
                     <p><span className="font-bold text-slate-800">Einladung gesendet:</span> {new Date(application.invite_sent_at).toLocaleString('de-DE')}</p>
                   )}
