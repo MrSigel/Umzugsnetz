@@ -118,23 +118,41 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     const { data, error } = await supabase
       .from('chat_messages')
       .select('session_id, sender, is_read, text')
-      .eq('sender', 'user');
+      .order('created_at', { ascending: true });
 
     if (error || !data) {
       setChatCount(0);
       return;
     }
 
-    const unresolvedSessions = new Set(
-      data
-        .filter((message) => {
-          const text = String(message.text || '');
-          return message.is_read === false && !text.startsWith('WEITERLEITUNG AN MITARBEITER');
-        })
-        .map((message) => message.session_id),
+    const sessions = data.reduce<Record<string, { closed: boolean; hasUnreadUserMessage: boolean }>>((acc, message) => {
+      const sessionId = message.session_id;
+      const text = String(message.text || '');
+
+      if (!acc[sessionId]) {
+        acc[sessionId] = { closed: false, hasUnreadUserMessage: false };
+      }
+
+      if (text === '[TICKET_GESCHLOSSEN]') {
+        acc[sessionId].closed = true;
+      }
+
+      if (
+        message.sender === 'user' &&
+        message.is_read === false &&
+        !text.startsWith('WEITERLEITUNG AN MITARBEITER')
+      ) {
+        acc[sessionId].hasUnreadUserMessage = true;
+      }
+
+      return acc;
+    }, {});
+
+    const unresolvedSessions = Object.values(sessions).filter(
+      (session) => session.hasUnreadUserMessage && !session.closed,
     );
 
-    setChatCount(unresolvedSessions.size);
+    setChatCount(unresolvedSessions.length);
   }, []);
 
   useEffect(() => {

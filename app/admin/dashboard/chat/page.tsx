@@ -73,6 +73,25 @@ export default function AdminChatPage() {
     scrollToBottom();
   }, [sessions, activeSessionId]);
 
+  async function insertChatMessage(payload: {
+    sender: 'user' | 'admin';
+    session_id: string;
+    user_name?: string;
+    text: string;
+    support_category?: 'PARTNER' | 'KUNDE';
+  }) {
+    let { error } = await supabase.from('chat_messages').insert([payload]);
+
+    if (error?.message?.includes('support_category')) {
+      const { support_category: _ignored, ...fallbackPayload } = payload;
+      ({ error } = await supabase.from('chat_messages').insert([fallbackPayload]));
+    }
+
+    if (error) {
+      throw error;
+    }
+  }
+
   async function fetchMessages() {
     try {
       const { data, error } = await supabase
@@ -185,15 +204,13 @@ export default function AdminChatPage() {
     if (!activeSession) return;
 
     try {
-      const { error } = await supabase.from('chat_messages').insert([{
+      await insertChatMessage({
         sender: 'admin',
         session_id: activeSessionId,
         support_category: activeSession.supportType,
         user_name: activeSession.name,
         text: inputText
-      }]);
-
-      if (error) throw error;
+      });
       setInputText('');
     } catch (err: any) {
       showToast('error', 'Nachricht konnte nicht gesendet werden', err.message);
@@ -204,15 +221,13 @@ export default function AdminChatPage() {
     if (!activeSessionId || !currentSession || currentSession.status === 'CLOSED') return;
 
     try {
-      const { error } = await supabase.from('chat_messages').insert([{
+      await insertChatMessage({
         sender: 'admin',
         session_id: activeSessionId,
         support_category: currentSession.supportType,
         user_name: currentSession.name,
         text: '[TICKET_GESCHLOSSEN]'
-      }]);
-
-      if (error) throw error;
+      });
 
       setSessions(prev => prev.map(session =>
         session.id === activeSessionId ? { ...session, status: 'CLOSED', unread: 0, lastMessage: 'Ticket abgeschlossen' } : session
