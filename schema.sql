@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS partners (
   status      TEXT DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'PENDING', 'SUSPENDED')),
   category    TEXT DEFAULT 'Standard Anfragen' CHECK (category IN ('Standard Anfragen', 'Priorisierte Anfragen', 'Exklusive Anfragen')),
   balance     NUMERIC(10, 2) DEFAULT 0,
+  bonus_tokens INTEGER NOT NULL DEFAULT 0,
+  bonus_tokens_claimed_at TIMESTAMPTZ,
   settings    JSONB DEFAULT '{}',
   created_at  TIMESTAMPTZ DEFAULT NOW(),
   updated_at  TIMESTAMPTZ DEFAULT NOW()
@@ -65,6 +67,8 @@ ALTER TABLE partners
   ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ACTIVE',
   ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Standard Anfragen',
   ADD COLUMN IF NOT EXISTS balance NUMERIC(10, 2) DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS bonus_tokens INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS bonus_tokens_claimed_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS settings JSONB DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW(),
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
@@ -99,7 +103,7 @@ CREATE TABLE IF NOT EXISTS wallet_transactions (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   partner_id  UUID REFERENCES partners(id) ON DELETE CASCADE,
-  type        TEXT NOT NULL CHECK (type IN ('TOPUP', 'LEAD_PURCHASE', 'ADMIN_CREDIT', 'REFUND')),
+  type        TEXT NOT NULL CHECK (type IN ('TOPUP', 'LEAD_PURCHASE', 'ADMIN_CREDIT', 'REFUND', 'BONUS_CREDIT', 'TOKEN_REDEMPTION')),
   amount      NUMERIC(10, 2) NOT NULL,
   description TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW()
@@ -206,13 +210,44 @@ SECURITY DEFINER
 AS $$
 DECLARE
   current_balance NUMERIC;
+  current_tokens INTEGER;
   partner_user_id UUID;
 BEGIN
   -- Aktuelles Guthaben und user_id des Partners abrufen
-  SELECT balance, user_id INTO current_balance, partner_user_id
+  SELECT balance, bonus_tokens, user_id INTO current_balance, current_tokens, partner_user_id
   FROM partners
   WHERE id = partner_id_param
   FOR UPDATE;
+
+  -- Startbonus-Token zuerst einlösen
+  IF coalesce(current_tokens, 0) > 0 THEN
+    UPDATE partners
+    SET bonus_tokens = GREATEST(coalesce(bonus_tokens, 0) - 1, 0),
+        updated_at = NOW()
+    WHERE id = partner_id_param;
+
+    INSERT INTO partner_purchases (partner_id, order_id, price)
+    VALUES (partner_id_param, order_id_param, 0);
+
+    INSERT INTO wallet_transactions (user_id, partner_id, type, amount, description)
+    VALUES (
+      partner_user_id,
+      partner_id_param,
+      'TOKEN_REDEMPTION',
+      0,
+      'Startbonus-Token für Auftrag ' || order_id_param::TEXT || ' eingelöst'
+    );
+
+    INSERT INTO transactions (partner_id, type, amount, description)
+    VALUES (
+      partner_id_param,
+      'TOKEN_REDEMPTION',
+      0,
+      'Startbonus-Token für Auftrag ' || order_id_param::TEXT || ' eingelöst'
+    );
+
+    RETURN;
+  END IF;
 
   -- Guthaben prüfen
   IF current_balance < price_param THEN
@@ -247,6 +282,70 @@ BEGIN
     price_param,
     'Lead-Verkauf an Partner ' || partner_id_param::TEXT
   );
+END;
+$$;
+
+-- ─────────────────────────────────────────────────────────────
+-- 12b. RPC: claim_partner_bonus (einmaliger Startbonus)
+-- ─────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION claim_partner_bonus(
+  partner_id_param UUID
+)
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  token_count INTEGER;
+  partner_user_id UUID;
+BEGIN
+  SELECT user_id
+  INTO partner_user_id
+  FROM partners
+  WHERE id = partner_id_param
+    AND user_id = auth.uid()
+  FOR UPDATE;
+
+  IF partner_user_id IS NULL THEN
+    RAISE EXCEPTION 'Partnerkonto nicht gefunden oder kein Zugriff.';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM partners
+    WHERE id = partner_id_param
+      AND bonus_tokens_claimed_at IS NOT NULL
+  ) THEN
+    RAISE EXCEPTION 'Der Startbonus wurde bereits aktiviert.';
+  END IF;
+
+  token_count := 1 + floor(random() * 3)::INTEGER;
+
+  UPDATE partners
+  SET bonus_tokens = token_count,
+      bonus_tokens_claimed_at = NOW(),
+      updated_at = NOW()
+  WHERE id = partner_id_param;
+
+  INSERT INTO wallet_transactions (user_id, partner_id, type, amount, description)
+  VALUES (
+    partner_user_id,
+    partner_id_param,
+    'BONUS_CREDIT',
+    0,
+    'Einmaliger Startbonus aktiviert: ' || token_count::TEXT || ' kostenlose Kundenanfragen'
+  );
+
+  INSERT INTO notifications (type, title, message, link, is_read)
+  VALUES (
+    'PARTNER_BONUS_ACTIVATED',
+    'Startbonus aktiviert',
+    'Für eine Partnerfirma wurden ' || token_count::TEXT || ' Startbonus-Token aktiviert.',
+    '/admin/dashboard/partner',
+    FALSE
+  );
+
+  RETURN token_count;
 END;
 $$;
 

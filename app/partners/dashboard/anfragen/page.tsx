@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ToastProvider';
 import { partnerMatchesOrder } from '@/lib/partnerMatching';
 import { DEFAULT_PRICING_CONFIG, getLeadPrice, normalizePricingConfig } from '@/lib/pricing';
-import { Search, Calendar, Truck, Package, RefreshCw, Clock, ShieldCheck, ShoppingBag, Inbox, CheckCircle2, X, MapPin, Gauge, ReceiptText } from 'lucide-react';
+import { Search, Truck, Package, RefreshCw, Clock, ShieldCheck, ShoppingBag, Inbox, CheckCircle2, X, MapPin, Gauge, ReceiptText, Gift } from 'lucide-react';
 
 type Tab = 'available' | 'purchased';
 
@@ -32,7 +32,9 @@ export default function MarketplacePage() {
   const [pricingConfig, setPricingConfig] = useState(DEFAULT_PRICING_CONFIG);
   const [tabCounts, setTabCounts] = useState({ available: 0, purchased: 0 });
 
-  useEffect(() => { void fetchData(); }, [activeTab]);
+  useEffect(() => {
+    void fetchData();
+  }, [activeTab]);
 
   async function fetchData() {
     setLoading(true);
@@ -44,7 +46,9 @@ export default function MarketplacePage() {
         supabase.from('partners').select('*').eq('user_id', user.id).single(),
         supabase.from('system_settings').select('value').eq('key', 'pricing_config').single(),
       ]);
+
       if (partnerError) throw partnerError;
+
       setPartner(partnerData);
       setPricingConfig(normalizePricingConfig(pricingData?.value));
 
@@ -52,18 +56,33 @@ export default function MarketplacePage() {
         .from('partner_purchases')
         .select('order_id')
         .eq('partner_id', partnerData.id);
+
       if (purchaseError) throw purchaseError;
+
       const purchasedIds = purchaseRows?.map((purchase) => purchase.order_id) || [];
       setTabCounts((current) => ({ ...current, purchased: purchasedIds.length }));
 
       if (activeTab === 'available') {
-        const { data: rawOrders, error: orderError } = await supabase.from('orders').select('*').eq('status', 'Neu').order('created_at', { ascending: false });
+        const { data: rawOrders, error: orderError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('status', 'Neu')
+          .order('created_at', { ascending: false });
+
         if (orderError) throw orderError;
-        const matchingOrders = (rawOrders || []).filter((order) => !purchasedIds.includes(order.id)).filter((order) => partnerMatchesOrder(partnerData, order));
+
+        const matchingOrders = (rawOrders || [])
+          .filter((order) => !purchasedIds.includes(order.id))
+          .filter((order) => partnerMatchesOrder(partnerData, order));
+
         setOrders(matchingOrders);
         setTabCounts((current) => ({ ...current, available: matchingOrders.length }));
       } else if (purchasedIds.length > 0) {
-        const { data: purchasedOrders, error: purchasedOrderError } = await supabase.from('orders').select('*').in('id', purchasedIds);
+        const { data: purchasedOrders, error: purchasedOrderError } = await supabase
+          .from('orders')
+          .select('*')
+          .in('id', purchasedIds);
+
         if (purchasedOrderError) throw purchasedOrderError;
         setOrders(purchasedOrders || []);
       } else {
@@ -78,18 +97,40 @@ export default function MarketplacePage() {
 
   async function handlePurchaseConfirm() {
     if (!partner || !confirmOrder) return;
+
     const price = getLeadPrice(pricingConfig, partner.category, confirmOrder.service_category);
-    if (Number(partner.balance) < price) {
-      showToast('warning', 'Nicht genügend Guthaben', `Sie benötigen €${price.toFixed(2)}, haben aber nur €${Number(partner.balance).toFixed(2)}.`);
+    const hasBonusToken = Number(partner.bonus_tokens || 0) > 0;
+
+    if (Number(partner.balance) < price && !hasBonusToken) {
+      showToast(
+        'warning',
+        'Nicht genügend Guthaben',
+        `Sie benötigen EUR ${price.toFixed(2)}, haben aber nur EUR ${Number(partner.balance).toFixed(2)}.`,
+      );
       setConfirmOrder(null);
       return;
     }
+
     setPurchasing(confirmOrder.id);
     setConfirmOrder(null);
+
     try {
-      const { error } = await supabase.rpc('purchase_lead', { order_id_param: confirmOrder.id, partner_id_param: partner.id, price_param: price });
+      const { error } = await supabase.rpc('purchase_lead', {
+        order_id_param: confirmOrder.id,
+        partner_id_param: partner.id,
+        price_param: price,
+      });
+
       if (error) throw error;
-      showToast('success', 'Kundenanfrage freigeschaltet', 'Die vollständigen Kontaktdaten sind jetzt sichtbar.');
+
+      showToast(
+        'success',
+        'Kundenanfrage freigeschaltet',
+        hasBonusToken
+          ? 'Ein Startbonus-Token wurde eingelöst. Die vollständigen Kontaktdaten sind jetzt sichtbar.'
+          : 'Die vollständigen Kontaktdaten sind jetzt sichtbar.',
+      );
+
       await fetchData();
     } catch (error: any) {
       showToast('error', 'Fehler bei der Freischaltung', error.message);
@@ -111,102 +152,168 @@ export default function MarketplacePage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10 font-sans">
       {confirmOrder && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
               <h3 className="text-xl font-black text-slate-800">Kundenanfrage freischalten</h3>
-              <button onClick={() => setConfirmOrder(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors"><X className="w-5 h-5 text-slate-400" /></button>
+              <button type="button" onClick={() => setConfirmOrder(null)} className="rounded-xl p-2 transition-colors hover:bg-slate-100">
+                <X className="h-5 w-5 text-slate-400" />
+              </button>
             </div>
-            <div className="bg-slate-50 rounded-2xl p-5 mb-6 space-y-3">
-              <div className="flex justify-between"><span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Strecke</span><span className="text-sm font-bold text-slate-800">{confirmOrder.von_city}{confirmOrder.nach_city ? ` → ${confirmOrder.nach_city}` : ''}</span></div>
-              <div className="flex justify-between"><span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Freischaltpreis</span><span className="text-lg font-black text-brand-blue">€{getLeadPrice(pricingConfig, partner?.category, confirmOrder.service_category).toFixed(2)}</span></div>
+
+            <div className="mb-6 space-y-3 rounded-2xl bg-slate-50 p-5">
+              <div className="flex justify-between gap-3">
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Strecke</span>
+                <span className="text-sm font-bold text-slate-800">
+                  {confirmOrder.von_city}
+                  {confirmOrder.nach_city ? ` -> ${confirmOrder.nach_city}` : ''}
+                </span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Freischaltpreis</span>
+                <span className="text-lg font-black text-brand-blue">
+                  EUR {getLeadPrice(pricingConfig, partner?.category, confirmOrder.service_category).toFixed(2)}
+                </span>
+              </div>
+              {Number(partner?.bonus_tokens || 0) > 0 && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                  Für diese Freischaltung wird automatisch ein Startbonus-Token verwendet. Verbleibend nach dem Kauf: {Math.max(Number(partner?.bonus_tokens || 0) - 1, 0)}.
+                </div>
+              )}
             </div>
+
             <div className="flex gap-3">
-              <button onClick={() => setConfirmOrder(null)} className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-colors">Abbrechen</button>
-              <button onClick={handlePurchaseConfirm} className="flex-1 py-3 bg-brand-blue text-white rounded-2xl font-bold text-sm hover:bg-brand-blue-hover transition-colors shadow-lg shadow-brand-blue/20">Jetzt freischalten</button>
+              <button type="button" onClick={() => setConfirmOrder(null)} className="flex-1 rounded-2xl bg-slate-100 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200">
+                Abbrechen
+              </button>
+              <button type="button" onClick={handlePurchaseConfirm} className="flex-1 rounded-2xl bg-brand-blue py-3 text-sm font-bold text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover">
+                Jetzt freischalten
+              </button>
             </div>
           </motion.div>
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Marktplatz</h1>
-          <p className="text-slate-400 font-medium text-sm">Passende Kundenanfragen für Ihr Profil und Ihre Regionen.</p>
+          <h1 className="mb-2 text-3xl font-black tracking-tight text-slate-800">Marktplatz</h1>
+          <p className="text-sm font-medium text-slate-400">Passende Kundenanfragen für Ihr Profil und Ihre Regionen.</p>
         </div>
-        <button onClick={() => void fetchData()} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Aktualisieren
+        <button type="button" onClick={() => void fetchData()} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 transition-all hover:bg-slate-50">
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> Aktualisieren
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl w-full lg:w-auto">
-          <button onClick={() => setActiveTab('available')} className={`flex-1 lg:flex-none px-8 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'available' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Offene Anfragen ({tabCounts.available})</button>
-          <button onClick={() => setActiveTab('purchased')} className={`flex-1 lg:flex-none px-8 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'purchased' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Freigeschaltet ({tabCounts.purchased})</button>
+      <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
+        <div className="flex w-full rounded-2xl bg-slate-100 p-1.5 lg:w-auto">
+          <button type="button" onClick={() => setActiveTab('available')} className={`flex-1 rounded-xl px-8 py-3 text-xs font-bold transition-all lg:flex-none ${activeTab === 'available' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            Offene Anfragen ({tabCounts.available})
+          </button>
+          <button type="button" onClick={() => setActiveTab('purchased')} className={`flex-1 rounded-xl px-8 py-3 text-xs font-bold transition-all lg:flex-none ${activeTab === 'purchased' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            Freigeschaltet ({tabCounts.purchased})
+          </button>
         </div>
         <div className="relative w-full lg:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Stadt oder Leistung..." value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-xs focus:outline-none focus:border-brand-blue transition-all text-black" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input type="text" placeholder="Stadt oder Leistung..." value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-xs text-black transition-all focus:border-brand-blue focus:outline-none" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-[2rem] border border-slate-100 p-5 shadow-sm"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Passende Kundenanfragen</p><p className="text-3xl font-black text-slate-900 mt-2">{tabCounts.available}</p></div>
-        <div className="bg-white rounded-[2rem] border border-slate-100 p-5 shadow-sm"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Freigeschaltete Anfragen</p><p className="text-3xl font-black text-slate-900 mt-2">{tabCounts.purchased}</p></div>
-        <div className="bg-white rounded-[2rem] border border-slate-100 p-5 shadow-sm"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preislogik</p><p className="text-xs text-slate-500 mt-2">Die Freischaltpreise richten sich nach Ihrer aktuellen Tarifstufe.</p></div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Passende Kundenanfragen</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">{tabCounts.available}</p>
+        </div>
+        <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Freigeschaltete Anfragen</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">{tabCounts.purchased}</p>
+        </div>
+        <div className="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bonus-Token</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">{Number(partner?.bonus_tokens || 0)}</p>
+          <p className="mt-2 text-xs text-slate-500">Bei vorhandenen Token ist die nächste Freischaltung kostenfrei.</p>
+        </div>
       </div>
 
       <div className="space-y-6">
         {loading ? (
-          <div className="p-20 flex flex-col items-center justify-center bg-white rounded-[2.5rem] border border-slate-100"><RefreshCw className="w-8 h-8 animate-spin mb-4 text-brand-blue" /><p className="text-slate-400 italic text-sm">Lade Marktplatz...</p></div>
+          <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-slate-100 bg-white p-20">
+            <RefreshCw className="mb-4 h-8 w-8 animate-spin text-brand-blue" />
+            <p className="text-sm italic text-slate-400">Lade Marktplatz...</p>
+          </div>
         ) : filteredOrders.length > 0 ? (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             {filteredOrders.map((order) => {
               const price = getLeadPrice(pricingConfig, partner?.category, order.service_category);
               const isPurchasing = purchasing === order.id;
               return (
-                <motion.div key={order.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-                  <div className="p-8 flex-1">
-                    <div className="flex justify-between items-start mb-6 gap-4">
+                <motion.div key={order.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col overflow-hidden rounded-[2.5rem] border border-slate-100 bg-white shadow-sm">
+                  <div className="flex-1 p-8">
+                    <div className="mb-6 flex items-start justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${order.service_category === 'ENTRÜMPELUNG' ? 'bg-emerald-50 text-emerald-600' : 'bg-brand-blue-soft text-brand-blue'}`}>
-                          {order.service_category === 'ENTRÜMPELUNG' ? <Package className="w-6 h-6" /> : <Truck className="w-6 h-6" />}
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${order.service_category === 'ENTRÜMPELUNG' ? 'bg-emerald-50 text-emerald-600' : 'bg-brand-blue-soft text-brand-blue'}`}>
+                          {order.service_category === 'ENTRÜMPELUNG' ? <Package className="h-6 w-6" /> : <Truck className="h-6 w-6" />}
                         </div>
                         <div>
-                          <h3 className="text-xl font-black text-slate-800 tracking-tight">{order.von_city}{order.nach_city ? ` → ${order.nach_city}` : ''}</h3>
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{order.service_category}</p>
+                          <h3 className="text-xl font-black tracking-tight text-slate-800">
+                            {order.von_city}
+                            {order.nach_city ? ` -> ${order.nach_city}` : ''}
+                          </h3>
+                          <p className="mt-1 text-xs font-bold uppercase tracking-widest text-slate-400">{order.service_category}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-xl font-black text-slate-900 block">€{price.toFixed(2)}</span>
-                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Freischaltung</span>
+                        <span className="block text-xl font-black text-slate-900">
+                          {Number(partner?.bonus_tokens || 0) > 0 ? 'Token' : `EUR ${price.toFixed(2)}`}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Freischaltung</span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-                      <div className="rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><MapPin className="w-3 h-3" /> Strecke</p><p className="text-sm font-bold text-slate-800 mt-1">{order.von_city || 'Unbekannt'}</p></div>
-                      <div className="rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><ReceiptText className="w-3 h-3" /> Kategorie</p><p className="text-sm font-bold text-slate-800 mt-1">{order.service_category}</p></div>
-                      <div className="rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><ShoppingBag className="w-3 h-3" /> Anfragepreis</p><p className="text-sm font-bold text-brand-blue mt-1">€{price.toFixed(2)}</p></div>
-                      <div className="rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3"><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1"><Gauge className="w-3 h-3" /> Eingang</p><span className="inline-flex mt-1 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700">{timeAgo(order.created_at)}</span></div>
+                    <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-400"><MapPin className="h-3 w-3" /> Strecke</p>
+                        <p className="mt-1 text-sm font-bold text-slate-800">{order.von_city || 'Unbekannt'}</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-400"><ReceiptText className="h-3 w-3" /> Kategorie</p>
+                        <p className="mt-1 text-sm font-bold text-slate-800">{order.service_category}</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          {Number(partner?.bonus_tokens || 0) > 0 ? <Gift className="h-3 w-3" /> : <ShoppingBag className="h-3 w-3" />}
+                          Freischaltung
+                        </p>
+                        <p className="mt-1 text-sm font-bold text-brand-blue">
+                          {Number(partner?.bonus_tokens || 0) > 0 ? 'Startbonus-Token' : `EUR ${price.toFixed(2)}`}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-400"><Gauge className="h-3 w-3" /> Eingang</p>
+                        <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">{timeAgo(order.created_at)}</span>
+                      </div>
                     </div>
 
                     {activeTab === 'purchased' && (
-                      <div className="mt-5 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 space-y-2">
-                        <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Kontaktdaten freigeschaltet</p>
+                      <div className="mt-5 space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                        <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" /> Kontaktdaten freigeschaltet</p>
                         <p className="text-sm font-bold text-slate-800">{order.customer_name}</p>
-                        <p className="text-sm text-brand-blue font-medium">{order.customer_email}</p>
-                        <p className="text-sm text-slate-600 font-medium">{order.customer_phone}</p>
+                        <p className="text-sm font-medium text-brand-blue">{order.customer_email}</p>
+                        <p className="text-sm font-medium text-slate-600">{order.customer_phone}</p>
                       </div>
                     )}
                   </div>
-                  <div className="p-4 bg-slate-50 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 text-slate-400 text-xs"><Clock className="w-4 h-4" /><span className="font-medium font-mono text-[10px]">{timeAgo(order.created_at)}</span></div>
+                  <div className="flex items-center justify-between gap-4 bg-slate-50 p-4">
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <Clock className="h-4 w-4" />
+                      <span className="font-mono text-[10px] font-medium">{timeAgo(order.created_at)}</span>
+                    </div>
                     {activeTab === 'available' ? (
-                      <button onClick={() => setConfirmOrder(order)} disabled={isPurchasing} className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-brand-blue transition-all flex items-center gap-2 shadow-lg shadow-black/5 disabled:opacity-50">
-                        {isPurchasing ? (<><RefreshCw className="w-4 h-4 animate-spin" /> Lädt...</>) : (<>Details & Freischalten <ShoppingBag className="w-4 h-4" /></>)}
+                      <button type="button" onClick={() => setConfirmOrder(order)} disabled={isPurchasing} className="flex items-center gap-2 rounded-2xl bg-slate-900 px-8 py-3.5 text-sm font-black text-white shadow-lg shadow-black/5 transition-all hover:bg-brand-blue disabled:opacity-50">
+                        {isPurchasing ? (<><RefreshCw className="h-4 w-4 animate-spin" /> Lädt...</>) : (<>Details & Freischalten <ShoppingBag className="h-4 w-4" /></>)}
                       </button>
                     ) : (
-                      <span className="flex items-center gap-2 text-emerald-600 text-xs font-bold"><CheckCircle2 className="w-4 h-4" /> Freigeschaltet</span>
+                      <span className="flex items-center gap-2 text-xs font-bold text-emerald-600"><CheckCircle2 className="h-4 w-4" /> Freigeschaltet</span>
                     )}
                   </div>
                 </motion.div>
@@ -214,17 +321,25 @@ export default function MarketplacePage() {
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-20 flex flex-col items-center justify-center text-center">
-            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8 border border-slate-50"><Inbox className="w-12 h-12" strokeWidth={1} /></div>
-            <h3 className="text-2xl font-black text-slate-800 mb-4 tracking-tight">{activeTab === 'available' ? 'Aktuell keine passenden Kundenanfragen' : 'Noch keine Anfragen freigeschaltet'}</h3>
-            <p className="text-slate-400 text-sm max-w-md leading-relaxed font-medium mb-8">{activeTab === 'available' ? 'Neue Kundenanfragen erscheinen automatisch, sobald sie zu Ihrem Profil passen.' : 'Freigeschaltete Kundenanfragen erscheinen hier mit vollständigen Kontaktdaten.'}</p>
+          <div className="flex flex-col items-center justify-center rounded-[2.5rem] border border-slate-100 bg-white p-20 text-center">
+            <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-slate-50 bg-slate-50 text-slate-200">
+              <Inbox className="h-12 w-12" strokeWidth={1} />
+            </div>
+            <h3 className="mb-4 text-2xl font-black tracking-tight text-slate-800">
+              {activeTab === 'available' ? 'Aktuell keine passenden Kundenanfragen' : 'Noch keine Anfragen freigeschaltet'}
+            </h3>
+            <p className="max-w-md text-sm font-medium leading-relaxed text-slate-400">
+              {activeTab === 'available'
+                ? 'Neue Kundenanfragen erscheinen automatisch, sobald sie zu Ihrem Profil passen.'
+                : 'Freigeschaltete Kundenanfragen erscheinen hier mit vollständigen Kontaktdaten.'}
+            </p>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-slate-300 pt-10">
-        <ShieldCheck className="w-5 h-5" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em]">100% Verifizierte Anfragen • Direkt mit Ihrem Partnerprofil abgeglichen</span>
+      <div className="flex items-center justify-center gap-4 pt-10 text-slate-300">
+        <ShieldCheck className="h-5 w-5" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em]">100% verifizierte Anfragen • direkt mit Ihrem Partnerprofil abgeglichen</span>
       </div>
     </div>
   );
