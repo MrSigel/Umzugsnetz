@@ -148,11 +148,22 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id  TEXT NOT NULL,
   sender      TEXT NOT NULL CHECK (sender IN ('user', 'admin')),
+  support_category TEXT NOT NULL DEFAULT 'KUNDE' CHECK (support_category IN ('KUNDE', 'PARTNER')),
   user_name   TEXT,
   text        TEXT NOT NULL,
   is_read     BOOLEAN DEFAULT FALSE,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE chat_messages
+  ADD COLUMN IF NOT EXISTS support_category TEXT NOT NULL DEFAULT 'KUNDE';
+
+ALTER TABLE chat_messages
+  DROP CONSTRAINT IF EXISTS chat_messages_support_category_check;
+
+ALTER TABLE chat_messages
+  ADD CONSTRAINT chat_messages_support_category_check
+  CHECK (support_category IN ('KUNDE', 'PARTNER'));
 
 -- ─────────────────────────────────────────────────────────────
 -- 9. SYSTEM_SETTINGS (Admin-Konfigurationen)
@@ -657,10 +668,21 @@ CREATE TABLE IF NOT EXISTS contact_requests (
   email       TEXT NOT NULL,
   message     TEXT NOT NULL,
   source_page TEXT,
+  support_category TEXT NOT NULL DEFAULT 'KUNDE' CHECK (support_category IN ('KUNDE', 'PARTNER')),
   status      TEXT NOT NULL DEFAULT 'NEW' CHECK (status IN ('NEW', 'IN_PROGRESS', 'DONE')),
   created_at  TIMESTAMPTZ DEFAULT NOW(),
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE contact_requests
+  ADD COLUMN IF NOT EXISTS support_category TEXT NOT NULL DEFAULT 'KUNDE';
+
+ALTER TABLE contact_requests
+  DROP CONSTRAINT IF EXISTS contact_requests_support_category_check;
+
+ALTER TABLE contact_requests
+  ADD CONSTRAINT contact_requests_support_category_check
+  CHECK (support_category IN ('KUNDE', 'PARTNER'));
 
 CREATE TABLE IF NOT EXISTS wallet_topup_requests (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -728,10 +750,10 @@ DROP POLICY IF EXISTS "contact_requests_insert_all" ON contact_requests;
 CREATE POLICY "contact_requests_insert_all" ON contact_requests FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "contact_requests_select_authenticated" ON contact_requests;
-CREATE POLICY "contact_requests_select_authenticated" ON contact_requests FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "contact_requests_select_authenticated" ON contact_requests FOR SELECT USING (app_is_admin() OR app_is_employee());
 
 DROP POLICY IF EXISTS "contact_requests_update_authenticated" ON contact_requests;
-CREATE POLICY "contact_requests_update_authenticated" ON contact_requests FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "contact_requests_update_authenticated" ON contact_requests FOR UPDATE USING (app_is_admin() OR app_is_employee()) WITH CHECK (app_is_admin() OR app_is_employee());
 
 DROP POLICY IF EXISTS "wallet_topup_requests_select_own" ON wallet_topup_requests;
 CREATE POLICY "wallet_topup_requests_select_own" ON wallet_topup_requests FOR SELECT USING (user_id = auth.uid());

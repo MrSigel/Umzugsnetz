@@ -56,6 +56,7 @@ export async function submitContactRequest(input: ContactRequestInput) {
     email: input.email,
     message: input.message,
     source_page: input.sourcePage,
+    support_category: input.sourcePage.includes('/partner') ? 'PARTNER' : 'KUNDE',
     status: 'NEW',
   }]);
 

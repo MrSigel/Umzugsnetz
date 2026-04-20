@@ -11,6 +11,7 @@ interface ChatMessage {
   text: string;
   name?: string;
   timestamp: string;
+  supportCategory?: 'PARTNER' | 'KUNDE';
 }
 
 interface ChatSession {
@@ -24,7 +25,11 @@ interface ChatSession {
   messages: ChatMessage[];
 }
 
-function inferSupportType(messages: { text: string }[]): 'PARTNER' | 'KUNDE' {
+function inferSupportType(messages: { text: string; supportCategory?: 'PARTNER' | 'KUNDE' }[]): 'PARTNER' | 'KUNDE' {
+  const explicitType = messages.find((message) => message.supportCategory)?.supportCategory;
+  if (explicitType) {
+    return explicitType;
+  }
   const combinedText = messages.map((message) => message.text).join(' ').toLowerCase();
   if (combinedText.includes('partner') || combinedText.includes('registrierung') || combinedText.includes('guthaben')) {
     return 'PARTNER';
@@ -88,7 +93,7 @@ export default function AdminChatPage() {
               time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               unread: msg.sender === 'user' && msg.is_read === false ? 1 : 0,
               status: 'OPEN',
-              supportType: 'KUNDE',
+              supportType: msg.support_category === 'PARTNER' ? 'PARTNER' : 'KUNDE',
               messages: []
             };
           }
@@ -96,7 +101,8 @@ export default function AdminChatPage() {
             sender: msg.sender,
             text: msg.text,
             name: msg.user_name,
-            timestamp: msg.created_at
+            timestamp: msg.created_at,
+            supportCategory: msg.support_category === 'PARTNER' ? 'PARTNER' : 'KUNDE',
           });
           acc[sid].lastMessage = msg.text;
           acc[sid].time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -135,7 +141,8 @@ export default function AdminChatPage() {
         sender: msg.sender,
         text: msg.text,
         name: msg.user_name,
-        timestamp: msg.created_at
+        timestamp: msg.created_at,
+        supportCategory: msg.support_category === 'PARTNER' ? 'PARTNER' : 'KUNDE',
       };
 
       if (existing) {
@@ -181,6 +188,7 @@ export default function AdminChatPage() {
       const { error } = await supabase.from('chat_messages').insert([{
         sender: 'admin',
         session_id: activeSessionId,
+        support_category: activeSession.supportType,
         user_name: activeSession.name,
         text: inputText
       }]);
@@ -199,6 +207,7 @@ export default function AdminChatPage() {
       const { error } = await supabase.from('chat_messages').insert([{
         sender: 'admin',
         session_id: activeSessionId,
+        support_category: currentSession.supportType,
         user_name: currentSession.name,
         text: '[TICKET_GESCHLOSSEN]'
       }]);

@@ -224,7 +224,7 @@ export default function LiveChatWidget() {
     return null;
   }
 
-  async function insertAdminMessage(text: string) {
+async function insertAdminMessage(text: string) {
     if (!sessionId) {
       return;
     }
@@ -232,6 +232,7 @@ export default function LiveChatWidget() {
     const { error } = await supabase.from('chat_messages').insert([{
       sender: 'admin',
       session_id: sessionId,
+      support_category: 'KUNDE',
       user_name: displayName,
       text,
     }]);
@@ -291,6 +292,7 @@ export default function LiveChatWidget() {
       const { error } = await supabase.from('chat_messages').insert([{
         sender: 'user',
         session_id: sessionId,
+        support_category: 'KUNDE',
         user_name: displayName,
         text: nextMessage,
       }]);
@@ -337,6 +339,7 @@ export default function LiveChatWidget() {
       const { error: escalationError } = await supabase.from('chat_messages').insert([{
         sender: 'user',
         session_id: sessionId,
+        support_category: 'KUNDE',
         user_name: displayName,
         text: summaryMessage,
       }]);
