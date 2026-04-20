@@ -18,7 +18,7 @@ type SuggestedQuestion = {
   message: string;
 };
 
-type BotAnswer = {
+type ServiceAnswer = {
   handled: boolean;
   text: string;
 };
@@ -32,13 +32,13 @@ const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
   { id: 'support', label: 'Mitarbeiter sprechen', message: 'Ich möchte mit einem Mitarbeiter sprechen.' },
 ];
 
-const BOT_FALLBACK_MESSAGE = 'Leider kann ich Ihnen diese Frage nicht beantworten, wenn Sie aber möchten kann ich Ihre Anfrage an die zuständige Abteilung weiterleiten und es wird sich ein Mitarbeiter in Kürze melden. Geben Sie hierzu Ihre Kontaktdaten an wie Name, Vorname, Telefonnummer und E-Mail und zu wann Sie telefonisch am besten zu erreichen sind.';
+const SERVICE_FALLBACK_MESSAGE = 'Vielen Dank für Ihre Nachricht. Wenn Sie möchten, leiten wir Ihr Anliegen direkt an die zuständige Fachabteilung weiter. Hinterlegen Sie dazu bitte Ihre Kontaktdaten sowie ein passendes Zeitfenster für die Rückmeldung.';
 
 function createSessionId() {
   return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-function getBotAnswer(message: string): BotAnswer {
+function getServiceAnswer(message: string): ServiceAnswer {
   const normalized = message.toLowerCase();
 
   if (normalized.includes('kostenlos') || normalized.includes('kosten') || normalized.includes('gebühr')) {
@@ -65,7 +65,7 @@ function getBotAnswer(message: string): BotAnswer {
   if (normalized.includes('partner') && (normalized.includes('werden') || normalized.includes('registrieren') || normalized.includes('bewerben'))) {
     return {
       handled: true,
-      text: 'Partner registrieren sich über umzugsnetz.de/partners/register. Für die Registrierung wird in der Regel ein Einladungscode benötigt, den das Admin-Team nach Prüfung versendet.',
+      text: 'Partner registrieren sich über umzugsnetz.de/partners/register. Für die Registrierung wird in der Regel ein Einladungscode benötigt, der nach einer kurzen Prüfung bereitgestellt wird.',
     };
   }
 
@@ -76,7 +76,7 @@ function getBotAnswer(message: string): BotAnswer {
     };
   }
 
-  if (normalized.includes('lead') || normalized.includes('kundenanfrage') || normalized.includes('anfragen kaufen') || normalized.includes('guthaben') || normalized.includes('wallet')) {
+  if (normalized.includes('kundenanfrage') || normalized.includes('anfragen kaufen') || normalized.includes('guthaben') || normalized.includes('wallet')) {
     return {
       handled: true,
       text: 'Partner sehen verfügbare Kundenanfragen im Partner-Dashboard. Für Freischaltungen wird ausreichend Guthaben benötigt. Guthaben, Transaktionen und Aufladeanfragen können direkt im Finanzbereich verwaltet werden.',
@@ -86,13 +86,13 @@ function getBotAnswer(message: string): BotAnswer {
   if (normalized.includes('mitarbeiter') || normalized.includes('anrufen') || normalized.includes('rückruf') || normalized.includes('kontakt')) {
     return {
       handled: false,
-      text: BOT_FALLBACK_MESSAGE,
+      text: SERVICE_FALLBACK_MESSAGE,
     };
   }
 
   return {
     handled: false,
-    text: BOT_FALLBACK_MESSAGE,
+    text: SERVICE_FALLBACK_MESSAGE,
   };
 }
 
@@ -115,6 +115,24 @@ export default function LiveChatWidget() {
   const [contactBestTime, setContactBestTime] = useState('');
   const [lastUnhandledQuestion, setLastUnhandledQuestion] = useState('');
 
+  const resetLocalChatSession = () => {
+    localStorage.removeItem('umzugapp_chat_sid');
+    setSessionId(null);
+    setIsOpen(false);
+    setStep('name');
+    setMessages([]);
+    setInput('');
+    setFirstName('');
+    setLastName('');
+    setHasUnreadReply(false);
+    setSending(false);
+    setEscalationOpen(false);
+    setContactPhone('');
+    setContactEmail('');
+    setContactBestTime('');
+    setLastUnhandledQuestion('');
+  };
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen, escalationOpen]);
@@ -136,8 +154,11 @@ export default function LiveChatWidget() {
       return;
     }
 
-    const existingSessionId = localStorage.getItem('umzugapp_chat_sid') || createSessionId();
-    localStorage.setItem('umzugapp_chat_sid', existingSessionId);
+    let existingSessionId = localStorage.getItem('umzugapp_chat_sid');
+    if (!existingSessionId) {
+      existingSessionId = createSessionId();
+      localStorage.setItem('umzugapp_chat_sid', existingSessionId);
+    }
     setSessionId(existingSessionId);
 
     let isCancelled = false;
@@ -159,6 +180,17 @@ export default function LiveChatWidget() {
         }
 
         if (data.length > 0) {
+          const wasClosed = data.some((message) => message.text === '[TICKET_GESCHLOSSEN]');
+          if (wasClosed) {
+            localStorage.removeItem('umzugapp_chat_sid');
+            const nextSessionId = createSessionId();
+            localStorage.setItem('umzugapp_chat_sid', nextSessionId);
+            setSessionId(nextSessionId);
+            setMessages([]);
+            setStep('name');
+            return;
+          }
+
           setMessages(data.map((message) => ({
             sender: message.sender as WidgetMessage['sender'],
             text: message.text,
@@ -188,6 +220,11 @@ export default function LiveChatWidget() {
         { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `session_id=eq.${existingSessionId}` },
         (payload) => {
           if (payload.new.sender === 'user') {
+            return;
+          }
+
+          if (payload.new.text === '[TICKET_GESCHLOSSEN]') {
+            resetLocalChatSession();
             return;
           }
 
@@ -229,13 +266,25 @@ async function insertAdminMessage(text: string) {
       return;
     }
 
-    const { error } = await supabase.from('chat_messages').insert([{
+    const payload = {
       sender: 'admin',
       session_id: sessionId,
       support_category: 'KUNDE',
       user_name: displayName,
       text,
-    }]);
+    };
+
+    let { error } = await supabase.from('chat_messages').insert([payload]);
+
+    if (error?.message?.includes("support_category")) {
+      const fallbackPayload = {
+        sender: 'admin',
+        session_id: sessionId,
+        user_name: displayName,
+        text,
+      };
+      ({ error } = await supabase.from('chat_messages').insert([fallbackPayload]));
+    }
 
     if (error) {
       throw error;
@@ -249,7 +298,7 @@ async function insertAdminMessage(text: string) {
       return;
     }
 
-    const welcomeMessage = `Herzlich willkommen, ${firstName}! Ich bin der Umzugsnetz Bot. Wählen Sie eine Frage aus oder schreiben Sie Ihr Anliegen direkt in den Chat.`;
+    const welcomeMessage = `Herzlich willkommen, ${firstName}. Schön, dass Sie da sind. Nutzen Sie gerne die Textvorlagen oder schildern Sie Ihr Anliegen direkt im Servicechat.`;
 
     try {
       setSending(true);
@@ -263,8 +312,8 @@ async function insertAdminMessage(text: string) {
     }
   }
 
-  async function sendBotReply(nextMessage: string) {
-    const answer = getBotAnswer(nextMessage);
+  async function sendServiceReply(nextMessage: string) {
+    const answer = getServiceAnswer(nextMessage);
 
     try {
       await insertAdminMessage(answer.text);
@@ -274,7 +323,7 @@ async function insertAdminMessage(text: string) {
         setLastUnhandledQuestion(nextMessage);
       }
     } catch (error: any) {
-      showToast('error', 'Bot-Antwort fehlgeschlagen', error.message);
+      showToast('error', 'Antwort konnte nicht geladen werden', error.message);
     }
   }
 
@@ -289,19 +338,31 @@ async function insertAdminMessage(text: string) {
 
     try {
       setSending(true);
-      const { error } = await supabase.from('chat_messages').insert([{
+      const payload = {
         sender: 'user',
         session_id: sessionId,
         support_category: 'KUNDE',
         user_name: displayName,
         text: nextMessage,
-      }]);
+      };
+
+      let { error } = await supabase.from('chat_messages').insert([payload]);
+
+      if (error?.message?.includes("support_category")) {
+        const fallbackPayload = {
+          sender: 'user',
+          session_id: sessionId,
+          user_name: displayName,
+          text: nextMessage,
+        };
+        ({ error } = await supabase.from('chat_messages').insert([fallbackPayload]));
+      }
 
       if (error) {
         throw error;
       }
 
-      await sendBotReply(nextMessage);
+      await sendServiceReply(nextMessage);
     } catch (error: any) {
       setMessages((currentMessages) => currentMessages.slice(0, -1));
       setInput(nextMessage);
@@ -336,13 +397,25 @@ async function insertAdminMessage(text: string) {
     try {
       setSending(true);
 
-      const { error: escalationError } = await supabase.from('chat_messages').insert([{
+      const escalationPayload = {
         sender: 'user',
         session_id: sessionId,
         support_category: 'KUNDE',
         user_name: displayName,
         text: summaryMessage,
-      }]);
+      };
+
+      let { error: escalationError } = await supabase.from('chat_messages').insert([escalationPayload]);
+
+      if (escalationError?.message?.includes("support_category")) {
+        const fallbackEscalationPayload = {
+          sender: 'user',
+          session_id: sessionId,
+          user_name: displayName,
+          text: summaryMessage,
+        };
+        ({ error: escalationError } = await supabase.from('chat_messages').insert([fallbackEscalationPayload]));
+      }
 
       if (escalationError) {
         throw escalationError;
@@ -382,12 +455,12 @@ async function insertAdminMessage(text: string) {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="pointer-events-auto absolute bottom-20 right-0 flex w-full max-w-none flex-col overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white/98 shadow-2xl backdrop-blur-md max-sm:left-0 max-sm:right-0 max-sm:h-[min(68vh,36rem)] sm:w-[380px] sm:max-w-[380px]"
+            className="pointer-events-auto absolute bottom-20 right-0 flex h-[min(70vh,40rem)] w-full max-w-none flex-col overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white/98 shadow-2xl backdrop-blur-md max-sm:left-0 max-sm:right-0 sm:w-[380px] sm:max-w-[380px]"
           >
             <div className="flex items-center justify-between bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white">
               <div>
-                <h3 className="font-bold">Umzugsnetz Bot</h3>
-                <p className="text-xs text-white/80">Antwortet direkt auf Standardfragen</p>
+                <h3 className="font-bold">Umzugsnetz Servicechat</h3>
+                <p className="text-xs text-white/80">Schnelle Hilfe zu häufigen Fragen</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
@@ -397,7 +470,7 @@ async function insertAdminMessage(text: string) {
               </button>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col sm:h-[470px]">
+            <div className="flex min-h-0 flex-1 flex-col">
               {step === 'name' ? (
                 <div className="flex flex-1 flex-col justify-center overflow-y-auto p-5 sm:p-6">
                   <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand-blue/10">
@@ -405,7 +478,7 @@ async function insertAdminMessage(text: string) {
                   </div>
                   <h4 className="mb-2 text-center font-bold text-slate-800">Hallo!</h4>
                   <p className="mb-6 text-center text-sm text-slate-900">
-                    Bitte geben Sie Ihren Namen ein, um den Bot-Chat zu starten.
+                    Bitte geben Sie Ihren Namen ein, um den Servicechat zu starten.
                   </p>
                   <form onSubmit={handleStartChat} className="space-y-4">
                     <input
@@ -429,26 +502,13 @@ async function insertAdminMessage(text: string) {
                       disabled={sending}
                       className="mt-4 w-full rounded-xl bg-gradient-to-r from-brand-blue to-brand-green py-3 font-bold text-white transition-shadow hover:shadow-lg disabled:opacity-60"
                     >
-                      {sending ? 'Startet...' : 'Bot starten'}
+                      {sending ? 'Startet...' : 'Chat starten'}
                     </button>
                   </form>
                 </div>
               ) : (
                 <>
                   <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4">
-                    <div className="flex flex-wrap gap-2">
-                      {SUGGESTED_QUESTIONS.map((question) => (
-                        <button
-                          key={question.id}
-                          type="button"
-                          onClick={() => void submitUserMessage(question.message)}
-                          className="rounded-full border border-brand-blue/15 bg-white px-3 py-2 text-xs font-bold text-brand-blue shadow-sm transition-colors hover:bg-brand-blue hover:text-white"
-                        >
-                          {question.label}
-                        </button>
-                      ))}
-                    </div>
-
                     {messages.map((message, index) => (
                       <div key={`${message.sender}-${index}`} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div
@@ -467,7 +527,7 @@ async function insertAdminMessage(text: string) {
                       <div className="rounded-3xl border border-amber-200 bg-white p-4 shadow-sm">
                         <p className="text-sm font-bold text-slate-900">Anfrage an Mitarbeiter weiterleiten</p>
                         <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          Hinterlegen Sie Ihre Kontaktdaten. Die zuständige Abteilung sieht den Verlauf im Admin-Dashboard und meldet sich bei Ihnen.
+                          Hinterlegen Sie Ihre Kontaktdaten. Ihr Anliegen wird intern weitergeleitet und Sie erhalten zeitnah eine Rückmeldung.
                         </p>
                         <div className="mt-4 space-y-3">
                           <input
@@ -506,10 +566,31 @@ async function insertAdminMessage(text: string) {
                   </div>
 
                   <div className="border-t border-slate-100 bg-white p-3 sm:p-4">
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {SUGGESTED_QUESTIONS.map((question) => (
+                        <button
+                          key={question.id}
+                          type="button"
+                          onClick={() => void submitUserMessage(question.message)}
+                          className="rounded-full border border-brand-blue/15 bg-slate-50 px-3 py-2 text-xs font-bold text-brand-blue shadow-sm transition-colors hover:bg-brand-blue hover:text-white"
+                        >
+                          {question.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mb-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={resetLocalChatSession}
+                        className="text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors hover:text-slate-900"
+                      >
+                        Chat beenden
+                      </button>
+                    </div>
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder="Ihre Frage an den Bot..."
+                        placeholder="Ihre Nachricht an den Servicechat..."
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
                         className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black transition-colors placeholder:text-slate-600 focus:border-brand-blue focus:outline-none"
