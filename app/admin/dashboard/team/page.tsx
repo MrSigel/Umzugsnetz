@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,17 +12,29 @@ import {
   ShieldCheck,
   User,
   X,
-  Calendar
+  Calendar,
+  Send,
 } from 'lucide-react';
+
+type TeamMember = {
+  id: string;
+  email: string;
+  role: 'ADMIN' | 'EMPLOYEE';
+  status?: 'PENDING' | 'ACTIVE' | 'DISABLED';
+  invited_by_email?: string | null;
+  invitation_sent_at?: string | null;
+  created_at: string;
+};
 
 export default function TeamPage() {
   const { showToast } = useToast();
-  const [team, setTeam] = useState<any[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState<'ADMIN' | 'EMPLOYEE'>('EMPLOYEE');
   const [confirmAdminGrant, setConfirmAdminGrant] = useState(false);
+  const [sendingInvite, setSendingInvite] = useState(false);
 
   useEffect(() => {
     void fetchTeam();
@@ -38,7 +50,7 @@ export default function TeamPage() {
     if (error) {
       showToast('error', 'Fehler beim Laden', error.message);
     } else {
-      setTeam(data || []);
+      setTeam((data || []) as TeamMember[]);
     }
     setLoading(false);
   }
@@ -48,21 +60,43 @@ export default function TeamPage() {
     if (!newEmail) return;
     if (newRole === 'ADMIN' && !confirmAdminGrant) return;
 
-    const { error } = await supabase.from('team').insert([{
-      email: newEmail,
-      role: newRole
-    }]);
+    setSendingInvite(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
 
-    if (error) {
-      showToast('error', 'Fehler', error.message);
-      return;
+      if (!token) {
+        throw new Error('Ihre Sitzung ist abgelaufen. Bitte erneut anmelden.');
+      }
+
+      const response = await fetch('/api/team/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: newEmail,
+          role: newRole,
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Einladung konnte nicht versendet werden.');
+      }
+
+      showToast('success', 'Einladung versendet', `${newEmail} wurde erfolgreich eingeladen.`);
+      setIsModalOpen(false);
+      setNewEmail('');
+      setNewRole('EMPLOYEE');
+      setConfirmAdminGrant(false);
+      void fetchTeam();
+    } catch (error: any) {
+      showToast('error', 'Fehler', error.message || 'Einladung konnte nicht versendet werden.');
+    } finally {
+      setSendingInvite(false);
     }
-    showToast('success', 'Mitglied hinzugefügt', `${newEmail} wurde dem Team hinzugefügt.`);
-    setIsModalOpen(false);
-    setNewEmail('');
-    setNewRole('EMPLOYEE');
-    setConfirmAdminGrant(false);
-    void fetchTeam();
   };
 
   const handleRemove = async (id: string) => {
@@ -75,71 +109,95 @@ export default function TeamPage() {
     }
   };
 
+  const statusLabel = (member: TeamMember) => {
+    if (member.status === 'ACTIVE') return 'Aktiv';
+    if (member.status === 'DISABLED') return 'Deaktiviert';
+    return 'Einladung offen';
+  };
+
+  const statusClass = (member: TeamMember) => {
+    if (member.status === 'ACTIVE') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (member.status === 'DISABLED') return 'bg-slate-100 text-slate-700 border-slate-200';
+    return 'bg-amber-50 text-amber-700 border-amber-200';
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-            <ShieldCheck className="w-7 h-7 text-brand-blue" />
+          <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
+            <ShieldCheck className="h-7 w-7 text-brand-blue" />
             Team-Verwaltung
           </h2>
-          <p className="text-sm text-slate-500 mt-1">Verwalten Sie interne Mitarbeiter und Administratoren.</p>
+          <p className="mt-1 text-sm text-slate-500">Mitarbeiter und Administratoren mit echtem Einladungsprozess verwalten.</p>
         </div>
         <button
+          type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-brand-blue text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-blue-hover transition-all flex items-center gap-2 shadow-lg shadow-brand-blue/10 group"
+          className="group flex items-center gap-2 rounded-xl bg-brand-blue px-6 py-2.5 font-bold text-white shadow-lg shadow-brand-blue/10 transition-all hover:bg-brand-blue-hover"
         >
-          <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          Mitglied hinzufügen
+          <UserPlus className="h-5 w-5 transition-transform group-hover:scale-110" />
+          Mitglied einladen
         </button>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm">
         <div className="overflow-x-auto p-8">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-50">
-                <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] font-sans">Benutzer</th>
-                <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] font-sans text-center">Rolle</th>
-                <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] font-sans text-center">Hinzugefügt am</th>
-                <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] font-sans text-right">Aktionen</th>
+                <th className="py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Benutzer</th>
+                <th className="py-5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Rolle</th>
+                <th className="py-5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Status</th>
+                <th className="py-5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Einladung</th>
+                <th className="py-5 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Aktionen</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {team.map((member) => (
-                <tr key={member.id} className="group hover:bg-slate-50/50 transition-colors">
+                <tr key={member.id} className="group transition-colors hover:bg-slate-50/50">
                   <td className="py-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
-                        <User className="w-5 h-5" />
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-400">
+                        <User className="h-5 w-5" />
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-800">{member.email}</p>
-                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">ID: {member.id}...</p>
+                        <p className="mt-0.5 text-[10px] text-slate-400">
+                          Eingeladen von {member.invited_by_email || 'System'}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td className="py-6 text-center">
-                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                    <span className={`rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest ${
                       member.role === 'ADMIN'
-                        ? 'bg-amber-50 text-amber-600 border border-amber-100'
-                        : 'bg-brand-blue-soft text-brand-blue border border-brand-blue/20'
+                        ? 'border border-amber-100 bg-amber-50 text-amber-600'
+                        : 'border border-brand-blue/20 bg-brand-blue-soft text-brand-blue'
                     }`}>
                       {member.role === 'ADMIN' ? 'Administrator' : 'Mitarbeiter'}
                     </span>
                   </td>
                   <td className="py-6 text-center">
+                    <span className={`rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest ${statusClass(member)}`}>
+                      {statusLabel(member)}
+                    </span>
+                  </td>
+                  <td className="py-6 text-center">
                     <div className="flex items-center justify-center gap-2 text-slate-500">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span className="text-sm font-medium">{new Date(member.created_at).toLocaleDateString('de-DE')}</span>
+                      <Send className="h-3.5 w-3.5" />
+                      <span className="text-sm font-medium">
+                        {member.invitation_sent_at ? new Date(member.invitation_sent_at).toLocaleDateString('de-DE') : new Date(member.created_at).toLocaleDateString('de-DE')}
+                      </span>
                     </div>
                   </td>
                   <td className="py-6 text-right">
                     <button
+                      type="button"
                       onClick={() => void handleRemove(member.id)}
-                      className="px-4 py-2 text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-2 ml-auto"
+                      className="ml-auto flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-red-500"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" />
                       Entfernen
                     </button>
                   </td>
@@ -147,7 +205,7 @@ export default function TeamPage() {
               ))}
               {!loading && team.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-10 text-center text-sm text-slate-400">
+                  <td colSpan={5} className="py-10 text-center text-sm text-slate-400">
                     Noch keine Teammitglieder vorhanden.
                   </td>
                 </tr>
@@ -165,48 +223,48 @@ export default function TeamPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] sm:w-full max-w-md bg-white rounded-3xl sm:rounded-[2.5rem] shadow-2xl z-[101] overflow-hidden border border-slate-100 max-h-[85dvh] overflow-y-auto modal-scrollbar"
+              className="modal-scrollbar fixed left-1/2 top-1/2 z-[101] max-h-[85dvh] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-slate-100 bg-white shadow-2xl sm:rounded-[2.5rem]"
             >
               <div className="p-5 sm:p-8">
-                <div className="flex justify-between items-start mb-8">
+                <div className="mb-8 flex items-start justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-blue-soft flex items-center justify-center text-brand-blue">
-                      <UserPlus className="w-6 h-6" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue-soft text-brand-blue">
+                      <UserPlus className="h-6 w-6" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-slate-900">Neues Teammitglied</h3>
-                      <p className="text-xs text-slate-400">Berechtigungen für den Admin-Bereich.</p>
+                      <p className="text-xs text-slate-400">Einladung per E-Mail mit vorbereitetem Onboarding.</p>
                     </div>
                   </div>
-                  <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-xl text-slate-300 hover:text-slate-500 transition-colors">
-                    <X className="w-6 h-6" />
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl p-2 text-slate-300 transition-colors hover:bg-slate-50 hover:text-slate-500">
+                    <X className="h-6 w-6" />
                   </button>
                 </div>
 
                 <form onSubmit={handleAddMember} className="space-y-6">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">E-Mail Adresse</label>
+                    <label className="mb-2 block px-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">E-Mail-Adresse</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                      <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
                       <input
                         type="email"
                         required
                         value={newEmail}
                         onChange={(e) => setNewEmail(e.target.value)}
                         placeholder="mitarbeiter@umzugsnetz.de"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/10 transition-all font-medium"
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-12 pr-4 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Rolle / Berechtigung</label>
+                    <label className="mb-3 block px-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Rolle / Berechtigung</label>
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
@@ -214,25 +272,25 @@ export default function TeamPage() {
                           setNewRole('EMPLOYEE');
                           setConfirmAdminGrant(false);
                         }}
-                        className={`p-4 rounded-2xl border transition-all flex flex-col gap-2 items-center ${
+                        className={`flex flex-col items-center gap-2 rounded-2xl border p-4 transition-all ${
                           newRole === 'EMPLOYEE'
-                            ? 'bg-brand-blue-soft border-brand-blue text-brand-blue'
-                            : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                            ? 'border-brand-blue bg-brand-blue-soft text-brand-blue'
+                            : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
                         }`}
                       >
-                        <User className="w-6 h-6" />
+                        <User className="h-6 w-6" />
                         <span className="text-xs font-bold">Mitarbeiter:in</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setNewRole('ADMIN')}
-                        className={`p-4 rounded-2xl border transition-all flex flex-col gap-2 items-center ${
+                        className={`flex flex-col items-center gap-2 rounded-2xl border p-4 transition-all ${
                           newRole === 'ADMIN'
-                            ? 'bg-amber-50 border-amber-500 text-amber-600'
-                            : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                            ? 'border-amber-500 bg-amber-50 text-amber-600'
+                            : 'border-slate-100 bg-white text-slate-400 hover:border-slate-200'
                         }`}
                       >
-                        <Shield className="w-6 h-6" />
+                        <Shield className="h-6 w-6" />
                         <span className="text-xs font-bold">Administrator:in</span>
                       </button>
                     </div>
@@ -254,20 +312,24 @@ export default function TeamPage() {
                     </div>
                   )}
 
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
+                    Nach dem Versand erscheint der neue Eintrag zunächst als <span className="font-bold">Einladung offen</span>. Beim ersten erfolgreichen Einstieg kann das Teammitglied den Arbeitsbereich direkt ohne aufwendige Einarbeitung nutzen.
+                  </div>
+
                   <div className="flex gap-3 pt-4">
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 px-6 py-4 bg-slate-50 text-slate-600 rounded-2xl font-bold hover:bg-slate-100 transition-all"
+                      className="flex-1 rounded-2xl bg-slate-50 px-6 py-4 font-bold text-slate-600 transition-all hover:bg-slate-100"
                     >
                       Abbrechen
                     </button>
                     <button
                       type="submit"
-                      disabled={newRole === 'ADMIN' && !confirmAdminGrant}
-                      className="flex-1 px-6 py-4 bg-brand-blue text-white rounded-2xl font-bold hover:bg-brand-blue-hover shadow-lg shadow-brand-blue/20 transition-all disabled:opacity-50"
+                      disabled={(newRole === 'ADMIN' && !confirmAdminGrant) || sendingInvite}
+                      className="flex-1 rounded-2xl bg-brand-blue px-6 py-4 font-bold text-white shadow-lg shadow-brand-blue/20 transition-all hover:bg-brand-blue-hover disabled:opacity-50"
                     >
-                      Speichern
+                      {sendingInvite ? 'Einladung wird versendet...' : 'Einladung versenden'}
                     </button>
                   </div>
                 </form>

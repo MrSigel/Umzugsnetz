@@ -9,6 +9,7 @@ import {
   Building2,
   Calendar,
   Clock3,
+  CheckCircle2,
   Filter,
   Globe,
   Phone,
@@ -42,6 +43,8 @@ type TeamOption = {
   id: string;
   email: string;
   role: string;
+  onboarding_seen_at?: string | null;
+  status?: string;
 };
 
 type ApplicationRow = {
@@ -73,6 +76,7 @@ export default function CallListPage() {
   const [statusFilter, setStatusFilter] = useState('ALLE');
   const [assignmentFilter, setAssignmentFilter] = useState<'MEIN_BEREICH' | 'ALLE'>('ALLE');
   const [drafts, setDrafts] = useState<Record<string, { assigned_to_email: string; callback_at: string; internal_note: string }>>({});
+  const [showOnboardingHint, setShowOnboardingHint] = useState(false);
 
   useEffect(() => {
     void fetchData();
@@ -96,8 +100,15 @@ export default function CallListPage() {
       if (teamError) throw teamError;
 
       const rows = (applicationData || []) as ApplicationRow[];
+      const teamRows = (teamData || []) as TeamOption[];
       setApplications(rows);
-      setTeamOptions((teamData || []) as TeamOption[]);
+      setTeamOptions(teamRows);
+      if (access.level === 'employee' && normalizedEmail) {
+        const currentTeamEntry = teamRows.find((entry) => entry.email.toLowerCase() === normalizedEmail);
+        setShowOnboardingHint(!currentTeamEntry?.onboarding_seen_at);
+      } else {
+        setShowOnboardingHint(false);
+      }
       setDrafts(
         rows.reduce((acc, row) => {
           acc[row.id] = {
@@ -112,6 +123,28 @@ export default function CallListPage() {
       showToast('error', 'Fehler beim Laden', err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function dismissOnboardingHint() {
+    if (!currentEmail) {
+      setShowOnboardingHint(false);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from('team')
+      .update({ onboarding_seen_at: now, status: 'ACTIVE' })
+      .ilike('email', currentEmail);
+
+    if (!error) {
+      setShowOnboardingHint(false);
+      setTeamOptions((prev) => prev.map((entry) => (
+        entry.email.toLowerCase() === currentEmail
+          ? { ...entry, onboarding_seen_at: now, status: 'ACTIVE' }
+          : entry
+      )));
     }
   }
 
@@ -223,6 +256,28 @@ export default function CallListPage() {
           Erst Status setzen, dann anrufen, Rueckruf planen und Notiz sauber dokumentieren. Finanzdaten bleiben hier bewusst ausgeblendet.
         </div>
       </div>
+
+      {accessLevel === 'employee' && showOnboardingHint && (
+        <div className="rounded-[2rem] border border-brand-blue/15 bg-brand-blue-soft p-5 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-blue">Arbeitsstart</p>
+              <h3 className="mt-1 text-xl font-black text-slate-900">So arbeiten Sie in der Anrufliste</h3>
+              <p className="mt-2 max-w-3xl text-sm font-medium leading-relaxed text-slate-600">
+                Öffnen Sie zuerst offene Einträge, setzen Sie den Bearbeitungsstatus, planen Sie bei Bedarf ein Rückrufdatum und dokumentieren Sie jede relevante Information in der internen Notiz. Finanzdaten sind hier bewusst nicht sichtbar.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void dismissOnboardingHint()}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-blue-hover"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Hinweis verstanden
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.3fr_0.7fr_0.8fr_auto]">
         <div className="relative">

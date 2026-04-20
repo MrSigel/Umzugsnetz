@@ -193,8 +193,25 @@ CREATE TABLE IF NOT EXISTS team (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email       TEXT NOT NULL,
   role        TEXT NOT NULL DEFAULT 'Mitarbeiter',
+  status      TEXT NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'ACTIVE', 'DISABLED')),
+  invited_by_email TEXT,
+  invitation_sent_at TIMESTAMPTZ,
+  onboarding_seen_at TIMESTAMPTZ,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE team
+  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'PENDING',
+  ADD COLUMN IF NOT EXISTS invited_by_email TEXT,
+  ADD COLUMN IF NOT EXISTS invitation_sent_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS onboarding_seen_at TIMESTAMPTZ;
+
+ALTER TABLE team
+  DROP CONSTRAINT IF EXISTS team_status_check;
+
+ALTER TABLE team
+  ADD CONSTRAINT team_status_check
+  CHECK (status IN ('PENDING', 'ACTIVE', 'DISABLED'));
 
 -- ─────────────────────────────────────────────────────────────
 -- 11. RPC: purchase_lead (Atomare Lead-Kauf-Transaktion)
@@ -528,8 +545,16 @@ CREATE POLICY "invite_codes_delete_authenticated" ON partner_invite_codes FOR DE
 DROP POLICY IF EXISTS "team_all_authenticated" ON team;
 DROP POLICY IF EXISTS "team_select_authenticated" ON team;
 DROP POLICY IF EXISTS "team_write_admin_only" ON team;
+DROP POLICY IF EXISTS "team_update_own_onboarding" ON team;
 CREATE POLICY "team_select_authenticated" ON team FOR SELECT USING (auth.role() = 'authenticated');
 CREATE POLICY "team_write_admin_only" ON team FOR ALL USING (app_is_admin()) WITH CHECK (app_is_admin());
+CREATE POLICY "team_update_own_onboarding" ON team FOR UPDATE USING (
+  auth.role() = 'authenticated'
+  AND lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+) WITH CHECK (
+  auth.role() = 'authenticated'
+  AND lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+);
 
 -- TRANSACTIONS: Nur authentifizierte Benutzer
 DROP POLICY IF EXISTS "transactions_all_authenticated" ON transactions;
