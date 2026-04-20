@@ -225,7 +225,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   className="flex flex-col justify-center hover:opacity-80 transition-opacity"
                   title="Zu unseren Bewertungen auf Trustpilot"
                 >
-                  <img src="/IconTOP.png" alt="Trustpilot Sterne" className="mb-1 h-5 w-auto object-contain rendering-pixelated sm:brightness-100 sm:invert-0 brightness-0 invert" style={{ imageRendering: 'auto' }} />
+                  <img src="/IconTOP.png" alt="Trustpilot Sterne" className="mb-1 h-5 w-auto object-contain rendering-pixelated" style={{ imageRendering: 'auto' }} />
                   <div className="flex items-center gap-1.5 text-xs">
                     <span className="font-extrabold text-slate-900 uppercase tracking-wide">Ausgezeichnet</span>
                     <span className="font-bold text-slate-500 uppercase tracking-wide">4.9/5 auf Trustpilot</span>
