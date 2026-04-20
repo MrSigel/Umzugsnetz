@@ -8,8 +8,8 @@ import {
   BadgeCheck,
   Building2,
   Calendar,
-  Clock3,
   CheckCircle2,
+  Clock3,
   Filter,
   Globe,
   Phone,
@@ -64,6 +64,8 @@ type ApplicationRow = {
   internal_note?: string | null;
 };
 
+type DraftState = Record<string, { assigned_to_email: string; callback_at: string; internal_note: string }>;
+
 export default function CallListPage() {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,8 @@ export default function CallListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALLE');
   const [assignmentFilter, setAssignmentFilter] = useState<'MEIN_BEREICH' | 'ALLE'>('ALLE');
-  const [drafts, setDrafts] = useState<Record<string, { assigned_to_email: string; callback_at: string; internal_note: string }>>({});
+  const [assigneeFilter, setAssigneeFilter] = useState('ALLE');
+  const [drafts, setDrafts] = useState<DraftState>({});
   const [showOnboardingHint, setShowOnboardingHint] = useState(false);
 
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function CallListPage() {
 
       const [{ data: applicationData, error: applicationError }, { data: teamData, error: teamError }] = await Promise.all([
         supabase.from('partner_applications').select('*').order('created_at', { ascending: false }),
-        supabase.from('team').select('id, email, role').order('email', { ascending: true }),
+        supabase.from('team').select('id, email, role, onboarding_seen_at, status').order('email', { ascending: true }),
       ]);
 
       if (applicationError) throw applicationError;
@@ -101,14 +104,17 @@ export default function CallListPage() {
 
       const rows = (applicationData || []) as ApplicationRow[];
       const teamRows = (teamData || []) as TeamOption[];
+
       setApplications(rows);
       setTeamOptions(teamRows);
+
       if (access.level === 'employee' && normalizedEmail) {
         const currentTeamEntry = teamRows.find((entry) => entry.email.toLowerCase() === normalizedEmail);
         setShowOnboardingHint(!currentTeamEntry?.onboarding_seen_at);
       } else {
         setShowOnboardingHint(false);
       }
+
       setDrafts(
         rows.reduce((acc, row) => {
           acc[row.id] = {
@@ -117,7 +123,7 @@ export default function CallListPage() {
             internal_note: row.internal_note || '',
           };
           return acc;
-        }, {} as Record<string, { assigned_to_email: string; callback_at: string; internal_note: string }>),
+        }, {} as DraftState),
       );
     } catch (err: any) {
       showToast('error', 'Fehler beim Laden', err.message);
@@ -140,11 +146,13 @@ export default function CallListPage() {
 
     if (!error) {
       setShowOnboardingHint(false);
-      setTeamOptions((prev) => prev.map((entry) => (
-        entry.email.toLowerCase() === currentEmail
-          ? { ...entry, onboarding_seen_at: now, status: 'ACTIVE' }
-          : entry
-      )));
+      setTeamOptions((prev) =>
+        prev.map((entry) =>
+          entry.email.toLowerCase() === currentEmail
+            ? { ...entry, onboarding_seen_at: now, status: 'ACTIVE' }
+            : entry,
+        ),
+      );
     }
   }
 
@@ -156,6 +164,20 @@ export default function CallListPage() {
     const hours = `${date.getHours()}`.padStart(2, '0');
     const minutes = `${date.getMinutes()}`.padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  function formatCallback(value?: string | null) {
+    if (!value) return 'Kein Rückruf geplant';
+    return new Date(value).toLocaleString('de-DE', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+  }
+
+  function getTeamLabel(email?: string | null) {
+    if (!email) return 'Nicht zugewiesen';
+    const member = teamOptions.find((entry) => entry.email.toLowerCase() === email.toLowerCase());
+    return member ? `${member.email} (${member.role})` : email;
   }
 
   function updateDraft(id: string, key: 'assigned_to_email' | 'callback_at' | 'internal_note', value: string) {
@@ -171,7 +193,11 @@ export default function CallListPage() {
   async function updateStatus(id: string, nextStatus: string) {
     setSavingId(id);
     try {
-      const { error } = await supabase.from('partner_applications').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', id);
+      const { error } = await supabase
+        .from('partner_applications')
+        .update({ status: nextStatus, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
       if (error) throw error;
 
       setApplications((prev) => prev.map((entry) => (entry.id === id ? { ...entry, status: nextStatus } : entry)));
@@ -235,25 +261,69 @@ export default function CallListPage() {
 
       const matchesSearch = haystack.includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === 'ALLE' || entry.status === statusFilter;
+
       const assignedEmail = (entry.assigned_to_email || '').toLowerCase();
       const matchesAssignment =
         assignmentFilter === 'ALLE' ||
         assignedEmail === currentEmail ||
         assignedEmail === '';
 
-      return matchesSearch && matchesStatus && matchesAssignment;
+      const matchesAssignee =
+        assigneeFilter === 'ALLE' ||
+        (assigneeFilter === 'NICHT_ZUGEWIESEN' && assignedEmail === '') ||
+        assignedEmail === assigneeFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus && matchesAssignment && matchesAssignee;
     });
-  }, [applications, assignmentFilter, currentEmail, searchTerm, statusFilter]);
+  }, [applications, assignmentFilter, assigneeFilter, currentEmail, searchTerm, statusFilter]);
+
+  const stats = useMemo(() => {
+    const openCount = applications.filter((entry) => ['NEW', 'IN_PROGRESS', 'FOLLOW_UP'].includes(entry.status)).length;
+    const callbackCount = applications.filter((entry) => entry.status === 'FOLLOW_UP').length;
+    const unassignedCount = applications.filter((entry) => !entry.assigned_to_email).length;
+
+    return {
+      total: applications.length,
+      open: openCount,
+      callback: callbackCount,
+      unassigned: unassignedCount,
+    };
+  }, [applications]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Anrufliste</h2>
-          <p className="mt-1 text-sm text-slate-500">Arbeitsliste für Support und Telefonie. Zuständigkeit, Rückrufdatum und interne Notiz werden direkt im Datensatz gepflegt.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Arbeitsliste für Support und Telefonie. Zuständigkeit, Rückrufdatum und interne Notiz werden direkt im Datensatz gepflegt.
+          </p>
         </div>
         <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           Erst Status setzen, dann anrufen, Rückruf planen und Notiz sauber dokumentieren. Finanzdaten bleiben hier bewusst ausgeblendet.
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Gesamt</p>
+          <p className="mt-3 text-3xl font-black text-slate-900">{stats.total}</p>
+          <p className="mt-1 text-sm text-slate-500">Erfasste Firmenkontakte</p>
+        </div>
+        <div className="rounded-[1.75rem] border border-brand-blue/10 bg-brand-blue-soft p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-blue">Offen</p>
+          <p className="mt-3 text-3xl font-black text-slate-900">{stats.open}</p>
+          <p className="mt-1 text-sm text-slate-600">Neu, in Bearbeitung oder Rückruf</p>
+        </div>
+        <div className="rounded-[1.75rem] border border-violet-100 bg-violet-50 p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-violet-700">Rückruf</p>
+          <p className="mt-3 text-3xl font-black text-slate-900">{stats.callback}</p>
+          <p className="mt-1 text-sm text-slate-600">Kontakte mit geplantem Follow-up</p>
+        </div>
+        <div className="rounded-[1.75rem] border border-amber-100 bg-amber-50 p-5 shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700">Unzugewiesen</p>
+          <p className="mt-3 text-3xl font-black text-slate-900">{stats.unassigned}</p>
+          <p className="mt-1 text-sm text-slate-600">Noch keiner Person zugeordnet</p>
         </div>
       </div>
 
@@ -279,7 +349,7 @@ export default function CallListPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.3fr_0.7fr_0.8fr_auto]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.3fr_0.75fr_0.85fr_1fr_auto]">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
@@ -312,6 +382,17 @@ export default function CallListPage() {
           <option value="ALLE">Alle Einträge</option>
           <option value="MEIN_BEREICH">Meine + offene Einträge</option>
         </select>
+        <select
+          value={assigneeFilter}
+          onChange={(event) => setAssigneeFilter(event.target.value)}
+          className="w-full appearance-none rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-700 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
+        >
+          <option value="ALLE">Alle Zuständigkeiten</option>
+          <option value="NICHT_ZUGEWIESEN">Nicht zugewiesen</option>
+          {teamOptions.map((member) => (
+            <option key={member.id} value={member.email}>{member.email}</option>
+          ))}
+        </select>
         <button
           onClick={() => void fetchData()}
           className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
@@ -342,7 +423,7 @@ export default function CallListPage() {
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-blue-soft text-brand-blue">
                         <Building2 className="h-5 w-5" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-lg font-bold text-slate-900">{entry.company_name || 'Unbekannte Firma'}</p>
                         <p className="text-sm text-slate-500">{entry.service || 'Keine Kategorie hinterlegt'}</p>
                       </div>
@@ -367,6 +448,17 @@ export default function CallListPage() {
                       <div className="flex items-center gap-3 text-sm text-slate-600">
                         <Calendar className="h-4 w-4 text-slate-400" />
                         <span>{entry.created_at ? new Date(entry.created_at).toLocaleString('de-DE') : 'Kein Datum'}</span>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Zuständigkeit</p>
+                        <p className="mt-2 text-sm font-medium text-slate-700 break-all">{getTeamLabel(entry.assigned_to_email)}</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Rückruf</p>
+                        <p className="mt-2 text-sm font-medium text-slate-700">{formatCallback(entry.callback_at)}</p>
                       </div>
                     </div>
 
