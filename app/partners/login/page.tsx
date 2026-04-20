@@ -11,7 +11,7 @@ export default function PartnerLoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -27,8 +27,7 @@ export default function PartnerLoginPage() {
       });
 
       if (loginError) throw loginError;
-      
-      // Check if this user is a partner
+
       const { data: partner, error: pError } = await supabase
         .from('partners')
         .select('*')
@@ -40,7 +39,6 @@ export default function PartnerLoginPage() {
         throw new Error('Dieses Konto ist nicht als Partner registriert.');
       }
 
-      // Status-Prüfung
       if (partner.status === 'SUSPENDED') {
         await supabase.auth.signOut();
         throw new Error('Ihr Account wurde gesperrt. Bitte kontaktieren Sie den Support.');
@@ -83,11 +81,11 @@ export default function PartnerLoginPage() {
                     Verifiziertes Netzwerk
                   </div>
                   <div>
-                    <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
-                      Leads, Freigaben und Guthaben an einem Ort.
+                    <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl break-words">
+                      Kundenanfragen, Freigaben und Guthaben an einem Ort.
                     </h1>
                     <p className="mt-4 max-w-md text-base leading-relaxed text-white/72 sm:text-lg">
-                      Das Partner-Panel bleibt funktional, wirkt aber klarer und stärker an die Umzugsnetz-Marke angebunden.
+                      Das Partner-Portal ist klar aufgebaut, mobil optimiert und konsequent an die Umzugsnetz-Marke angebunden.
                     </p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-3">
@@ -119,7 +117,7 @@ export default function PartnerLoginPage() {
                   </div>
                   <h2 className="mt-6 text-3xl font-black tracking-tight">Partner Login</h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    Melden Sie sich an, um Anfragen, Käufe und Einstellungen im Partnerbereich zu verwalten.
+                    Melden Sie sich an, um Kundenanfragen, Käufe und Einstellungen im Partnerbereich zu verwalten.
                   </p>
                 </div>
 
@@ -173,6 +171,9 @@ export default function PartnerLoginPage() {
 
                 <p className="mt-6 text-center text-sm font-medium text-slate-500">
                   Noch kein Konto? <Link href="/partners/register" className="font-bold text-brand-blue hover:underline">Registrieren</Link>
+                </p>
+                <p className="mt-3 text-center text-sm font-medium text-slate-500">
+                  Passwort vergessen? <a href="mailto:kontakt@umzugsnetz.de?subject=Passwort%20zur%C3%BCcksetzen" className="font-bold text-brand-blue hover:underline">Zugang zurücksetzen anfragen</a>
                 </p>
               </div>
             </div>

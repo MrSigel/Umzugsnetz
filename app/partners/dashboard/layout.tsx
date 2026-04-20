@@ -5,16 +5,15 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  Wallet, 
-  MessageSquare, 
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Wallet,
+  MessageSquare,
   LogOut,
   Menu,
   X,
   ShieldCheck,
-  User,
   Settings,
   ArrowRightLeft,
   CreditCard
@@ -33,7 +32,7 @@ export default function PartnerDashboardLayout({
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       router.push('/partners/login');
       return;
@@ -55,11 +54,7 @@ export default function PartnerDashboardLayout({
   }, [router]);
 
   useEffect(() => {
-    const loadPartner = async () => {
-      await checkUser();
-    };
-
-    void loadPartner();
+    void checkUser();
   }, [checkUser]);
 
   useEffect(() => {
@@ -106,10 +101,9 @@ export default function PartnerDashboardLayout({
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex font-sans">
-      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -119,7 +113,6 @@ export default function PartnerDashboardLayout({
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <aside className={`fixed lg:sticky top-0 left-0 h-screen bg-white border-r border-slate-200 z-50 transition-all duration-300 w-72 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="flex flex-col h-full overflow-hidden">
           <div className="p-6 flex items-center justify-between">
@@ -147,36 +140,36 @@ export default function PartnerDashboardLayout({
           </nav>
 
           <div className="p-6 border-t border-slate-100">
-             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 rounded-xl font-bold transition-all hover:bg-red-50 group">
-               <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-               <span>Abmelden</span>
-             </button>
+            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 rounded-xl font-bold transition-all hover:bg-red-50 group">
+              <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <span>Abmelden</span>
+            </button>
           </div>
         </div>
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0 min-h-screen">
         <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-6 lg:px-10 flex items-center justify-between">
-           <div className="flex items-center gap-4">
-              <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-                <Menu className="w-6 h-6" />
-              </button>
-              <h1 className="text-xl font-black text-slate-800 tracking-tight hidden sm:block">
-                Hallo, {partner.name}!
-              </h1>
-           </div>
+          <div className="flex items-center gap-4">
+            <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-black text-slate-800 tracking-tight hidden sm:block break-words">
+              Hallo, {partner.name}!
+            </h1>
+          </div>
 
-           <div className="flex items-center gap-4">
-              <div className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl flex items-center gap-3">
-                 <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                    <Wallet className="w-4 h-4" />
-                 </div>
-                 <div className="text-right">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Guthaben</p>
-                    <p className="text-sm font-black text-slate-800 leading-tight">€{Number(partner.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
-                 </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl flex items-center gap-3 max-w-full">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <Wallet className="w-4 h-4" />
               </div>
-           </div>
+              <div className="text-right min-w-0">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Guthaben</p>
+                <p className="text-sm font-black text-slate-800 leading-tight">€{Number(partner.balance || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</p>
+              </div>
+            </div>
+          </div>
         </header>
 
         <div className="p-6 lg:p-10 flex-1">

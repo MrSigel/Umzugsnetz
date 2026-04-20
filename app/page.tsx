@@ -12,16 +12,17 @@ import KostenrechnerWidget from '@/components/KostenrechnerWidget';
 import { SiteHeader, SiteFooter } from '@/components/SiteLayout';
 import { useToast } from '@/components/ToastProvider';
 const Facebook = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
-const Twitter = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>;
+const XIcon = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m4 4 16 16"/><path d="M20 4 4 20"/></svg>;
 const Instagram = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>;
+const TikTok = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.78h-3.13v13.18a2.72 2.72 0 1 1-2.72-2.72c.25 0 .5.04.72.1V9.28a5.85 5.85 0 1 0 5.85 5.85V8.54a7.93 7.93 0 0 0 4.63 1.48V6.89c-.54 0-1.07-.07-1.58-.2Z"/></svg>;
 
-  // Animation f?r die Checkliste (Container)
+  // Animation für die Checkliste (Container)
   const listContainer = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15 // Verz?gerung zwischen jedem Haken
+        staggerChildren: 0.15 // Verzögerung zwischen jedem Haken
       }
     }
   };
@@ -57,7 +58,7 @@ export default function Landingpage() {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   // HIER MUSS SIE HIN:
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  // Animation f?r jeden einzelnen Haken
+  // Animation für jeden einzelnen Haken
   const listItem: Variants = {
     hidden: { opacity: 0, x: 20 },
     visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } }
@@ -67,17 +68,18 @@ export default function Landingpage() {
 const handleCopyEmail = () => {
   navigator.clipboard.writeText('kontakt@umzugsnetz.de');
   setCopyStatus('copied');
-  // Nach 2 Sekunden wieder zur?cksetzen
+  // Nach 2 Sekunden wieder zurücksetzen
 setTimeout(() => setCopyStatus('idle'), 2000);
 };
   const socialLinks = {
     facebook: 'https://facebook.com/umzugsnetz',
     x: 'https://x.com/umzugsnetz',
     instagram: 'https://instagram.com/umzugsnetz',
+    tiktok: 'https://www.tiktok.com/@umzugsnetz',
     whatsapp: 'https://wa.me/491722699945',
   } as const;
 
-  const handleShare = async (channel: 'facebook' | 'x' | 'whatsapp' | 'instagram' | 'email' | 'copy') => {
+  const handleShare = async (channel: 'facebook' | 'x' | 'whatsapp' | 'instagram' | 'tiktok' | 'email' | 'copy') => {
     const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://umzugsnetz.de';
 
     if (channel === 'copy') {
@@ -86,7 +88,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
       return;
     }
 
-    if (channel === 'facebook' || channel === 'x' || channel === 'whatsapp' || channel === 'instagram') {
+    if (channel === 'facebook' || channel === 'x' || channel === 'whatsapp' || channel === 'instagram' || channel === 'tiktok') {
       window.open(socialLinks[channel], '_blank', 'noopener,noreferrer');
       return;
     }
@@ -126,7 +128,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             alt="Umzugskartons Hintergrund" 
             className="w-full h-full object-cover object-center"
           />
-          {/* Ein sanfter wei?er Verlauf */}
+          {/* Ein sanfter weißer Verlauf */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/20"></div>
         </div>
 
@@ -163,7 +165,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               className="bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-full border border-brand-blue/20 flex items-center gap-2 cursor-default transition-colors shadow-sm"
             >
               <BadgeCheck className="w-5 h-5 text-brand-blue" />
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Gepr?fte Firmen</span>
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Geprüfte Firmen</span>
             </motion.div>
           </motion.div>
 
@@ -174,10 +176,10 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             className="mb-12 md:mb-16 max-w-5xl"
           >
             <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-[#1e293b] leading-[1.2] tracking-tight">
-              In unter 2 Minuten Angebote f?r <br />
+              In unter 2 Minuten Angebote für <br />
               
               <span className="inline-block transition-all duration-300 hover:scale-105 hover:drop-shadow-md cursor-default origin-left">
-                 <span className="text-brand-blue">Umzug</span> & <span className="text-[#00b67a]">Entr?mpelung</span>
+                 <span className="text-brand-blue">Umzug</span> & <span className="text-[#00b67a]">Entrümpelung</span>
               </span> <br />
               
               vergleichen und sparen.
@@ -195,20 +197,20 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               {/* SLOGAN */}
               <div>
                 <p className="text-lg md:text-xl text-slate-800 font-medium mb-3 leading-relaxed max-w-xl">
-                  Vergleichen Sie kostenlos Angebote gepr?fter Umzugs- und Entr?mpelungsunternehmen aus Ihrer Region.
+                  Vergleichen Sie kostenlos Angebote geprüfter Umzugs- und Entrümpelungsunternehmen aus Ihrer Region.
                 </p>
                 <p className="text-md font-bold text-brand-blue">
-                  ?ber 6.000 Anfragen deutschlandweit ?ber unsere Plattform
+                  Über 6.000 Anfragen deutschlandweit über unsere Plattform
                 </p>
               </div>
 
               {/* TRUSTPILOT */}
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap">
                   <div className="flex -space-x-3">
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[1]" src="/1.jpeg" width={44} height={44} alt="Trustpilot Bewertung 1" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[2]" src="/2.jpeg" width={44} height={44} alt="Trustpilot Bewertung 2" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[3]" src="/3.jpeg" width={44} height={44} alt="Trustpilot Bewertung 3" sizes="44px" />
-                  <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[4]" src="/4.jpeg" width={44} height={44} alt="Trustpilot Bewertung 4" sizes="44px" />
+                  <Image className="hidden sm:block w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[4]" src="/4.jpeg" width={44} height={44} alt="Trustpilot Bewertung 4" sizes="44px" />
                     <div className="w-11 h-11 rounded-full border-2 border-white bg-brand-blue text-white flex items-center justify-center shadow-sm relative z-[5]">
                       <div className="w-7 h-7 rounded-full bg-white/12 flex items-center justify-center">
                         <Plus className="w-4 h-4 stroke-[3]" />
@@ -223,10 +225,10 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   className="flex flex-col justify-center hover:opacity-80 transition-opacity"
                   title="Zu unseren Bewertungen auf Trustpilot"
                 >
-                  <img src="/IconTOP.png" alt="Trustpilot Sterne" className="h-5 w-auto object-contain mb-1 rendering-pixelated" style={{ imageRendering: 'auto' }} />
+                  <img src="/IconTOP.png" alt="Trustpilot Sterne" className="h-5 w-auto object-contain mb-1 brightness-0 invert rendering-pixelated" style={{ imageRendering: 'auto' }} />
                   <div className="flex items-center gap-1.5 text-xs">
-                    <span className="font-extrabold text-[#1c2e4a] uppercase tracking-wide">Ausgezeichnet</span>
-                    <span className="font-bold text-[#869ab8] uppercase tracking-wide">4.9/5 auf Trustpilot</span>
+                    <span className="font-extrabold text-slate-900 uppercase tracking-wide">Ausgezeichnet</span>
+                    <span className="font-bold text-slate-500 uppercase tracking-wide">4.9/5 auf Trustpilot</span>
                   </div>
                 </a>
               </div>
@@ -244,7 +246,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   Jetzt kostenlos anfragen <ChevronRight className="w-6 h-6" />
                 </motion.button>
 
-                {/* SEKUND?RE BUTTONS */}
+                {/* SEKUNDÄRE BUTTONS */}
                 <div className="grid grid-cols-2 gap-2 w-full">
                   
                   {/* Sub-Button 1: Umzugskosten */}
@@ -258,7 +260,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'privatumzug' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-brand-blue hover:bg-brand-blue-hover border border-brand-blue backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-md hover:shadow-lg"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 border border-brand-blue/30 bg-white/55 backdrop-blur-md rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:border-brand-blue/45 hover:bg-white/72 hover:shadow-lg"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -266,13 +268,13 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
                       className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
                     />
-                    <Calculator className="w-3.5 h-3.5 text-white flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-white leading-tight text-center transition-colors">
+                    <Calculator className="w-3.5 h-3.5 text-brand-blue flex-shrink-0 transition-colors" />
+                    <span className="text-[10px] md:text-[11px] font-bold text-brand-blue leading-tight text-center transition-colors">
                       Umzugskosten<br/>berechnen
                     </span>
                   </motion.button>
                   
-                  {/* Sub-Button 2: Entr?mpelungskosten */}
+                  {/* Sub-Button 2: Entrümpelungskosten */}
                   <motion.button
                     variants={calcButtonVariants}
                     initial="rest"
@@ -283,7 +285,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'entruempelung' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 bg-[#00b67a] hover:bg-[#009d69] border border-[#00b67a] backdrop-blur-sm rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-md hover:shadow-lg"
+                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 border border-[#00b67a]/35 bg-white/55 backdrop-blur-md rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:border-[#00b67a]/50 hover:bg-white/72 hover:shadow-lg"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -291,9 +293,9 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
                       className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
                     />
-                    <Trash2 className="w-3.5 h-3.5 text-white flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-white leading-tight text-center transition-colors">
-                      Entr?mpelungskosten<br/>berechnen
+                    <Trash2 className="w-3.5 h-3.5 text-[#00b67a] flex-shrink-0 transition-colors" />
+                    <span className="text-[10px] md:text-[11px] font-bold text-[#008b60] leading-tight text-center transition-colors">
+                      Entrümpelungskosten<br/>berechnen
                     </span>
                   </motion.button>
 
@@ -313,8 +315,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 {[
                   '100% kostenlos & unverbindlich', 
                   'Anfrage in unter 2 Minuten', 
-                  'Nur gepr?fte Fachpartner', 
-                  'Regionale Firmen aus Ihrer N?he', 
+                  'Nur geprüfte Fachpartner', 
+                  'Regionale Firmen aus Ihrer Nähe', 
                   'Keine versteckten Kosten'
                 ].map((item, idx) => (
                   <motion.div key={idx} variants={listItem} className="flex items-center gap-4 group">
@@ -335,14 +337,14 @@ setTimeout(() => setCopyStatus('idle'), 2000);
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Kostenlos & unverbindlich</p>
-            <p className="truncate text-sm font-bold text-slate-900">Jetzt passende Umzugs- oder Entr?mpelungsangebote anfragen</p>
+            <p className="truncate text-sm font-bold text-slate-900">Jetzt passende Umzugs- oder Entrümpelungsangebote anfragen</p>
           </div>
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={(e) => scrollTo(e as any, 'rechner')}
             className="pointer-events-auto flex-shrink-0 rounded-full bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20"
           >
-            Rechner ?ffnen
+            Rechner öffnen
           </motion.button>
         </div>
       </div>
@@ -368,7 +370,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               Ihr Umzug in nur <span className="text-brand-blue">3 einfachen Schritten</span>
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed">
-              Sparen Sie sich stundenlange Recherche. Teilen Sie uns Ihre Eckdaten mit und wir ?bernehmen den Rest ? komplett kostenlos.
+              Sparen Sie sich stundenlange Recherche. Teilen Sie uns Ihre Eckdaten mit und wir übernehmen den Rest – komplett kostenlos.
             </p>
           </motion.div>
 
@@ -397,7 +399,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 
                 <h3 className="text-2xl font-extrabold text-slate-800 mb-4">Anfrage stellen</h3>
                 <p className="text-slate-600 leading-relaxed">
-                  F?llen Sie unser kurzes Formular in unter 2 Minuten aus. Geben Sie an, was transportiert oder entr?mpelt werden soll.
+                  Füllen Sie unser kurzes Formular in unter 2 Minuten aus. Geben Sie an, was transportiert oder entrümpelt werden soll.
                 </p>
               </motion.div>
 
@@ -414,7 +416,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-800 mb-4">Angebote erhalten</h3>
                 <p className="text-slate-600 leading-relaxed">
-                  Wir leiten Ihre Anfrage an unser gepr?ftes Netzwerk weiter. Sie erhalten zeitnah unverbindliche Angebote.
+                  Wir leiten Ihre Anfrage an unser geprüftes Netzwerk weiter. Sie erhalten zeitnah unverbindliche Angebote.
                 </p>
               </motion.div>
 
@@ -431,7 +433,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-800 mb-4">Vergleichen & Buchen</h3>
                 <p className="text-slate-600 leading-relaxed">
-                  W?hlen Sie entspannt das beste Angebot aus. Sparen Sie Geld und genie?en Sie einen stressfreien Service.
+                  Wählen Sie entspannt das beste Angebot aus. Sparen Sie Geld und genießen Sie einen stressfreien Service.
                 </p>
               </motion.div>
 
@@ -456,7 +458,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
-              Umzugskosten <span className="text-brand-blue">sofort sch?tzen</span>
+              Umzugskosten <span className="text-brand-blue">sofort schätzen</span>
             </h2>
             <p className="text-slate-600">Nutzen Sie unseren Schieberegler, um einen ersten Richtwert zu erhalten.</p>
           </div>
@@ -478,10 +480,10 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6 break-words hyphens-auto">
                 Sind Sie ein Umzugs- oder <br className="hidden md:block" />
-                Entr?mpelungsunternehmen?
+                Entrümpelungsunternehmen?
               </h2>
               <p className="text-white/90 text-lg md:text-xl font-medium leading-relaxed opacity-90 break-words hyphens-auto">
-                Werden Sie Teil unseres Premium-Netzwerks von ?ber 500 gepr?ften Partnern und erhalten Sie hochwertige Anfragen direkt in Ihr Postfach.
+                Werden Sie Teil unseres Premium-Netzwerks von über 500 geprüften Partnern und erhalten Sie hochwertige Anfragen direkt in Ihr Postfach.
               </p>
             </motion.div>
 
@@ -492,7 +494,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {/* Button Umzugsunternehmen ? Blau */}
+              {/* Button Umzugsunternehmen – Blau */}
               <div className="flex flex-col sm:flex-row lg:flex-col gap-4">
               <Link href="/partner/umzug" className="w-full">
                 <motion.div
@@ -501,13 +503,13 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   className="w-full sm:min-w-[240px] bg-white/15 hover:bg-white/25 border-2 border-white/30 hover:border-white/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
                 >
                   <Truck className="w-7 h-7 mb-1 opacity-90" />
-                  <span className="text-xs font-bold uppercase tracking-widest opacity-70">F?r</span>
+                  <span className="text-xs font-bold uppercase tracking-widest opacity-70">Für</span>
                   <span className="text-lg font-black leading-tight">Umzugsunternehmen</span>
                   <span className="text-xs text-white/60 flex items-center gap-1 mt-1">Jetzt bewerben <ArrowRight className="w-3 h-3" /></span>
                 </motion.div>
               </Link>
 
-              {/* Button Entr?mpelungsfirmen ? Gr?n */}
+              {/* Button Entrümpelungsfirmen – Grün */}
               <Link href="/partner/entruempelung" className="w-full">
                 <motion.div
                   whileHover={{ y: -5, scale: 1.03 }}
@@ -515,8 +517,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   className="w-full sm:min-w-[240px] bg-[#00b67a]/30 hover:bg-[#00b67a]/50 border-2 border-[#00ff9d]/30 hover:border-[#00ff9d]/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
                 >
                   <Trash2 className="w-7 h-7 mb-1 opacity-90" />
-                  <span className="text-xs font-bold uppercase tracking-widest opacity-70">F?r</span>
-                  <span className="text-lg font-black leading-tight">Entr?mpelungsfirmen</span>
+                  <span className="text-xs font-bold uppercase tracking-widest opacity-70">Für</span>
+                  <span className="text-lg font-black leading-tight">Entrümpelungsfirmen</span>
                   <span className="text-xs text-white/60 flex items-center gap-1 mt-1">Jetzt bewerben <ArrowRight className="w-3 h-3" /></span>
                 </motion.div>
               </Link>
@@ -550,7 +552,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               </h2>
               
               <p className="text-lg text-slate-600 mb-12 max-w-2xl leading-relaxed">
-                Wir sind Ihr zuverl?ssiger Partner f?r den Umzug. Wir setzen auf h?chste Qualit?t, absolute Transparenz und ausschlie?lich gepr?fte Fachbetriebe aus Ihrer Region.
+                Wir sind Ihr zuverlässiger Partner für den Umzug. Wir setzen auf höchste Qualität, absolute Transparenz und ausschließlich geprüfte Fachbetriebe aus Ihrer Region.
               </p>
 
               {/* USP Liste */}
@@ -558,15 +560,15 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 {[
                   {
                     title: "Netzwerk von Fachunternehmen",
-                    desc: "Wir arbeiten ausschlie?lich mit Umzugs- und Entr?mpelungsunternehmen zusammen, die ?ber alle notwendigen Gewerbeanmeldungen und umfassenden Versicherungsschutz verf?gen."
+                    desc: "Wir arbeiten ausschließlich mit Umzugs- und Entrümpelungsunternehmen zusammen, die über alle notwendigen Gewerbeanmeldungen und umfassenden Versicherungsschutz verfügen."
                   },
                   {
                     title: "Datenschutz nach DSGVO",
-                    desc: "Ihre Daten sind bei uns sicher. Sie werden streng vertraulich behandelt und ausschlie?lich zur Bearbeitung Ihrer individuellen Anfrage an passende Partner weitergeleitet."
+                    desc: "Ihre Daten sind bei uns sicher. Sie werden streng vertraulich behandelt und ausschließlich zur Bearbeitung Ihrer individuellen Anfrage an passende Partner weitergeleitet."
                   },
                   {
                     title: "Einfacher Angebotsvergleich",
-                    desc: "Kein langes Suchen. Mit nur einer Anfrage erhalten Sie ma?geschneiderte Angebote, die Sie transparent und unkompliziert miteinander vergleichen k?nnen."
+                    desc: "Kein langes Suchen. Mit nur einer Anfrage erhalten Sie maßgeschneiderte Angebote, die Sie transparent und unkompliziert miteinander vergleichen können."
                   }
                 ].map((item, idx) => (
                   <motion.div 
@@ -612,7 +614,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-black text-slate-800 mb-4">Bereit f?r Ihren Umzug?</h3>
+                  <h3 className="text-2xl font-black text-slate-800 mb-4">Bereit für Ihren Umzug?</h3>
                   <p className="text-slate-600 mb-10 leading-relaxed">
                     Vergleichen Sie jetzt kostenlos Angebote von Top-Umzugsunternehmen aus Ihrer Region und sparen Sie wertvolle Zeit bei der Suche.
                   </p>
@@ -642,8 +644,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div className="pr-4">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Gepr?fte Qualit?t</div>
-                  <div className="text-sm font-black text-slate-800">T?V-Zertifiziert</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Geprüfte Qualität</div>
+                  <div className="text-sm font-black text-slate-800">TÜV-zertifiziert</div>
                 </div>
               </motion.div>
             </motion.div>
@@ -663,7 +665,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
           Fragen & Antworten
         </div>
         <h2 className="text-4xl font-black text-[#1e293b] leading-tight mb-6">
-          H?ufig gestellte <br/><span className="text-brand-blue">Fragen</span>
+          Häufig gestellte <br/><span className="text-brand-blue">Fragen</span>
         </h2>
         <p className="text-slate-600 mb-10">
           Noch Zweifel? Hier finden Sie schnelle Antworten auf die wichtigsten Fragen zu unserem Service.
@@ -674,7 +676,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
           <div className="relative z-10 text-white">
             <h4 className="text-xl font-bold mb-2">Noch Fragen?</h4>
             <p className="text-white/80 text-sm mb-8">
-              Unser Support-Team ist werktags von 09:00 bis 18:00 Uhr pers?nlich f?r Sie da.
+              Unser Support-Team ist werktags von 09:00 bis 18:00 Uhr persönlich für Sie da.
             </p>
             <button
               onClick={() => window.dispatchEvent(new CustomEvent('openChat'))}
@@ -697,22 +699,22 @@ setTimeout(() => setCopyStatus('idle'), 2000);
           { 
             id: 2, 
             q: "Ist der Service wirklich kostenlos?", 
-            a: "Ja, zu 100%. Wir finanzieren uns ?ber unsere Partnerunternehmen. F?r Sie entstehen keine Kosten oder Verpflichtungen." 
+            a: "Ja, zu 100%. Wir finanzieren uns über unsere Partnerunternehmen. Für Sie entstehen keine Kosten oder Verpflichtungen." 
           },
           { 
             id: 3, 
-            q: "Wie werden die Partnerunternehmen gepr?ft?", 
-            a: "Wir fordern von jedem Partner g?ltige Gewerbenachweise und Versicherungsbelege an, um h?chste Qualit?t zu garantieren." 
+            q: "Wie werden die Partnerunternehmen geprüft?", 
+            a: "Wir fordern von jedem Partner gültige Gewerbenachweise und Versicherungsbelege an, um höchste Qualität zu garantieren." 
           },
           { 
             id: 4, 
             q: "Muss ich ein Angebot annehmen?", 
-            a: "Nein. Wenn Ihnen kein Angebot zusagt, k?nnen Sie den Vorgang jederzeit ohne Angabe von Gr?nden beenden." 
+            a: "Nein. Wenn Ihnen kein Angebot zusagt, können Sie den Vorgang jederzeit ohne Angabe von Gründen beenden." 
           },
           { 
             id: 5, 
             q: "Wie schnell erhalte ich die Angebote?", 
-            a: "In der Regel erhalten Sie erste R?ckmeldungen bereits innerhalb weniger Stunden nach Absenden Ihrer Anfrage." 
+            a: "In der Regel erhalten Sie erste Rückmeldungen bereits innerhalb weniger Stunden nach Absenden Ihrer Anfrage." 
           }
         ].map((item) => {
           const isOpen = activeFaq === item.id;
@@ -768,10 +770,10 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 Ratgeber
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-[#1e293b] leading-tight mb-4">
-                Wissen f?r Ihren <span className="text-brand-blue">Umzug</span>
+                Wissen für Ihren <span className="text-brand-blue">Umzug</span>
               </h2>
               <p className="text-lg text-slate-600">
-                Profitieren Sie von unseren Experten-Tipps f?r eine stressfreie Planung und Durchf?hrung Ihres Vorhabens.
+                Profitieren Sie von unseren Experten-Tipps für eine stressfreie Planung und Durchführung Ihres Vorhabens.
               </p>
             </motion.div>
             
@@ -801,7 +803,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 slug: "umzugskosten-berechnen",
                 tag: "Finanzen",
                 title: "Umzugskosten berechnen: Was kostet es wirklich?",
-                desc: "Transparente ?bersicht ?ber alle Kostenfaktoren. Erfahren Sie, wie sich Preise zusammensetzen.",
+                desc: "Transparente Übersicht über alle Kostenfaktoren. Erfahren Sie, wie sich Preise zusammensetzen.",
                 img: "/umzugskosten_berechnen.jpg",
                 color: "amber"
               }
@@ -854,7 +856,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
 
 {/* FINAL CALL TO ACTION & SHARE */}
       <section className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
-        {/* Dekorative Hintergrund-Elemente f?r Tiefe */}
+        {/* Dekorative Hintergrund-Elemente für Tiefe */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/10 rounded-full blur-3xl -z-10"></div>
         
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -865,12 +867,12 @@ setTimeout(() => setCopyStatus('idle'), 2000);
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#1e293b] leading-tight mb-8">
-              Bereit f?r einen <br />
+              Bereit für einen <br />
               <span className="text-brand-blue">stressfreien Umzug?</span>
             </h2>
             
             <p className="text-lg md:text-xl text-slate-600 mb-12 leading-relaxed max-w-2xl mx-auto">
-              Vergleichen Sie jetzt kostenlos Angebote von gepr?ften Firmen und sparen Sie bares Geld. Werden Sie einer von tausenden zufriedenen Kunden.
+              Vergleichen Sie jetzt kostenlos Angebote von geprüften Firmen und sparen Sie bares Geld. Werden Sie einer von tausenden zufriedenen Kunden.
             </p>
 
             {/* Haupt-Button mit Glow-Effekt */}
@@ -897,9 +899,10 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               <div className="flex flex-wrap justify-center gap-4">
                 {[
                   { icon: Facebook, label: "Facebook", action: 'facebook', color: "hover:text-[#1877F2] hover:bg-[#1877F2]/10" },
-                  { icon: Twitter, label: "X", action: 'x', color: "hover:text-black hover:bg-black/5" },
+                  { icon: XIcon, label: "X", action: 'x', color: "hover:text-black hover:bg-black/5" },
                   { icon: MessageCircle, label: "WhatsApp", action: 'whatsapp', color: "hover:text-[#25D366] hover:bg-[#25D366]/10" },
                   { icon: Instagram, label: "Instagram", action: 'instagram', color: "hover:text-[#E4405F] hover:bg-[#E4405F]/10" },
+                  { icon: TikTok, label: "TikTok", action: 'tiktok', color: "hover:text-black hover:bg-black/5" },
                   { icon: Send, label: "E-Mail", action: 'email', color: "hover:text-brand-blue hover:bg-brand-blue/10" },
                   { icon: Link2, label: "Link kopieren", action: 'copy', color: "hover:text-slate-900 hover:bg-slate-200" }
                 ].map((social, idx) => (
@@ -907,7 +910,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     key={idx}
                     whileHover={{ y: -5 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => handleShare(social.action as 'facebook' | 'x' | 'whatsapp' | 'instagram' | 'email' | 'copy')}
+                    onClick={() => handleShare(social.action as 'facebook' | 'x' | 'whatsapp' | 'instagram' | 'tiktok' | 'email' | 'copy')}
                     className={`w-14 h-14 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-100 text-slate-400 transition-all duration-300 ${social.color}`}
                     title={social.label}
                   >

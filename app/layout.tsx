@@ -16,8 +16,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Umzugsnetz – Umzug & Entrümpelung vergleichen",
-  description: "Vergleichen Sie kostenlos Angebote geprüfter Umzugs- und Entrümpelungsunternehmen aus Ihrer Region. Über 6.000 Anfragen deutschlandweit.",
+  metadataBase: new URL("https://umzugsnetz.de"),
+  title: "Umzugsnetz - Umzug und Entrümpelung vergleichen",
+  description:
+    "Vergleichen Sie kostenlos Angebote geprüfter Umzugs- und Entrümpelungsunternehmen aus Ihrer Region. Über 6.000 Kundenanfragen deutschlandweit.",
+  openGraph: {
+    title: "Umzugsnetz - Umzug und Entrümpelung vergleichen",
+    description:
+      "Kostenlos passende Angebote geprüfter Umzugs- und Entrümpelungsunternehmen vergleichen.",
+    url: "https://umzugsnetz.de",
+    siteName: "Umzugsnetz",
+    locale: "de_DE",
+    type: "website",
+    images: [
+      {
+        url: "/logo_transparent.png",
+        width: 1200,
+        height: 630,
+        alt: "Umzugsnetz",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Umzugsnetz - Umzug und Entrümpelung vergleichen",
+    description:
+      "Kostenlos passende Angebote geprüfter Umzugs- und Entrümpelungsunternehmen vergleichen.",
+    images: ["/logo_transparent.png"],
+  },
 };
 
 export default function RootLayout({

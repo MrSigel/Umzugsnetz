@@ -12,9 +12,9 @@ import {
   Layers, PersonStanding, PackageCheck, Dumbbell
 } from 'lucide-react';
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 // INFO MODAL
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 function InfoModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -30,9 +30,9 @@ function InfoModal({ onClose }: { onClose: () => void }) {
           <h3 className="text-2xl font-black text-slate-800 tracking-tight">Berechnungsgrundlage</h3>
         </div>
         <div className="space-y-4 text-slate-600 text-sm leading-relaxed">
-          <p>Der SchÃ¤tzpreis basiert auf WohnflÃ¤che und Entfernung als erste Orientierung. Im nÃ¤chsten Schritt verfeinern wir die Kalkulation anhand Ihrer Angaben.</p>
+          <p>Der Schätzpreis basiert auf Wohnfläche und Entfernung als erste Orientierung. Im nächsten Schritt verfeinern wir die Kalkulation anhand Ihrer Angaben.</p>
           <ul className="pl-4 list-disc space-y-1 marker:text-brand-blue">
-            <li>WohnflÃ¤che der Wohnung (mÂ²)</li>
+            <li>Wohnfläche der Wohnung (m²)</li>
             <li>Entfernung zwischen Auszugs- und Einzugsort (km)</li>
             <li>Etagen und Transportwege</li>
             <li>Aufzug, Halteverbot & Sonderleistungen</li>
@@ -43,23 +43,23 @@ function InfoModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 // HELPERS
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 const SERVICES = [
   { id: 'privatumzug', label: 'Privatumzug', icon: Truck },
   { id: 'firmenumzug', label: 'Firmenumzug', icon: Building2 },
-  { id: 'entruempelung', label: 'EntrÃ¼mpelung', icon: Trash2 },
+  { id: 'entruempelung', label: 'Entrümpelung', icon: Trash2 },
 ];
 
 const ENTRUEMPEL_ITEMS = [
   { id: 'sofa', label: 'Sofa', pricePerUnit: 40 },
   { id: 'tisch', label: 'Tisch', pricePerUnit: 20 },
-  { id: 'stuehle', label: 'StÃ¼hle', pricePerUnit: 10 },
-  { id: 'schraenke', label: 'SchrÃ¤nke', pricePerUnit: 35 },
+  { id: 'stuehle', label: 'Stühle', pricePerUnit: 10 },
+  { id: 'schraenke', label: 'Schränke', pricePerUnit: 35 },
   { id: 'matratze', label: 'Matratze', pricePerUnit: 25 },
   { id: 'kartons', label: 'Umzugskartons', pricePerUnit: 5 },
-  { id: 'elektro', label: 'ElektrogerÃ¤te', pricePerUnit: 30 },
+  { id: 'elektro', label: 'Elektrogeräte', pricePerUnit: 30 },
   { id: 'kleinkram', label: 'Sonstiger Kleinkram', pricePerUnit: 15 },
 ];
 
@@ -72,7 +72,7 @@ const CALCULATOR_STORAGE_KEY = 'umzugsnetz_rechner_state_v1';
 function ProgressBar({ step }: { step: Step }) {
   const steps: Step[] = ['rechner', 'details', 'kontakt', 'success'];
   const idx = steps.indexOf(step);
-  const labels = ['SchÃ¤tzung', 'Details', 'Kontakt', 'Fertig'];
+  const labels = ['Schätzung', 'Details', 'Kontakt', 'Fertig'];
   return (
     <div className="mb-6">
       <div className="flex items-center gap-1 mb-2">
@@ -145,9 +145,9 @@ function InputField({ label, icon: Icon, ...props }: any) {
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 // MAIN WIDGET
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────
 export default function KostenrechnerWidget() {
   const { showToast } = useToast();
   const [step, setStep] = useState<Step>('rechner');
@@ -159,7 +159,7 @@ export default function KostenrechnerWidget() {
   const [entfernung, setEntfernung] = useState(50);
   const [selectedService, setSelectedService] = useState('privatumzug');
 
-  // STEP 2 â€“ Umzug
+  // STEP 2 – Umzug
   const [von, setVon] = useState('');
   const [nach, setNach] = useState('');
   const [datum, setDatum] = useState('');
@@ -173,7 +173,7 @@ export default function KostenrechnerWidget() {
   const [verpackung, setVerpackung] = useState(false);
   const [umzugNotizen, setUmzugNotizen] = useState('');
 
-  // STEP 2 â€“ EntrÃ¼mpelung
+  // STEP 2 – Entrümpelung
   const [itemCounts, setItemCounts] = useState<Record<string, number>>(
     Object.fromEntries(ENTRUEMPEL_ITEMS.map(i => [i.id, 0]))
   );
@@ -183,7 +183,7 @@ export default function KostenrechnerWidget() {
   const [parkverbot, setParkverbot] = useState(false);
   const [entruempelNotizen, setEntruempelNotizen] = useState('');
 
-  // STEP 3 â€“ Kontakt
+  // STEP 3 – Kontakt
   const [vorname, setVorname] = useState('');
   const [nachname, setNachname] = useState('');
   const [email, setEmail] = useState('');
@@ -198,7 +198,7 @@ export default function KostenrechnerWidget() {
   const umzugExtras = [
     { label: 'Langer Trageweg', active: trageweg, amount: 80 },
     { label: 'Halteverbotszone', active: halteverbot, amount: 60 },
-    { label: 'Schwere SondergÃ¼ter', active: sperrgut, amount: 120 },
+    { label: 'Schwere Sondergüter', active: sperrgut, amount: 120 },
     { label: 'Verpackungsservice', active: verpackung, amount: 200 },
   ].filter((item) => item.active);
   const umzugExtrasCost = umzugExtras.reduce((sum, item) => sum + item.amount, 0);
@@ -225,7 +225,7 @@ export default function KostenrechnerWidget() {
         ...entruempelExtras.map((item) => ({ label: item.label, amount: item.amount })),
       ]
     : [
-        { label: 'WohnflÃ¤che', amount: wohnflaecheCost, suffix: `${wohnflaeche} mÂ²` },
+        { label: 'Wohnfläche', amount: wohnflaecheCost, suffix: `${wohnflaeche} m²` },
         { label: 'Entfernung', amount: entfernungCost, suffix: `${entfernung} km` },
         ...umzugExtras.map((item) => ({ label: item.label, amount: item.amount })),
       ];
@@ -379,12 +379,12 @@ export default function KostenrechnerWidget() {
     try {
       // Auftrag in Supabase speichern
       const { error: orderError } = await supabase.from('orders').insert([{
-        service_category: selectedService === 'privatumzug' ? 'PRIVATUMZUG' : selectedService === 'firmenumzug' ? 'FIRMENUMZUG' : 'ENTRÃœMPELUNG',
+        service_category: selectedService === 'privatumzug' ? 'PRIVATUMZUG' : selectedService === 'firmenumzug' ? 'FIRMENUMZUG' : 'ENTRÜMPELUNG',
         customer_name: `${vorname} ${nachname}`,
         customer_email: email,
         customer_phone: telefon,
         move_date: datum || null,
-        von_city: isEntruempelung ? 'EntrÃ¼mpelung' : von,
+        von_city: isEntruempelung ? 'Entrümpelung' : von,
         von_address: isEntruempelung ? '' : von,
         von_plz: '',
         von_floor: isEntruempelung ? etage : etageAuszug,
@@ -394,13 +394,13 @@ export default function KostenrechnerWidget() {
         nach_plz: '',
         nach_floor: isEntruempelung ? '' : etageEinzug,
         nach_lift: isEntruempelung ? false : aufzugEinzug === 'ja',
-        size_info: isEntruempelung ? 'EntrÃ¼mpelung' : `${wohnflaeche} mÂ²`,
+        size_info: isEntruempelung ? 'Entrümpelung' : `${wohnflaeche} m²`,
         sqm: isEntruempelung ? '' : `${wohnflaeche}`,
         rooms_info: '',
         additional_services: [
           ...(trageweg ? ['Langer Trageweg'] : []),
           ...(halteverbot ? ['Halteverbotszone'] : []),
-          ...(sperrgut ? ['Schwere SondergÃ¼ter'] : []),
+          ...(sperrgut ? ['Schwere Sondergüter'] : []),
           ...(verpackung ? ['Verpackungsservice'] : []),
           ...(erschwerterZugang ? ['Erschwerter Zugang'] : []),
           ...(parkverbot ? ['Parkverbot'] : []),
@@ -419,7 +419,7 @@ export default function KostenrechnerWidget() {
       await supabase.from('notifications').insert([{
         type: 'NEW_ORDER',
         title: 'Neuer Kundenauftrag',
-        message: `${vorname} ${nachname} hat eine Anfrage fÃ¼r ${isEntruempelung ? 'EntrÃ¼mpelung' : 'Umzug'} gestellt.`,
+        message: `${vorname} ${nachname} hat eine Anfrage für ${isEntruempelung ? 'Entrümpelung' : 'Umzug'} gestellt.`,
         link: '/admin/dashboard/auftraege',
         is_read: false,
       }]);
@@ -443,19 +443,19 @@ export default function KostenrechnerWidget() {
 
         <AnimatePresence mode="wait">
 
-          {/* â•â•â•â•â•â•â•â•â•â• STEP 1: RECHNER â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ STEP 1: RECHNER ══════════ */}
           {step === 'rechner' && (
             <motion.div key="rechner" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35 }}>
               <div className="grid md:grid-cols-2 gap-10 items-center relative z-10">
                 <div className="space-y-10">
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
-                      <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">WohnflÃ¤che</label>
-                      <span className="text-2xl font-black text-brand-blue">{wohnflaeche} <span className="text-lg font-medium text-brand-blue/45">mÂ²</span></span>
+                      <label className="text-sm font-bold text-slate-500 uppercase tracking-wider">Wohnfläche</label>
+                      <span className="text-2xl font-black text-brand-blue">{wohnflaeche} <span className="text-lg font-medium text-brand-blue/45">m²</span></span>
                     </div>
                     <input type="range" min="0" max="500" step="5" value={wohnflaeche} onChange={e => setWohnflaeche(+e.target.value)}
                       className="brand-range w-full cursor-pointer" />
-                    <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase"><span>0 mÂ²</span><span>500+ mÂ²</span></div>
+                    <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase"><span>0 m²</span><span>500+ m²</span></div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
@@ -469,8 +469,8 @@ export default function KostenrechnerWidget() {
                 </div>
 
                 <div className="bg-white p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2rem] shadow-inner border border-slate-100 text-center flex flex-col items-center justify-center min-h-[280px]">
-                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">GeschÃ¤tzter Festpreis ab</p>
-                  <div className="text-4xl sm:text-5xl md:text-6xl font-black text-brand-blue mb-6 sm:mb-8 tracking-tight break-words">{estimatedPrice} â‚¬</div>
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Geschätzter Festpreis ab</p>
+                  <div className="text-4xl sm:text-5xl md:text-6xl font-black text-brand-blue mb-6 sm:mb-8 tracking-tight break-words">{estimatedPrice} €</div>
                   <div className="w-full rounded-[1.5rem] border border-brand-blue/10 bg-brand-blue-soft/40 p-4 text-left mb-6">
                     <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue mb-3">
                       <span>Preisaufteilung</span>
@@ -483,12 +483,12 @@ export default function KostenrechnerWidget() {
                             <span className="font-bold text-slate-700">{item.label}</span>
                             {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
                           </div>
-                          <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</span>
+                          <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                         </div>
                       ))}
                     </div>
                     <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                      Diese erste SchÃ¤tzung basiert auf WohnflÃ¤che und Entfernung. Im nÃ¤chsten Schritt verfeinern Sonderleistungen und Zugangssituation den Preis.
+                      Diese erste Schätzung basiert auf Wohnfläche und Entfernung. Im nächsten Schritt verfeinern Sonderleistungen und Zugangssituation den Preis.
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
@@ -507,16 +507,16 @@ export default function KostenrechnerWidget() {
             </motion.div>
           )}
 
-          {/* â•â•â•â•â•â•â•â•â•â• STEP 2: DETAILS â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ STEP 2: DETAILS ══════════ */}
           {step === 'details' && (
             <motion.div key="details" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35 }} className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2 text-brand-blue text-xs font-bold uppercase tracking-widest mb-1">
-                    <ShieldCheck className="w-4 h-4" /> Sichere Ãœbermittlung
+                    <ShieldCheck className="w-4 h-4" /> Sichere Übermittlung
                   </div>
                   <h3 className="text-2xl font-black text-[#1e293b]">
-                    {isEntruempelung ? 'Angaben zur EntrÃ¼mpelung' : 'Details zum Umzug'}
+                    {isEntruempelung ? 'Angaben zur Entrümpelung' : 'Details zum Umzug'}
                   </h3>
                 </div>
                 <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 transition-colors ml-4 flex-shrink-0">
@@ -537,11 +537,11 @@ export default function KostenrechnerWidget() {
               </div>
 
               <AnimatePresence mode="wait">
-                {/* â”€â”€ ENTRÃœMPELUNG â”€â”€ */}
+                {/* ── ENTRÜMPELUNG ── */}
                 {isEntruempelung ? (
                   <motion.div key="e-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                     <div>
-                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Welche GegenstÃ¤nde sollen entrÃ¼mpelt werden?</label>
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Welche Gegenstände sollen entrümpelt werden?</label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {ENTRUEMPEL_ITEMS.map(item => (
                           <ItemCounter key={item.id} label={item.label} value={itemCounts[item.id]}
@@ -569,14 +569,14 @@ export default function KostenrechnerWidget() {
                       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3 block">Besonderheiten:</label>
                       <div className="grid sm:grid-cols-2 gap-3">
                         <ToggleOption label="Erschwerter Zugang" desc="Langer Trageweg (>15m)" active={erschwerterZugang} onClick={() => setErschwerterZugang(!erschwerterZugang)} icon={AlertTriangle} />
-                        <ToggleOption label="Parkverbot" desc="Keine ParkmÃ¶glichkeit vorm Haus" active={parkverbot} onClick={() => setParkverbot(!parkverbot)} icon={ParkingSquareOff} />
+                        <ToggleOption label="Parkverbot" desc="Keine Parkmöglichkeit vorm Haus" active={parkverbot} onClick={() => setParkverbot(!parkverbot)} icon={ParkingSquareOff} />
                       </div>
                     </div>
 
                     <div>
                       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Sonstige Anmerkungen (Optional)</label>
                       <textarea rows={3} value={entruempelNotizen} onChange={e => setEntruempelNotizen(e.target.value)}
-                        placeholder="z. B. besondere GegenstÃ¤nde, Zugangssituation..."
+                        placeholder="z. B. besondere Gegenstände, Zugangssituation..."
                         className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                     </div>
 
@@ -584,8 +584,8 @@ export default function KostenrechnerWidget() {
                     <div className="bg-white border-2 border-slate-100 rounded-2xl p-4">
                       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                       <div>
-                        <div className="text-xs font-black text-slate-400 uppercase tracking-wider">GeschÃ¤tzter Fixpreis</div>
-                        <div className="text-3xl font-black text-brand-blue">ab {entruempelPrice.toLocaleString('de-DE')} â‚¬</div>
+                        <div className="text-xs font-black text-slate-400 uppercase tracking-wider">Geschätzter Fixpreis</div>
+                        <div className="text-3xl font-black text-brand-blue">ab {entruempelPrice.toLocaleString('de-DE')} €</div>
                         <div className="text-xs text-slate-400 mt-0.5">inkl. Fahrtkosten & fachgerechter Entsorgung</div>
                       </div>
                       <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline">
@@ -598,17 +598,17 @@ export default function KostenrechnerWidget() {
                           {priceBreakdown.length > 0 ? priceBreakdown.map((item) => (
                             <div key={item.label} className="flex items-start justify-between gap-3 text-sm">
                               <span className="font-medium text-slate-600">{item.label}</span>
-                              <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE')} â‚¬</span>
+                              <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE')} €</span>
                             </div>
                           )) : (
-                            <div className="text-sm text-slate-500">WÃ¤hlen Sie GegenstÃ¤nde oder Zusatzoptionen, um die SchÃ¤tzung zu verfeinern.</div>
+                            <div className="text-sm text-slate-500">Wählen Sie Gegenstände oder Zusatzoptionen, um die Schätzung zu verfeinern.</div>
                           )}
                         </div>
                       </div>
                     </div>
                   </motion.div>
                 ) : (
-                  /* â”€â”€ UMZUG / FIRMENUMZUG â”€â”€ */
+                  /* ── UMZUG / FIRMENUMZUG ── */
                   <motion.div key="u-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -681,7 +681,7 @@ export default function KostenrechnerWidget() {
                       <div className="grid sm:grid-cols-2 gap-3">
                         <ToggleOption label="Langer Trageweg" desc="Transportweg > 15m" active={trageweg} onClick={() => setTrageweg(!trageweg)} icon={PersonStanding} />
                         <ToggleOption label="Halteverbotszone" desc="Muss beantragt werden" active={halteverbot} onClick={() => setHalteverbot(!halteverbot)} icon={AlertTriangle} />
-                        <ToggleOption label="Schwere SondergÃ¼ter" desc="Klavier, Tresor, KÃ¼cheâ€¦" active={sperrgut} onClick={() => setSperrgut(!sperrgut)} icon={Dumbbell} />
+                        <ToggleOption label="Schwere Sondergüter" desc="Klavier, Tresor, Küche…" active={sperrgut} onClick={() => setSperrgut(!sperrgut)} icon={Dumbbell} />
                         <ToggleOption label="Verpackungsservice" desc="Kartons stellen & packen" active={verpackung} onClick={() => setVerpackung(!verpackung)} icon={PackageCheck} />
                       </div>
                     </div>
@@ -689,7 +689,7 @@ export default function KostenrechnerWidget() {
                     <div>
                       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Sonstige Anmerkungen (Optional)</label>
                       <textarea rows={2} value={umzugNotizen} onChange={e => setUmzugNotizen(e.target.value)}
-                        placeholder="z. B. KÃ¼hlschrank muss demontiert werden, QuerstraÃŸe ohne LKW-Zufahrt..."
+                        placeholder="z. B. Kühlschrank muss demontiert werden, Querstraße ohne LKW-Zufahrt..."
                         className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                     </div>
 
@@ -697,11 +697,11 @@ export default function KostenrechnerWidget() {
                     <div className="bg-white border-2 border-slate-100 rounded-2xl p-4">
                       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                       <div>
-                        <div className="text-xs font-black text-slate-400 uppercase tracking-wider">Aktualisierter SchÃ¤tzpreis</div>
+                        <div className="text-xs font-black text-slate-400 uppercase tracking-wider">Aktualisierter Schätzpreis</div>
                         <div className="text-3xl font-black text-brand-blue">
-                          ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} â‚¬
+                          ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} €
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5">inkl. ausgewÃ¤hlter Sonderleistungen</div>
+                        <div className="text-xs text-slate-400 mt-0.5">inkl. ausgewählter Sonderleistungen</div>
                       </div>
                       <button onClick={() => setIsInfoOpen(true)} className="text-xs font-bold text-brand-blue flex items-center gap-1 hover:underline">
                         <Info className="w-3.5 h-3.5" /> Info
@@ -716,12 +716,12 @@ export default function KostenrechnerWidget() {
                                 <span className="font-medium text-slate-600">{item.label}</span>
                                 {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
                               </div>
-                              <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</span>
+                              <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                             </div>
                           ))}
                         </div>
                         <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                          Der Endpreis wird nach Ihren Detailangaben prÃ¤ziser. Etagen, Aufzug und Zusatzleistungen beeinflussen das Ergebnis direkt.
+                          Der Endpreis wird nach Ihren Detailangaben präziser. Etagen, Aufzug und Zusatzleistungen beeinflussen das Ergebnis direkt.
                         </p>
                       </div>
                     </div>
@@ -741,7 +741,7 @@ export default function KostenrechnerWidget() {
             </motion.div>
           )}
 
-          {/* â•â•â•â•â•â•â•â•â•â• STEP 3: KONTAKT â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ STEP 3: KONTAKT ══════════ */}
           {step === 'kontakt' && (
             <motion.div key="kontakt" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.35 }} className="relative z-10">
               <div className="flex items-center justify-between mb-2">
@@ -750,7 +750,7 @@ export default function KostenrechnerWidget() {
                     <ShieldCheck className="w-4 h-4" /> Fast geschafft!
                   </div>
                   <h3 className="text-2xl font-black text-[#1e293b]">Ihre Kontaktdaten</h3>
-                  <p className="text-slate-400 text-sm mt-1">Damit die Unternehmen Sie kontaktieren kÃ¶nnen.</p>
+                  <p className="text-slate-400 text-sm mt-1">Damit die Unternehmen Sie kontaktieren können.</p>
                 </div>
                 <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 text-slate-400 transition-colors ml-4 flex-shrink-0">
                   <X className="w-5 h-5" />
@@ -771,17 +771,17 @@ export default function KostenrechnerWidget() {
                   <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Ab wann erreichbar? (Optional)</label>
                   <div className="relative">
                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
-                    <input type="text" value={erreichbarAb} onChange={e => setErreichbarAb(e.target.value)} placeholder="z. B. Moâ€“Fr ab 17 Uhr, oder jederzeit"
+                    <input type="text" value={erreichbarAb} onChange={e => setErreichbarAb(e.target.value)} placeholder="z. B. Mo–Fr ab 17 Uhr, oder jederzeit"
                       className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">ZusÃ¤tzliche Hinweise (Optional)</label>
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Zusätzliche Hinweise (Optional)</label>
                   <div className="relative">
                     <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-slate-300 pointer-events-none" />
                     <textarea rows={3} value={kontaktNotizen} onChange={e => setKontaktNotizen(e.target.value)}
-                      placeholder="Sonstige WÃ¼nsche oder Informationen an die Umzugsfirma..."
+                      placeholder="Sonstige Wünsche oder Informationen an die Umzugsfirma..."
                       className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                   </div>
                 </div>
@@ -790,11 +790,11 @@ export default function KostenrechnerWidget() {
                 <div className="bg-brand-blue/5 border border-brand-blue/15 rounded-2xl p-4">
                   <p className="text-xs font-black text-brand-blue uppercase tracking-widest mb-3">Ihre Zusammenfassung</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
-                    <div><span className="font-bold text-slate-400">Service:</span> {selectedService === 'privatumzug' ? 'Privatumzug' : selectedService === 'firmenumzug' ? 'Firmenumzug' : 'EntrÃ¼mpelung'}</div>
+                    <div><span className="font-bold text-slate-400">Service:</span> {selectedService === 'privatumzug' ? 'Privatumzug' : selectedService === 'firmenumzug' ? 'Firmenumzug' : 'Entrümpelung'}</div>
                     {!isEntruempelung && von && <div><span className="font-bold text-slate-400">Von:</span> {von}</div>}
                     {!isEntruempelung && nach && <div><span className="font-bold text-slate-400">Nach:</span> {nach}</div>}
                     {!isEntruempelung && datum && <div><span className="font-bold text-slate-400">Termin:</span> {new Date(datum).toLocaleDateString('de-DE')}</div>}
-                    <div><span className="font-bold text-slate-400">SchÃ¤tzpreis:</span> ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} â‚¬</div>
+                    <div><span className="font-bold text-slate-400">Schätzpreis:</span> ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} €</div>
                   </div>
                   <div className="mt-3 rounded-xl bg-white/70 p-3">
                     <div className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue">Wie sich der Preis zusammensetzt</div>
@@ -805,7 +805,7 @@ export default function KostenrechnerWidget() {
                             <span className="font-medium text-slate-600">{item.label}</span>
                             {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
                           </div>
-                          <span className="font-black text-slate-800">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} â‚¬</span>
+                          <span className="font-black text-slate-800">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                         </div>
                       ))}
                     </div>
@@ -838,7 +838,7 @@ export default function KostenrechnerWidget() {
                 </motion.button>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-                  {[{ icon: Users, val: '50.000+', label: 'Kunden' }, { icon: BadgeCheck, val: '500+', label: 'GeprÃ¼fte Firmen' }, { icon: Star, val: '4.9/5', label: 'Ã˜ Bewertung' }].map(({ icon: Icon, val, label }) => (
+                  {[{ icon: Users, val: '50.000+', label: 'Kunden' }, { icon: BadgeCheck, val: '500+', label: 'Geprüfte Firmen' }, { icon: Star, val: '4.9/5', label: 'Ø Bewertung' }].map(({ icon: Icon, val, label }) => (
                     <div key={label} className="flex flex-col items-center text-center">
                       <Icon className="w-4 h-4 text-brand-blue mb-1" />
                       <div className="font-black text-slate-800 text-sm">{val}</div>
@@ -850,14 +850,14 @@ export default function KostenrechnerWidget() {
             </motion.div>
           )}
 
-          {/* â•â•â•â•â•â•â•â•â•â• STEP 4: SUCCESS â•â•â•â•â•â•â•â•â•â• */}
+          {/* ══════════ STEP 4: SUCCESS ══════════ */}
           {step === 'success' && (
             <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8 relative z-10">
               <ProgressBar step="success" />
               <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle2 className="w-12 h-12 text-emerald-500" />
               </div>
-              <h3 className="text-2xl font-black text-[#1e293b] mb-3">Anfrage gesendet! ðŸŽ‰</h3>
+              <h3 className="text-2xl font-black text-[#1e293b] mb-3">Anfrage gesendet! 🎉</h3>
               <p className="text-slate-500 mb-2">Vielen Dank, <strong className="text-slate-700">{vorname}</strong>!</p>
               <p className="text-slate-400 text-sm mb-8">Wir suchen jetzt passende Unternehmen aus Ihrer Region und Sie erhalten zeitnah Angebote per E-Mail an <strong>{email}</strong>.</p>
               <button onClick={() => {
@@ -866,7 +866,7 @@ export default function KostenrechnerWidget() {
                 setVon(''); setNach(''); setDatum('');
               }}
                 className="inline-flex items-center gap-2 text-brand-blue font-bold hover:text-brand-blue-hover transition-colors">
-                <ArrowRight className="w-4 h-4 rotate-180" /> ZurÃ¼ck zum Rechner
+                <ArrowRight className="w-4 h-4 rotate-180" /> Zurück zum Rechner
               </button>
             </motion.div>
           )}

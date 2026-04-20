@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -12,8 +12,88 @@ type WidgetMessage = {
   text: string;
 };
 
+type SuggestedQuestion = {
+  id: string;
+  label: string;
+  message: string;
+};
+
+type BotAnswer = {
+  handled: boolean;
+  text: string;
+};
+
+const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
+  { id: 'service', label: 'Wie funktioniert der Service?', message: 'Wie funktioniert euer Service genau?' },
+  { id: 'kosten', label: 'Ist der Service kostenlos?', message: 'Ist der Service für mich kostenlos?' },
+  { id: 'angebote', label: 'Wann erhalte ich Angebote?', message: 'Wie schnell erhalte ich passende Angebote?' },
+  { id: 'partner', label: 'Partner werden', message: 'Wie kann ich Partner bei Umzugsnetz werden?' },
+  { id: 'invite', label: 'Einladungscode', message: 'Wie funktioniert die Registrierung mit Einladungscode?' },
+  { id: 'support', label: 'Mitarbeiter sprechen', message: 'Ich möchte mit einem Mitarbeiter sprechen.' },
+];
+
+const BOT_FALLBACK_MESSAGE = 'Leider kann ich Ihnen diese Frage nicht beantworten, wenn Sie aber möchten kann ich Ihre Anfrage an die zuständige Abteilung weiterleiten und es wird sich ein Mitarbeiter in Kürze melden. Geben Sie hierzu Ihre Kontaktdaten an wie Name, Vorname, Telefonnummer und E-Mail und zu wann Sie telefonisch am besten zu erreichen sind.';
+
 function createSessionId() {
   return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+function getBotAnswer(message: string): BotAnswer {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes('kostenlos') || normalized.includes('kosten') || normalized.includes('gebühr')) {
+    return {
+      handled: true,
+      text: 'Für Kunden ist die Anfrage kostenlos und unverbindlich. Sie erhalten passende Angebote aus unserem Netzwerk und entscheiden anschließend selbst, ob Sie eines annehmen möchten.',
+    };
+  }
+
+  if (normalized.includes('wie funktioniert') || normalized.includes('ablauf') || normalized.includes('service')) {
+    return {
+      handled: true,
+      text: 'Sie senden Ihre Anfrage über den Rechner oder das Formular. Anschließend gleichen wir die Anfrage mit passenden Umzugs- oder Entrümpelungsfirmen ab. Danach erhalten Sie unverbindliche Rückmeldungen und können Angebote vergleichen.',
+    };
+  }
+
+  if (normalized.includes('wie schnell') || normalized.includes('wann') || normalized.includes('angebote') || normalized.includes('rückmeldung')) {
+    return {
+      handled: true,
+      text: 'In der Regel erhalten Sie erste Rückmeldungen innerhalb weniger Stunden. Je nach Region, Termin und Auslastung kann es im Einzelfall etwas länger dauern.',
+    };
+  }
+
+  if (normalized.includes('partner') && (normalized.includes('werden') || normalized.includes('registrieren') || normalized.includes('bewerben'))) {
+    return {
+      handled: true,
+      text: 'Partner registrieren sich über umzugsnetz.de/partners/register. Für die Registrierung wird in der Regel ein Einladungscode benötigt, den das Admin-Team nach Prüfung versendet.',
+    };
+  }
+
+  if (normalized.includes('einladungscode') || normalized.includes('invite') || normalized.includes('registrierungscode')) {
+    return {
+      handled: true,
+      text: 'Wenn Sie einen Einladungscode erhalten haben, können Sie sich unter umzugsnetz.de/partners/register registrieren. Der Code wird dort während des Registrierungsprozesses geprüft.',
+    };
+  }
+
+  if (normalized.includes('lead') || normalized.includes('kundenanfrage') || normalized.includes('anfragen kaufen') || normalized.includes('guthaben') || normalized.includes('wallet')) {
+    return {
+      handled: true,
+      text: 'Partner sehen verfügbare Kundenanfragen im Partner-Dashboard. Für Freischaltungen wird ausreichend Guthaben benötigt. Guthaben, Transaktionen und Aufladeanfragen können direkt im Finanzbereich verwaltet werden.',
+    };
+  }
+
+  if (normalized.includes('mitarbeiter') || normalized.includes('anrufen') || normalized.includes('rückruf') || normalized.includes('kontakt')) {
+    return {
+      handled: false,
+      text: BOT_FALLBACK_MESSAGE,
+    };
+  }
+
+  return {
+    handled: false,
+    text: BOT_FALLBACK_MESSAGE,
+  };
 }
 
 export default function LiveChatWidget() {
@@ -29,10 +109,15 @@ export default function LiveChatWidget() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasUnreadReply, setHasUnreadReply] = useState(false);
   const [sending, setSending] = useState(false);
+  const [escalationOpen, setEscalationOpen] = useState(false);
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactBestTime, setContactBestTime] = useState('');
+  const [lastUnhandledQuestion, setLastUnhandledQuestion] = useState('');
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isOpen]);
+  }, [messages, isOpen, escalationOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -133,9 +218,27 @@ export default function LiveChatWidget() {
   }, [pathname, showToast, isOpen]);
 
   const displayName = useMemo(() => `${firstName} ${lastName}`.trim(), [firstName, lastName]);
+  const contactFormValid = firstName.trim() && lastName.trim() && contactPhone.trim() && contactEmail.trim() && contactBestTime.trim();
 
   if (pathname?.startsWith('/admin')) {
     return null;
+  }
+
+  async function insertAdminMessage(text: string) {
+    if (!sessionId) {
+      return;
+    }
+
+    const { error } = await supabase.from('chat_messages').insert([{
+      sender: 'admin',
+      session_id: sessionId,
+      user_name: displayName,
+      text,
+    }]);
+
+    if (error) {
+      throw error;
+    }
   }
 
   async function handleStartChat(event: React.FormEvent) {
@@ -145,21 +248,11 @@ export default function LiveChatWidget() {
       return;
     }
 
-    const welcomeMessage = `Herzlich willkommen, ${firstName}! Wie können wir Ihnen heute weiterhelfen?`;
+    const welcomeMessage = `Herzlich willkommen, ${firstName}! Ich bin der Umzugsnetz Bot. Wählen Sie eine Frage aus oder schreiben Sie Ihr Anliegen direkt in den Chat.`;
 
     try {
       setSending(true);
-      const { error } = await supabase.from('chat_messages').insert([{
-        sender: 'admin',
-        session_id: sessionId,
-        user_name: `${firstName.trim()} ${lastName.trim()}`,
-        text: welcomeMessage,
-      }]);
-
-      if (error) {
-        throw error;
-      }
-
+      await insertAdminMessage(welcomeMessage);
       setMessages([{ sender: 'admin', text: welcomeMessage }]);
       setStep('chat');
     } catch (error: any) {
@@ -169,14 +262,27 @@ export default function LiveChatWidget() {
     }
   }
 
-  async function handleSendMessage(event: React.FormEvent) {
-    event.preventDefault();
+  async function sendBotReply(nextMessage: string) {
+    const answer = getBotAnswer(nextMessage);
 
-    if (!sessionId || !input.trim() || sending) {
+    try {
+      await insertAdminMessage(answer.text);
+      setMessages((currentMessages) => [...currentMessages, { sender: 'admin', text: answer.text }]);
+      setEscalationOpen(!answer.handled);
+      if (!answer.handled) {
+        setLastUnhandledQuestion(nextMessage);
+      }
+    } catch (error: any) {
+      showToast('error', 'Bot-Antwort fehlgeschlagen', error.message);
+    }
+  }
+
+  async function submitUserMessage(rawMessage: string) {
+    if (!sessionId || !rawMessage.trim() || sending) {
       return;
     }
 
-    const nextMessage = input.trim();
+    const nextMessage = rawMessage.trim();
     setMessages((currentMessages) => [...currentMessages, { sender: 'user', text: nextMessage }]);
     setInput('');
 
@@ -192,6 +298,8 @@ export default function LiveChatWidget() {
       if (error) {
         throw error;
       }
+
+      await sendBotReply(nextMessage);
     } catch (error: any) {
       setMessages((currentMessages) => currentMessages.slice(0, -1));
       setInput(nextMessage);
@@ -201,38 +309,100 @@ export default function LiveChatWidget() {
     }
   }
 
+  async function handleSendMessage(event: React.FormEvent) {
+    event.preventDefault();
+    await submitUserMessage(input);
+  }
+
+  async function handleEscalationSubmit() {
+    if (!sessionId || !contactFormValid || sending) {
+      return;
+    }
+
+    const summaryMessage = [
+      'WEITERLEITUNG AN MITARBEITER',
+      `Vorname: ${firstName.trim()}`,
+      `Nachname: ${lastName.trim()}`,
+      `Telefon: ${contactPhone.trim()}`,
+      `E-Mail: ${contactEmail.trim()}`,
+      `Erreichbar: ${contactBestTime.trim()}`,
+      `Offene Frage: ${lastUnhandledQuestion || 'Nicht angegeben'}`,
+    ].join('\n');
+
+    const confirmationMessage = 'Vielen Dank. Ich habe Ihre Anfrage an die zuständige Abteilung weitergeleitet. Ein Mitarbeiter meldet sich in Kürze per E-Mail oder telefonisch bei Ihnen.';
+
+    try {
+      setSending(true);
+
+      const { error: escalationError } = await supabase.from('chat_messages').insert([{
+        sender: 'user',
+        session_id: sessionId,
+        user_name: displayName,
+        text: summaryMessage,
+      }]);
+
+      if (escalationError) {
+        throw escalationError;
+      }
+
+      const { error: notificationError } = await supabase.from('notifications').insert([{
+        type: 'CHAT_ESCALATION',
+        title: 'Neue Chat-Weiterleitung',
+        message: `${displayName} hat eine Rückmeldung durch einen Mitarbeiter angefordert.`,
+        link: '/admin/dashboard/chat',
+      }]);
+
+      if (notificationError) {
+        throw notificationError;
+      }
+
+      await insertAdminMessage(confirmationMessage);
+
+      setMessages((currentMessages) => [
+        ...currentMessages,
+        { sender: 'user', text: summaryMessage },
+        { sender: 'admin', text: confirmationMessage },
+      ]);
+      setEscalationOpen(false);
+    } catch (error: any) {
+      showToast('error', 'Weiterleitung fehlgeschlagen', error.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
-    <div className="pointer-events-none fixed bottom-24 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 z-[100] font-sans">
+    <div className="pointer-events-none fixed bottom-24 left-4 right-4 z-[100] font-sans sm:bottom-6 sm:left-auto sm:right-6">
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="pointer-events-auto absolute bottom-20 right-0 flex w-full max-w-none flex-col overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white/98 shadow-2xl backdrop-blur-md max-sm:left-0 max-sm:right-0 max-sm:h-[min(68vh,36rem)] sm:w-[350px] sm:max-w-[350px]"
+            className="pointer-events-auto absolute bottom-20 right-0 flex w-full max-w-none flex-col overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white/98 shadow-2xl backdrop-blur-md max-sm:left-0 max-sm:right-0 max-sm:h-[min(68vh,36rem)] sm:w-[380px] sm:max-w-[380px]"
           >
-            <div className="bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white flex justify-between items-center">
+            <div className="flex items-center justify-between bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white">
               <div>
-                <h3 className="font-bold">Live Support</h3>
-                <p className="text-white/80 text-xs">Wir antworten in der Regel sofort</p>
+                <h3 className="font-bold">Umzugsnetz Bot</h3>
+                <p className="text-xs text-white/80">Antwortet direkt auf Standardfragen</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/20"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col sm:h-[400px]">
+            <div className="flex min-h-0 flex-1 flex-col sm:h-[470px]">
               {step === 'name' ? (
                 <div className="flex flex-1 flex-col justify-center overflow-y-auto p-5 sm:p-6">
-                  <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <User className="w-8 h-8 text-brand-blue" />
+                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand-blue/10">
+                    <User className="h-8 w-8 text-brand-blue" />
                   </div>
-                  <h4 className="text-center font-bold text-slate-800 mb-2">Hallo!</h4>
-                  <p className="text-center text-sm text-slate-900 mb-6">
-                    Bitte geben Sie Ihren Namen ein, um den Chat zu starten.
+                  <h4 className="mb-2 text-center font-bold text-slate-800">Hallo!</h4>
+                  <p className="mb-6 text-center text-sm text-slate-900">
+                    Bitte geben Sie Ihren Namen ein, um den Bot-Chat zu starten.
                   </p>
                   <form onSubmit={handleStartChat} className="space-y-4">
                     <input
@@ -241,7 +411,7 @@ export default function LiveChatWidget() {
                       value={firstName}
                       onChange={(event) => setFirstName(event.target.value)}
                       required
-                      className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-900"
+                      className="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black transition-colors placeholder:text-slate-900 focus:border-brand-blue focus:outline-none"
                     />
                     <input
                       type="text"
@@ -249,33 +419,86 @@ export default function LiveChatWidget() {
                       value={lastName}
                       onChange={(event) => setLastName(event.target.value)}
                       required
-                      className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-900"
+                      className="w-full rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black transition-colors placeholder:text-slate-900 focus:border-brand-blue focus:outline-none"
                     />
                     <button
                       type="submit"
                       disabled={sending}
-                      className="w-full bg-gradient-to-r from-brand-blue to-brand-green text-white py-3 rounded-xl font-bold hover:shadow-lg transition-shadow mt-4 disabled:opacity-60"
+                      className="mt-4 w-full rounded-xl bg-gradient-to-r from-brand-blue to-brand-green py-3 font-bold text-white transition-shadow hover:shadow-lg disabled:opacity-60"
                     >
-                      {sending ? 'Startet...' : 'Chat starten'}
+                      {sending ? 'Startet...' : 'Bot starten'}
                     </button>
                   </form>
                 </div>
               ) : (
                 <>
-                  <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50 p-4 space-y-4">
+                  <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4">
+                    <div className="flex flex-wrap gap-2">
+                      {SUGGESTED_QUESTIONS.map((question) => (
+                        <button
+                          key={question.id}
+                          type="button"
+                          onClick={() => void submitUserMessage(question.message)}
+                          className="rounded-full border border-brand-blue/15 bg-white px-3 py-2 text-xs font-bold text-brand-blue shadow-sm transition-colors hover:bg-brand-blue hover:text-white"
+                        >
+                          {question.label}
+                        </button>
+                      ))}
+                    </div>
+
                     {messages.map((message, index) => (
                       <div key={`${message.sender}-${index}`} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div
                           className={`max-w-[85%] break-words rounded-2xl p-3 text-sm sm:max-w-[80%] ${
                             message.sender === 'user'
-                              ? 'bg-brand-blue text-white rounded-br-sm'
-                              : 'bg-white border border-slate-100 text-slate-700 rounded-bl-sm shadow-sm'
+                              ? 'rounded-br-sm bg-brand-blue text-white'
+                              : 'rounded-bl-sm border border-slate-100 bg-white text-slate-700 shadow-sm'
                           }`}
                         >
                           {message.text}
                         </div>
                       </div>
                     ))}
+
+                    {escalationOpen && (
+                      <div className="rounded-3xl border border-amber-200 bg-white p-4 shadow-sm">
+                        <p className="text-sm font-bold text-slate-900">Anfrage an Mitarbeiter weiterleiten</p>
+                        <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                          Hinterlegen Sie Ihre Kontaktdaten. Die zuständige Abteilung sieht den Verlauf im Admin-Dashboard und meldet sich bei Ihnen.
+                        </p>
+                        <div className="mt-4 space-y-3">
+                          <input
+                            type="tel"
+                            placeholder="Telefonnummer"
+                            value={contactPhone}
+                            onChange={(event) => setContactPhone(event.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none transition-colors focus:border-brand-blue"
+                          />
+                          <input
+                            type="email"
+                            placeholder="E-Mail"
+                            value={contactEmail}
+                            onChange={(event) => setContactEmail(event.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none transition-colors focus:border-brand-blue"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Am besten erreichbar z. B. Mo–Fr ab 17 Uhr"
+                            value={contactBestTime}
+                            onChange={(event) => setContactBestTime(event.target.value)}
+                            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none transition-colors focus:border-brand-blue"
+                          />
+                          <button
+                            type="button"
+                            disabled={!contactFormValid || sending}
+                            onClick={handleEscalationSubmit}
+                            className="w-full rounded-2xl bg-brand-blue px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-blue-hover disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Anfrage weiterleiten
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div ref={scrollRef} />
                   </div>
 
@@ -283,17 +506,17 @@ export default function LiveChatWidget() {
                     <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                       <input
                         type="text"
-                        placeholder="Ihre Nachricht..."
+                        placeholder="Ihre Frage an den Bot..."
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
-                        className="min-w-0 flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm text-black placeholder:text-slate-600"
+                        className="min-w-0 flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black transition-colors placeholder:text-slate-600 focus:border-brand-blue focus:outline-none"
                       />
                       <button
                         type="submit"
                         disabled={!input.trim() || sending}
-                        className="w-10 h-10 flex-shrink-0 bg-brand-blue text-white rounded-full flex items-center justify-center hover:bg-brand-blue-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-blue text-white transition-colors hover:bg-brand-blue-hover disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        <Send className="w-4 h-4 ml-0.5" />
+                        <Send className="ml-0.5 h-4 w-4" />
                       </button>
                     </form>
                   </div>
@@ -308,11 +531,11 @@ export default function LiveChatWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
-        className="pointer-events-auto ml-auto w-16 h-16 rounded-full bg-gradient-to-r from-brand-blue/95 to-brand-green/95 shadow-2xl flex items-center justify-center text-white relative focus:outline-none backdrop-blur-md"
+        className="pointer-events-auto ml-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-brand-blue/95 to-brand-green/95 text-white shadow-2xl backdrop-blur-md focus:outline-none"
       >
-        {isOpen ? <X className="w-7 h-7" /> : <MessageCircle className="w-7 h-7" />}
+        {isOpen ? <X className="h-7 w-7" /> : <MessageCircle className="h-7 w-7" />}
         {!isOpen && hasUnreadReply && (
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white" />
+          <span className="absolute right-0 top-0 h-4 w-4 rounded-full border-2 border-white bg-red-500" />
         )}
       </motion.button>
     </div>

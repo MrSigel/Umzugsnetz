@@ -28,7 +28,7 @@ export default function PartnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [partner, setPartner] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [stats, setStats] = useState({ purchases: 0, totalSpent: 0, openLeads: 0, avgLeadPrice: 0, usageRate: 0 });
+  const [stats, setStats] = useState({ purchases: 0, totalSpent: 0, openRequests: 0, avgRequestPrice: 0, usageRate: 0 });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -96,17 +96,17 @@ export default function PartnerDashboard() {
         .filter((transaction: any) => transaction.type === 'LEAD_PURCHASE' || transaction.type === 'DEBIT')
         .reduce((acc: number, transaction: any) => acc + Math.abs(Number(transaction.amount)), 0);
 
-      const matchingOpenLeads = (openOrders || []).filter((order: any) => partnerMatchesOrder(partnerData, order));
-      const averageLeadPrice = purchaseCount ? totalSpent / purchaseCount : 0;
-      const usageRate = purchaseCount || matchingOpenLeads.length
-        ? (Number(purchaseCount || 0) / (Number(purchaseCount || 0) + matchingOpenLeads.length)) * 100
+      const matchingOpenRequests = (openOrders || []).filter((order: any) => partnerMatchesOrder(partnerData, order));
+      const averageRequestPrice = purchaseCount ? totalSpent / purchaseCount : 0;
+      const usageRate = purchaseCount || matchingOpenRequests.length
+        ? (Number(purchaseCount || 0) / (Number(purchaseCount || 0) + matchingOpenRequests.length)) * 100
         : 0;
 
       setStats({
         purchases: purchaseCount || 0,
         totalSpent,
-        openLeads: matchingOpenLeads.length,
-        avgLeadPrice: averageLeadPrice,
+        openRequests: matchingOpenRequests.length,
+        avgRequestPrice: averageRequestPrice,
         usageRate,
       });
     } catch (err: any) {
@@ -144,7 +144,7 @@ export default function PartnerDashboard() {
     <div className="space-y-8 animate-in fade-in duration-500 pb-10 font-sans">
       <div className="mb-10">
         <h1 className="text-3xl font-black text-slate-800 tracking-tight mb-2">Willkommen zurück, {partner?.name || 'Partner'}</h1>
-        <p className="text-slate-400 font-medium text-sm">Übersicht über Guthaben, gekaufte Leads und Transaktionen</p>
+        <p className="text-slate-400 font-medium text-sm">Übersicht über Guthaben, freigeschaltete Kundenanfragen und Transaktionen</p>
       </div>
 
       {!isActive && (
@@ -164,7 +164,7 @@ export default function PartnerDashboard() {
           </div>
           <div className="flex-1">
             <p className="font-bold text-sm">Account aktiv</p>
-            <p className="text-[11px] font-medium opacity-80">Tarif: {partner?.category || 'Standard'} | Offene Leads: {stats.openLeads} | Regionen: {partner?.regions || 'Nicht angegeben'}</p>
+            <p className="text-[11px] font-medium opacity-80">Tarif: {partner?.category || 'Standard'} | Offene Anfragen: {stats.openRequests} | Regionen: {partner?.regions || 'Nicht angegeben'}</p>
           </div>
           <button onClick={() => router.push('/partners/dashboard/anfragen')} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors">
             <ShoppingCart className="w-3.5 h-3.5" />
@@ -193,8 +193,8 @@ export default function PartnerDashboard() {
                   <Search className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Offene Leads</p>
-                  <p className="text-2xl font-black text-slate-900">{stats.openLeads}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Offene Anfragen</p>
+                  <p className="text-2xl font-black text-slate-900">{stats.openRequests}</p>
                 </div>
               </div>
               <p className="text-xs text-slate-500 font-medium">Passende Anfragen, die aktuell zu Ihrem Profil verfügbar sind.</p>
@@ -206,11 +206,11 @@ export default function PartnerDashboard() {
                   <ReceiptText className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ø Leadpreis</p>
-                  <p className="text-2xl font-black text-slate-900">€{stats.avgLeadPrice.toFixed(2)}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ø Anfragepreis</p>
+                  <p className="text-2xl font-black text-slate-900">€{stats.avgRequestPrice.toFixed(2)}</p>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 font-medium">Durchschnitt auf Basis Ihrer bisherigen Lead-Käufe.</p>
+              <p className="text-xs text-slate-500 font-medium">Durchschnitt auf Basis Ihrer bisherigen Freischaltungen.</p>
             </div>
 
             <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
@@ -223,7 +223,7 @@ export default function PartnerDashboard() {
                   <p className="text-2xl font-black text-slate-900">{Math.round(stats.usageRate)}%</p>
                 </div>
               </div>
-              <p className="text-xs text-slate-500 font-medium">Verhältnis aus gekauften Leads zu aktuell verfügbaren Chancen.</p>
+              <p className="text-xs text-slate-500 font-medium">Verhältnis aus freigeschalteten zu aktuell verfügbaren Anfragen.</p>
             </div>
           </div>
         </div>
@@ -232,10 +232,10 @@ export default function PartnerDashboard() {
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nächster sinnvoller Schritt</p>
           <h2 className="text-xl font-black text-slate-900 mt-1 mb-4">Was Sie jetzt tun sollten</h2>
           <div className="space-y-3 text-sm">
-            {stats.openLeads > 0 ? (
+            {stats.openRequests > 0 ? (
               <button onClick={() => router.push('/partners/dashboard/anfragen')} className="w-full rounded-2xl border border-brand-blue/15 bg-brand-blue-soft px-4 py-4 text-left hover:bg-brand-blue/10 transition-colors">
-                <p className="font-bold text-brand-blue">Offene Leads prüfen</p>
-                <p className="text-slate-600 mt-1">Es warten {stats.openLeads} passende Anfragen im Marktplatz.</p>
+                <p className="font-bold text-brand-blue">Offene Anfragen prüfen</p>
+                <p className="text-slate-600 mt-1">Es warten {stats.openRequests} passende Kundenanfragen im Marktplatz.</p>
               </button>
             ) : (
               <button onClick={() => void fetchData()} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-left hover:bg-slate-100 transition-colors">
@@ -244,10 +244,10 @@ export default function PartnerDashboard() {
               </button>
             )}
 
-            {Number(partner?.balance || 0) < Math.max(stats.avgLeadPrice || 0, 25) ? (
+            {Number(partner?.balance || 0) < Math.max(stats.avgRequestPrice || 0, 25) ? (
               <button onClick={() => router.push('/partners/dashboard/finanzen')} className="w-full rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-left hover:bg-amber-100 transition-colors">
                 <p className="font-bold text-amber-700">Guthaben erhöhen</p>
-                <p className="text-slate-600 mt-1">Ihr Wallet liegt unter Ihrem typischen Leadpreis. Eine Aufladung verhindert Kaufabbrüche.</p>
+                <p className="text-slate-600 mt-1">Ihr Guthaben liegt unter Ihrem typischen Anfragepreis. Eine Aufladung verhindert Kaufabbrüche.</p>
               </button>
             ) : (
               <button onClick={() => router.push('/partners/dashboard/transaktionen')} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-left hover:bg-slate-100 transition-colors">
@@ -277,7 +277,7 @@ export default function PartnerDashboard() {
 
         <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col justify-between h-48 group">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gekaufte Leads</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Freigeschaltete Anfragen</span>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all">
               <Search className="w-5 h-5" />
             </div>
@@ -341,7 +341,7 @@ export default function PartnerDashboard() {
                     {isCredit ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-slate-800">{tx.description || (tx.type === 'LEAD_PURCHASE' ? 'Lead gekauft' : tx.type === 'ADMIN_CREDIT' ? 'Admin-Gutschrift' : tx.type)}</p>
+                    <p className="text-sm font-bold text-slate-800">{tx.description || (tx.type === 'LEAD_PURCHASE' ? 'Kundenanfrage freigeschaltet' : tx.type === 'ADMIN_CREDIT' ? 'Admin-Gutschrift' : tx.type)}</p>
                     <p className="text-[11px] text-slate-400 mt-0.5">{new Date(tx.created_at).toLocaleString('de-DE')}</p>
                   </div>
                   <span className={`text-sm font-black tabular-nums ${isCredit ? 'text-emerald-600' : 'text-red-500'}`}>
