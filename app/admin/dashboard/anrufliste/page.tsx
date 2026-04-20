@@ -24,7 +24,7 @@ const statusOptions = ['NEW', 'IN_PROGRESS', 'FOLLOW_UP', 'COMPLETED', 'ARCHIVED
 const statusLabels: Record<string, string> = {
   NEW: 'Neu',
   IN_PROGRESS: 'In Bearbeitung',
-  FOLLOW_UP: 'Rueckruf',
+  FOLLOW_UP: 'Rückruf',
   COMPLETED: 'Abgeschlossen',
   ARCHIVED: 'Archiviert',
   CONTACTED: 'Kontaktiert',
@@ -211,7 +211,7 @@ export default function CallListPage() {
             : entry,
         ),
       );
-      showToast('success', 'Eintrag gespeichert', 'Zustaendigkeit, Rueckrufdatum und interne Notiz wurden uebernommen.');
+      showToast('success', 'Eintrag gespeichert', 'Zuständigkeit, Rückrufdatum und interne Notiz wurden übernommen.');
     } catch (err: any) {
       showToast('error', 'Fehler beim Speichern', err.message);
     } finally {
@@ -250,10 +250,10 @@ export default function CallListPage() {
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Anrufliste</h2>
-          <p className="mt-1 text-sm text-slate-500">Arbeitsliste fuer Support und Telefonie. Zustaendigkeit, Rueckrufdatum und interne Notiz werden direkt im Datensatz gepflegt.</p>
+          <p className="mt-1 text-sm text-slate-500">Arbeitsliste für Support und Telefonie. Zuständigkeit, Rückrufdatum und interne Notiz werden direkt im Datensatz gepflegt.</p>
         </div>
         <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Erst Status setzen, dann anrufen, Rueckruf planen und Notiz sauber dokumentieren. Finanzdaten bleiben hier bewusst ausgeblendet.
+          Erst Status setzen, dann anrufen, Rückruf planen und Notiz sauber dokumentieren. Finanzdaten bleiben hier bewusst ausgeblendet.
         </div>
       </div>
 
@@ -286,7 +286,7 @@ export default function CallListPage() {
             type="text"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Firma, Kontakt, Telefon, Ort, E-Mail oder zustaendige Person suchen"
+            placeholder="Firma, Kontakt, Telefon, Ort, E-Mail oder zuständige Person suchen"
             className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-12 pr-4 text-sm text-slate-800 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
           />
         </div>
@@ -309,8 +309,8 @@ export default function CallListPage() {
           disabled={accessLevel === 'employee'}
           className="w-full appearance-none rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-700 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10 disabled:opacity-70"
         >
-          <option value="ALLE">Alle Eintraege</option>
-          <option value="MEIN_BEREICH">Meine + offene Eintraege</option>
+          <option value="ALLE">Alle Einträge</option>
+          <option value="MEIN_BEREICH">Meine + offene Einträge</option>
         </select>
         <button
           onClick={() => void fetchData()}
@@ -323,7 +323,7 @@ export default function CallListPage() {
 
       <div className="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm">
         <div className="border-b border-slate-50 px-6 py-5">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{filteredApplications.length} Eintraege</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-400">{filteredApplications.length} Einträge</p>
         </div>
 
         {loading ? (
@@ -394,7 +394,7 @@ export default function CallListPage() {
                     </div>
 
                     <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Zustaendige Person</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Zuständige Person</label>
                       <select
                         value={draft.assigned_to_email}
                         onChange={(event) => updateDraft(entry.id, 'assigned_to_email', event.target.value)}
@@ -408,7 +408,7 @@ export default function CallListPage() {
                     </div>
 
                     <div className="rounded-2xl border border-slate-100 bg-white p-4">
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Rueckrufdatum</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">Rückrufdatum</label>
                       <div className="relative">
                         <Clock3 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                         <input
@@ -428,7 +428,7 @@ export default function CallListPage() {
                         rows={7}
                         value={draft.internal_note}
                         onChange={(event) => updateDraft(entry.id, 'internal_note', event.target.value)}
-                        placeholder="z. B. nicht erreicht, Rueckruf am Nachmittag, Website pruefen, Gespraech gefuehrt ..."
+                        placeholder="z. B. nicht erreicht, Rückruf am Nachmittag, Website prüfen, Gespräch geführt ..."
                         className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/10"
                       />
                     </div>
@@ -454,7 +454,7 @@ export default function CallListPage() {
                         Mitarbeiter-sicher
                       </div>
                       <p className="mt-2 text-xs leading-relaxed">
-                        Mitarbeiter sehen standardmaessig nur eigene und offene Eintraege. Admins koennen die gesamte Anrufliste verwalten.
+                        Mitarbeiter sehen standardmäßig nur eigene und offene Einträge. Verantwortliche mit Vollzugriff können die gesamte Anrufliste verwalten.
                       </p>
                     </div>
                   </div>
@@ -463,7 +463,7 @@ export default function CallListPage() {
             })}
 
             {filteredApplications.length === 0 && (
-              <div className="px-6 py-14 text-center text-sm italic text-slate-400">Keine passenden Eintraege gefunden.</div>
+              <div className="px-6 py-14 text-center text-sm italic text-slate-400">Keine passenden Einträge gefunden.</div>
             )}
           </div>
         )}
