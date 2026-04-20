@@ -319,19 +319,29 @@ CREATE POLICY "orders_insert_anon" ON orders FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "orders_select_authenticated" ON orders;
 CREATE POLICY "orders_select_authenticated" ON orders FOR SELECT USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "orders_select_admin" ON orders;
+CREATE POLICY "orders_select_admin" ON orders FOR SELECT USING (app_is_admin());
 
 DROP POLICY IF EXISTS "orders_update_authenticated" ON orders;
 CREATE POLICY "orders_update_authenticated" ON orders FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "orders_update_admin" ON orders;
+CREATE POLICY "orders_update_admin" ON orders FOR UPDATE USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 -- PARTNERS: Jeder Partner sieht nur seine eigenen Daten
 DROP POLICY IF EXISTS "partners_select_own" ON partners;
 CREATE POLICY "partners_select_own" ON partners FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "partners_select_admin" ON partners;
+CREATE POLICY "partners_select_admin" ON partners FOR SELECT USING (app_is_admin());
 
 DROP POLICY IF EXISTS "partners_update_own" ON partners;
 CREATE POLICY "partners_update_own" ON partners FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "partners_update_admin" ON partners;
+CREATE POLICY "partners_update_admin" ON partners FOR UPDATE USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 DROP POLICY IF EXISTS "partners_insert_own" ON partners;
 CREATE POLICY "partners_insert_own" ON partners FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "partners_insert_admin" ON partners;
+CREATE POLICY "partners_insert_admin" ON partners FOR INSERT WITH CHECK (app_is_admin());
 
 -- PARTNER_PURCHASES: Partner sehen nur ihre eigenen Käufe
 DROP POLICY IF EXISTS "purchases_select_own" ON partner_purchases;
@@ -347,10 +357,17 @@ CREATE POLICY "purchases_insert_own" ON partner_purchases FOR INSERT WITH CHECK 
 -- WALLET_TRANSACTIONS: Partner sehen nur ihre eigenen Transaktionen
 DROP POLICY IF EXISTS "wallet_select_own" ON wallet_transactions;
 CREATE POLICY "wallet_select_own" ON wallet_transactions FOR SELECT USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "wallet_select_admin" ON wallet_transactions;
+CREATE POLICY "wallet_select_admin" ON wallet_transactions FOR SELECT USING (app_is_admin());
+DROP POLICY IF EXISTS "wallet_insert_admin" ON wallet_transactions;
+CREATE POLICY "wallet_insert_admin" ON wallet_transactions FOR INSERT WITH CHECK (app_is_admin());
 
 -- NOTIFICATIONS: Nur authentifizierte Benutzer können lesen/schreiben
 DROP POLICY IF EXISTS "notifications_all_authenticated" ON notifications;
-CREATE POLICY "notifications_all_authenticated" ON notifications FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "notifications_select_admin" ON notifications;
+DROP POLICY IF EXISTS "notifications_update_admin" ON notifications;
+CREATE POLICY "notifications_select_admin" ON notifications FOR SELECT USING (app_is_admin());
+CREATE POLICY "notifications_update_admin" ON notifications FOR UPDATE USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 DROP POLICY IF EXISTS "notifications_insert_anon" ON notifications;
 CREATE POLICY "notifications_insert_anon" ON notifications FOR INSERT WITH CHECK (true);
@@ -364,7 +381,8 @@ DROP POLICY IF EXISTS "settings_select_authenticated" ON system_settings;
 CREATE POLICY "settings_select_authenticated" ON system_settings FOR SELECT USING (auth.role() = 'authenticated');
 
 DROP POLICY IF EXISTS "settings_write_authenticated" ON system_settings;
-CREATE POLICY "settings_write_authenticated" ON system_settings FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "settings_write_admin_only" ON system_settings;
+CREATE POLICY "settings_write_admin_only" ON system_settings FOR ALL USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 -- PARTNER_INVITE_CODES: Jeder kann lesen (für Registrierung), nur Auth kann schreiben
 DROP POLICY IF EXISTS "invite_codes_select_all" ON partner_invite_codes;
@@ -415,7 +433,10 @@ CREATE POLICY "team_write_admin_only" ON team FOR ALL USING (app_is_admin()) WIT
 
 -- TRANSACTIONS: Nur authentifizierte Benutzer
 DROP POLICY IF EXISTS "transactions_all_authenticated" ON transactions;
-CREATE POLICY "transactions_all_authenticated" ON transactions FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "transactions_select_admin" ON transactions;
+DROP POLICY IF EXISTS "transactions_insert_admin" ON transactions;
+CREATE POLICY "transactions_select_admin" ON transactions FOR SELECT USING (app_is_admin());
+CREATE POLICY "transactions_insert_admin" ON transactions FOR INSERT WITH CHECK (app_is_admin());
 
 -- ─────────────────────────────────────────────────────────────
 -- 14. REALTIME aktivieren für relevante Tabellen
@@ -573,6 +594,10 @@ CREATE POLICY "wallet_topup_requests_select_own" ON wallet_topup_requests FOR SE
 
 DROP POLICY IF EXISTS "wallet_topup_requests_insert_own" ON wallet_topup_requests;
 CREATE POLICY "wallet_topup_requests_insert_own" ON wallet_topup_requests FOR INSERT WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "wallet_topup_requests_select_admin" ON wallet_topup_requests;
+DROP POLICY IF EXISTS "wallet_topup_requests_update_admin" ON wallet_topup_requests;
+CREATE POLICY "wallet_topup_requests_select_admin" ON wallet_topup_requests FOR SELECT USING (app_is_admin());
+CREATE POLICY "wallet_topup_requests_update_admin" ON wallet_topup_requests FOR UPDATE USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 -- ============================================================
 -- 16. WEITERE SYSTEMEINSTELLUNGEN
