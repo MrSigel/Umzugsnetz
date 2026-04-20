@@ -428,7 +428,10 @@ CREATE TABLE IF NOT EXISTS partner_applications (
   radius        TEXT,
   service       TEXT NOT NULL,
   source_page   TEXT,
-  status        TEXT NOT NULL DEFAULT 'NEW' CHECK (status IN ('NEW', 'CONTACTED', 'ARCHIVED')),
+  status        TEXT NOT NULL DEFAULT 'NEW' CHECK (status IN ('NEW', 'CONTACTED', 'IN_PROGRESS', 'FOLLOW_UP', 'COMPLETED', 'ARCHIVED')),
+  assigned_to_email TEXT,
+  callback_at   TIMESTAMPTZ,
+  internal_note TEXT,
   invite_code_id UUID REFERENCES partner_invite_codes(id) ON DELETE SET NULL,
   invite_sent_at TIMESTAMPTZ,
   invite_sent_to TEXT,
@@ -437,10 +440,20 @@ CREATE TABLE IF NOT EXISTS partner_applications (
 );
 
 ALTER TABLE partner_applications
+  ADD COLUMN IF NOT EXISTS assigned_to_email TEXT,
+  ADD COLUMN IF NOT EXISTS callback_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS internal_note TEXT,
   ADD COLUMN IF NOT EXISTS invite_code_id UUID REFERENCES partner_invite_codes(id) ON DELETE SET NULL,
   ADD COLUMN IF NOT EXISTS invite_sent_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS invite_sent_to TEXT,
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+ALTER TABLE partner_applications
+  DROP CONSTRAINT IF EXISTS partner_applications_status_check;
+
+ALTER TABLE partner_applications
+  ADD CONSTRAINT partner_applications_status_check
+  CHECK (status IN ('NEW', 'CONTACTED', 'IN_PROGRESS', 'FOLLOW_UP', 'COMPLETED', 'ARCHIVED'));
 
 CREATE TABLE IF NOT EXISTS contact_requests (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
