@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Network, Mail, Menu, X, Star } from 'lucide-react';
+import { ShieldCheck, Network, Mail, Menu, X } from 'lucide-react';
 
 const Facebook = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const XIcon = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m4 4 16 16"/><path d="M20 4 4 20"/></svg>;
@@ -74,22 +74,17 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
             href="https://de.trustpilot.com/review/umzugsnetz.de"
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-2 flex flex-shrink-0 items-center gap-2 hover:opacity-80 transition-opacity"
+            className="relative ml-2 flex flex-shrink-0 items-center hover:opacity-80 transition-opacity"
             aria-label="Bewertungen auf Trustpilot"
           >
-            <div className="flex items-center gap-1.5">
-              <div className="flex h-5.5 w-5.5 items-center justify-center rounded-[4px] bg-[#00b67a]">
-                <Star className="h-3.5 w-3.5 fill-white text-white" />
-              </div>
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="flex h-4.5 w-4.5 items-center justify-center rounded-[3px] border border-[#00b67a]">
-                    <Star className="h-3 w-3 fill-[#00b67a] text-[#00b67a]" />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <span className="text-sm font-black tracking-[0.08em] text-white">
+            <img src="/IconTOP.png" alt="Trustpilot Bewertung" className="h-5.5 w-auto object-contain" />
+            <span
+              className="absolute right-0 top-1/2 flex h-full items-center pl-2 text-sm font-black tracking-[0.08em] text-white"
+              style={{
+                backgroundColor: c_primary,
+                transform: 'translateY(-50%)',
+              }}
+            >
               Trustpilot
             </span>
           </a>
