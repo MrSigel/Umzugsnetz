@@ -65,7 +65,7 @@ export default function FinancePage() {
     setIsTopupLoading(true);
     try {
       const reference = await createWalletTopupRequest({ userId: partner.user_id, partnerId: partner.id, amount: finalAmount, paymentMethod: 'MANUAL_REVIEW', note: 'Anfrage aus Partner-Dashboard' });
-      showToast('success', 'Aufladung angefragt', `Die Anfrage ${reference} wurde gespeichert und an das Admin-Team weitergeleitet.`);
+      showToast('success', 'Aufladung angefragt', `Die Anfrage ${reference} wurde gespeichert und an das zuständige Team weitergeleitet.`);
       await fetchAll();
     } catch (error: any) {
       showToast('error', 'Fehler', error.message);

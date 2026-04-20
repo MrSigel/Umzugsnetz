@@ -277,7 +277,7 @@ export default function AdminOverviewPage() {
         { label: 'Anfragen gesamt', value: stats.orders, caption: 'Alle eingegangenen Kundenaufträge', icon: BarChart3, chip: 'Kundenaufträge', href: '/admin/dashboard/auftraege' },
         { label: 'Partner aktiv', value: stats.partners, caption: `${stats.pendingPartners} warten auf Freischaltung`, icon: Users, chip: 'Partnernetzwerk', href: '/admin/dashboard/partner' },
         { label: 'Umsatz gesamt', value: formatCurrency(stats.earnings), caption: `${stats.unreadNotifications} neue Benachrichtigungen`, icon: TrendingUp, chip: 'Finanzen', href: '/admin/dashboard/einnahmen' },
-        { label: 'Team & Rechte', value: stats.team, caption: 'Admin-Berechtigungen im Blick', icon: ShieldCheck, chip: 'System', href: '/admin/dashboard/team' },
+        { label: 'Team & Rechte', value: stats.team, caption: 'Rollen und Berechtigungen im Blick', icon: ShieldCheck, chip: 'System', href: '/admin/dashboard/team' },
       ]
     : [
         { label: 'Support offen', value: stats.unreadChats, caption: 'Ungelesene Support-Anfragen', icon: MessageSquareMore, chip: 'Support', href: '/admin/dashboard/chat' },
@@ -310,7 +310,7 @@ export default function AdminOverviewPage() {
           <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-bold text-slate-900">Prioritäten heute</h3>
-              <p className="mt-1 text-sm text-slate-500">Offene Themen, die im Admin zuerst bearbeitet werden sollten.</p>
+              <p className="mt-1 text-sm text-slate-500">Offene Themen, die im internen Bereich zuerst bearbeitet werden sollten.</p>
             </div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
               <BellRing className="h-4 w-4" />
@@ -435,7 +435,7 @@ export default function AdminOverviewPage() {
           <div className="flex items-center justify-between p-8 pb-4">
             <div>
               <h3 className="text-xl font-bold text-slate-800">Aktuelle Kundenaufträge</h3>
-              <p className="mt-1 text-sm text-slate-500">Status-Badges und Prioritätensicht sind mit dem Rest des Admin-Bereichs vereinheitlicht.</p>
+              <p className="mt-1 text-sm text-slate-500">Status-Badges und Prioritätensicht sind mit dem Rest des internen Bereichs vereinheitlicht.</p>
             </div>
             <button onClick={() => router.push('/admin/dashboard/auftraege')} className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-slate-900">
               Alle anzeigen <ChevronRight className="h-3.5 w-3.5" />

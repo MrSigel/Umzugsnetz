@@ -23,7 +23,7 @@ export default function PasswortZuruecksetzenClient() {
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
   const loginPath = bereich === 'admin' ? '/admin' : '/partners/login';
-  const portalLabel = bereich === 'admin' ? 'Admin-Bereich' : 'Partner-Bereich';
+  const portalLabel = bereich === 'admin' ? 'internen Bereich' : 'Partner-Bereich';
 
   const redirectTo = useMemo(() => {
     if (typeof window === 'undefined') return '';
@@ -65,7 +65,7 @@ export default function PasswortZuruecksetzenClient() {
 
       if (resetError) throw resetError;
 
-      setSuccess(`Falls fuer ${email} ein Konto im ${portalLabel} hinterlegt ist, wurde soeben eine E-Mail zum Zuruecksetzen versendet.`);
+      setSuccess(`Falls für ${email} ein Konto im ${portalLabel} hinterlegt ist, wurde soeben eine E-Mail zum Zurücksetzen versendet.`);
       setEmail('');
     } catch (err: any) {
       setError(err.message || 'Die Anfrage konnte nicht versendet werden.');
@@ -86,14 +86,14 @@ export default function PasswortZuruecksetzenClient() {
       }
 
       if (password !== confirmPassword) {
-        throw new Error('Die Passwoerter stimmen nicht ueberein.');
+        throw new Error('Die Passwörter stimmen nicht überein.');
       }
 
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
 
       await supabase.auth.signOut();
-      setSuccess('Ihr Passwort wurde erfolgreich aktualisiert. Sie koennen sich jetzt erneut anmelden.');
+      setSuccess('Ihr Passwort wurde erfolgreich aktualisiert. Sie können sich jetzt erneut anmelden.');
       setPassword('');
       setConfirmPassword('');
       setTimeout(() => router.push(loginPath), 1200);
@@ -118,11 +118,11 @@ export default function PasswortZuruecksetzenClient() {
               <div className="inline-flex items-center justify-center rounded-3xl border border-brand-blue/10 bg-brand-blue-soft p-4 shadow-sm">
                 <ShieldCheck className="h-8 w-8 text-brand-blue" />
               </div>
-              <h1 className="mt-6 text-3xl font-black tracking-tight">Passwort zuruecksetzen</h1>
+              <h1 className="mt-6 text-3xl font-black tracking-tight">Passwort zurücksetzen</h1>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">
                 {isRecoveryMode
-                  ? `Legen Sie jetzt ein neues Passwort fuer den ${portalLabel} fest.`
-                  : `Fordern Sie eine sichere E-Mail zum Zuruecksetzen fuer den ${portalLabel} an.`}
+                  ? `Legen Sie jetzt ein neues Passwort für den ${portalLabel} fest.`
+                  : `Fordern Sie eine sichere E-Mail zum Zurücksetzen für den ${portalLabel} an.`}
               </p>
             </div>
 
@@ -139,7 +139,7 @@ export default function PasswortZuruecksetzenClient() {
                   </div>
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">Passwort bestaetigen</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">Passwort bestätigen</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
                     <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Passwort wiederholen" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15" />
@@ -166,7 +166,7 @@ export default function PasswortZuruecksetzenClient() {
 
             <div className="mt-6 text-center">
               <Link href={loginPath} className="text-sm font-bold text-brand-blue hover:underline">
-                Zurueck zum Login
+                Zurück zum Login
               </Link>
             </div>
           </div>

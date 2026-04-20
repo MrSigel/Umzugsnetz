@@ -100,7 +100,7 @@ export default function TransactionsPage() {
               <tbody className="divide-y divide-slate-50">
                 {filtered.map((t) => {
                   const isCredit = Number(t.amount) > 0;
-                  const typeLabel = t.type === 'TOPUP' ? 'Aufladung' : t.type === 'LEAD_PURCHASE' ? 'Kundenanfrage freigeschaltet' : t.type === 'ADMIN_CREDIT' ? 'Admin-Gutschrift' : (t.type || '-');
+                  const typeLabel = t.type === 'TOPUP' ? 'Aufladung' : t.type === 'LEAD_PURCHASE' ? 'Kundenanfrage freigeschaltet' : t.type === 'ADMIN_CREDIT' ? 'Manuelle Gutschrift' : (t.type || '-');
                   return (
                     <tr key={t.id} className="hover:bg-slate-50/30 transition-colors">
                       <td className="px-8 py-5"><p className="text-sm font-bold text-slate-800">{new Date(t.created_at).toLocaleDateString('de-DE')}</p></td>

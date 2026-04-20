@@ -129,7 +129,7 @@ export default function TeamPage() {
             <ShieldCheck className="h-7 w-7 text-brand-blue" />
             Team-Verwaltung
           </h2>
-          <p className="mt-1 text-sm text-slate-500">Mitarbeiter und Administratoren mit echtem Einladungsprozess verwalten.</p>
+          <p className="mt-1 text-sm text-slate-500">Mitarbeiter und verantwortliche Personen mit echtem Einladungsprozess verwalten.</p>
         </div>
         <button
           type="button"
@@ -175,7 +175,7 @@ export default function TeamPage() {
                         ? 'border border-amber-100 bg-amber-50 text-amber-600'
                         : 'border border-brand-blue/20 bg-brand-blue-soft text-brand-blue'
                     }`}>
-                      {member.role === 'ADMIN' ? 'Administrator' : 'Mitarbeiter'}
+                      {member.role === 'ADMIN' ? 'Vollzugriff' : 'Mitarbeiter'}
                     </span>
                   </td>
                   <td className="py-6 text-center">
@@ -291,14 +291,14 @@ export default function TeamPage() {
                         }`}
                       >
                         <Shield className="h-6 w-6" />
-                        <span className="text-xs font-bold">Administrator:in</span>
+                        <span className="text-xs font-bold">Vollzugriff</span>
                       </button>
                     </div>
                   </div>
 
                   {newRole === 'ADMIN' && (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                      <p className="font-bold">Admin-Rolle nur nach Bestätigung vergeben</p>
+                      <p className="font-bold">Vollzugriff nur nach Bestätigung vergeben</p>
                       <p className="mt-1">Bitte prüfen Sie die E-Mail-Adresse sorgfältig: <span className="font-bold">{newEmail || 'keine E-Mail eingetragen'}</span></p>
                       <label className="mt-3 flex items-start gap-3">
                         <input
@@ -307,7 +307,7 @@ export default function TeamPage() {
                           onChange={(e) => setConfirmAdminGrant(e.target.checked)}
                           className="mt-0.5"
                         />
-                        <span>Ich bestätige, dass diese Person bewusst Admin-Rechte erhalten soll.</span>
+                        <span>Ich bestätige, dass diese Person bewusst Vollzugriff erhalten soll.</span>
                       </label>
                     </div>
                   )}

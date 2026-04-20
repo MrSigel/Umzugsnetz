@@ -179,7 +179,7 @@ export default function PartnerDashboard() {
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <div className="flex-1">
             <p className="font-bold text-sm">Account ausstehend / gesperrt</p>
-            <p className="text-[11px] font-medium opacity-80">Ihr Account hat den Status "{partner?.status}". Bitte kontaktieren Sie den Admin.</p>
+            <p className="text-[11px] font-medium opacity-80">Ihr Konto hat den Status "{partner?.status}". Bitte wenden Sie sich an unser Serviceteam.</p>
           </div>
         </motion.div>
       )}
@@ -428,7 +428,7 @@ export default function PartnerDashboard() {
                     {isCredit ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-slate-800">{tx.description || (tx.type === 'LEAD_PURCHASE' ? 'Kundenanfrage freigeschaltet' : tx.type === 'ADMIN_CREDIT' ? 'Admin-Gutschrift' : tx.type)}</p>
+                    <p className="text-sm font-bold text-slate-800">{tx.description || (tx.type === 'LEAD_PURCHASE' ? 'Kundenanfrage freigeschaltet' : tx.type === 'ADMIN_CREDIT' ? 'Manuelle Gutschrift' : tx.type)}</p>
                     <p className="text-[11px] text-slate-400 mt-0.5">{new Date(tx.created_at).toLocaleString('de-DE')}</p>
                   </div>
                   <span className={`text-sm font-black tabular-nums ${isCredit ? 'text-emerald-600' : 'text-red-500'}`}>

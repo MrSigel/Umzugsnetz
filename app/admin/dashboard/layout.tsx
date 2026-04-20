@@ -343,7 +343,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             <div className="flex items-center gap-3">
               <div className="hidden text-right sm:block">
                 <p className="text-sm font-bold leading-none text-slate-800">{adminName}</p>
-                <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">{accessLevel === 'employee' ? 'Mitarbeiter' : 'Administrator'}</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">{accessLevel === 'employee' ? 'Mitarbeiter' : 'Vollzugriff'}</p>
               </div>
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-brand-blue to-brand-green p-[2px]">
                 <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white">
