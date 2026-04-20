@@ -380,8 +380,38 @@ DROP POLICY IF EXISTS "invite_codes_delete_authenticated" ON partner_invite_code
 CREATE POLICY "invite_codes_delete_authenticated" ON partner_invite_codes FOR DELETE USING (auth.role() = 'authenticated');
 
 -- TEAM: Nur authentifizierte Benutzer
+CREATE OR REPLACE FUNCTION app_is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM team
+    WHERE lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+      AND role = 'ADMIN'
+  ) OR coalesce(lower(auth.jwt() -> 'user_metadata' ->> 'role'), '') = 'admin'
+     OR coalesce(lower(auth.jwt() -> 'app_metadata' ->> 'role'), '') = 'admin';
+$$;
+
+CREATE OR REPLACE FUNCTION app_is_employee()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM team
+    WHERE lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+      AND role = 'EMPLOYEE'
+  );
+$$;
+
 DROP POLICY IF EXISTS "team_all_authenticated" ON team;
-CREATE POLICY "team_all_authenticated" ON team FOR ALL USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "team_select_authenticated" ON team;
+DROP POLICY IF EXISTS "team_write_admin_only" ON team;
+CREATE POLICY "team_select_authenticated" ON team FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "team_write_admin_only" ON team FOR ALL USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 -- TRANSACTIONS: Nur authentifizierte Benutzer
 DROP POLICY IF EXISTS "transactions_all_authenticated" ON transactions;
@@ -496,10 +526,38 @@ DROP POLICY IF EXISTS "partner_applications_insert_all" ON partner_applications;
 CREATE POLICY "partner_applications_insert_all" ON partner_applications FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "partner_applications_select_authenticated" ON partner_applications;
-CREATE POLICY "partner_applications_select_authenticated" ON partner_applications FOR SELECT USING (auth.role() = 'authenticated');
-
 DROP POLICY IF EXISTS "partner_applications_update_authenticated" ON partner_applications;
-CREATE POLICY "partner_applications_update_authenticated" ON partner_applications FOR UPDATE USING (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "partner_applications_select_scoped" ON partner_applications;
+DROP POLICY IF EXISTS "partner_applications_update_scoped" ON partner_applications;
+CREATE POLICY "partner_applications_select_scoped" ON partner_applications FOR SELECT USING (
+  app_is_admin()
+  OR (
+    auth.role() = 'authenticated'
+    AND (
+      assigned_to_email IS NULL
+      OR lower(assigned_to_email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+    )
+  )
+);
+CREATE POLICY "partner_applications_update_scoped" ON partner_applications FOR UPDATE USING (
+  app_is_admin()
+  OR (
+    auth.role() = 'authenticated'
+    AND (
+      assigned_to_email IS NULL
+      OR lower(assigned_to_email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+    )
+  )
+) WITH CHECK (
+  app_is_admin()
+  OR (
+    auth.role() = 'authenticated'
+    AND (
+      assigned_to_email IS NULL
+      OR lower(assigned_to_email) = lower(coalesce(auth.jwt() ->> 'email', ''))
+    )
+  )
+);
 
 DROP POLICY IF EXISTS "contact_requests_insert_all" ON contact_requests;
 CREATE POLICY "contact_requests_insert_all" ON contact_requests FOR INSERT WITH CHECK (true);
