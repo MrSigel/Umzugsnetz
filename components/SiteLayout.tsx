@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Network, Mail, MapPin, Phone, Menu, X, ChevronDown } from 'lucide-react';
+import { ShieldCheck, Network, Mail, Menu, X } from 'lucide-react';
 
 const Facebook = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const XIcon = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m4 4 16 16"/><path d="M20 4 4 20"/></svg>;
@@ -180,8 +180,6 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
 }
 
 export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
-  const [isImprintOpen, setIsImprintOpen] = useState(false);
-
   const bg_class = theme === 'green' ? 'bg-[#004d33]' : 'bg-brand-blue';
   const hover_bg = theme === 'green' ? 'hover:text-[#004d33]' : 'hover:text-brand-blue';
 
@@ -252,40 +250,7 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
           <h4 className="font-bold text-white uppercase tracking-wider mb-6">Kontakt</h4>
           <ul className="space-y-4 text-white/80">
             <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-white/60" /> kontakt@umzugsnetz.de</li>
-            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-white/60" /> 01722699945</li>
           </ul>
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5">
-            <button
-              type="button"
-              onClick={() => setIsImprintOpen((current) => !current)}
-              className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
-            >
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Impressum anzeigen</span>
-              <ChevronDown className={`h-4 w-4 text-white/70 transition-transform ${isImprintOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence initial={false}>
-              {isImprintOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="space-y-2 border-t border-white/10 px-4 py-4 text-xs text-white/75">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-white/55" />
-                      <span>Heinrich Pierson Straße 20</span>
-                    </div>
-                    <div>
-                      <Link href="/impressum" className="font-bold text-white hover:text-white/80 transition-colors">
-                        Vollständiges Impressum öffnen
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
           <div className="mt-8 text-white/60 text-[10px]">
             © {new Date().getFullYear()} Umzugsnetz
           </div>
@@ -297,6 +262,7 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
         <Link href="/partnerbedingungen" className="hover:text-white transition-colors">Partnerbedingungen</Link>
         <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
         <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
+        <Link href="/impressum" className="hover:text-white transition-colors">Impressum</Link>
       </div>
     </footer>
   );
