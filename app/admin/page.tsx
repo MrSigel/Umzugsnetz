@@ -119,7 +119,11 @@ export default function AdminLoginPage() {
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-blue via-brand-green to-brand-blue-3" />
 
       <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/8 shadow-[0_35px_90px_rgba(15,23,42,0.45)] backdrop-blur-xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/8 shadow-[0_35px_90px_rgba(15,23,42,0.45)] backdrop-blur-xl"
+        >
           <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
             <div className="relative min-h-[340px] overflow-hidden lg:min-h-[760px]">
               <img src="/3.jpeg" alt="Umzugsnetz Admin" className="absolute inset-0 h-full w-full object-cover" />
@@ -166,7 +170,9 @@ export default function AdminLoginPage() {
                   </div>
                   <h2 className="mt-6 text-3xl font-black tracking-tight">Admin Portal</h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    {activeTab === 'login' ? 'Melden Sie sich an, um Partner, Aufträge und Systemeinstellungen zu verwalten.' : 'Registrieren Sie ein neues Admin-Konto mit gültigem Einladungscode.'}
+                    {activeTab === 'login'
+                      ? 'Melden Sie sich an, um Partner, Aufträge und Systemeinstellungen zu verwalten.'
+                      : 'Registrieren Sie ein neues Admin-Konto mit gültigem Einladungscode.'}
                   </p>
                 </div>
 
@@ -190,6 +196,11 @@ export default function AdminLoginPage() {
                         <div className="relative">
                           <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15" placeholder="••••••••" required />
+                        </div>
+                        <div className="mt-3 text-right">
+                          <Link href="/passwort-zuruecksetzen?bereich=admin" className="text-sm font-bold text-brand-blue hover:underline">
+                            Passwort zurücksetzen
+                          </Link>
                         </div>
                       </div>
                       {error && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-medium text-red-600">{error}</motion.div>}

@@ -366,7 +366,7 @@ export default function OrdersPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Gematchte Partner</h3>
-                <p className="text-xs text-slate-400 mt-0.5">{matchedPartners.length} Partner haben diesen Lead gekauft</p>
+                <p className="text-xs text-slate-400 mt-0.5">{matchedPartners.length} Partner haben diese Kundenanfrage freigeschaltet</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -386,7 +386,7 @@ export default function OrdersPage() {
               ) : (
                 <div className="py-6 text-center text-slate-400 space-y-2">
                   <MailQuestion className="w-8 h-8 mx-auto opacity-20" />
-                  <p className="text-xs font-medium italic">Noch kein Partner hat diesen Lead gekauft.</p>
+                  <p className="text-xs font-medium italic">Noch kein Partner hat diese Kundenanfrage freigeschaltet.</p>
                 </div>
               )}
             </div>
@@ -544,7 +544,7 @@ export default function OrdersPage() {
                   </th>
                   <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Name / E-Mail</th>
                   <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">Leistung</th>
-                  <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Von ? Nach</th>
+                  <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Von / Nach</th>
                   <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">Datum</th>
                   <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">Schätzpreis</th>
                   <th className="py-5 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">Status</th>
@@ -584,7 +584,7 @@ export default function OrdersPage() {
                     <td className="py-6">
                       <p className="text-sm font-bold text-slate-700">
                         {order.von_city}
-                        {order.nach_city ? ` ? ${order.nach_city}` : ''}
+                        {order.nach_city ? ` / ${order.nach_city}` : ''}
                       </p>
                     </td>
                     <td className="py-6 text-center">

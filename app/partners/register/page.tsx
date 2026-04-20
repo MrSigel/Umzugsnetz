@@ -19,7 +19,7 @@ export default function PartnerRegisterPage() {
     email: '',
     phone: '',
     password: '',
-    inviteCode: ''
+    inviteCode: '',
   });
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -45,13 +45,19 @@ export default function PartnerRegisterPage() {
         options: {
           data: {
             full_name: form.name,
-            company_name: form.firmenname
-          }
-        }
+            company_name: form.firmenname,
+          },
+        },
       });
 
       if (authError) throw authError;
       if (!authData.user) throw new Error('Registrierung fehlgeschlagen.');
+
+      const defaultSettings = {
+        emailNotif: true,
+        smsNotif: true,
+        smsNumber: form.phone,
+      };
 
       const { data: partnerProfile, error: profileError } = await supabase.from('partners').insert([{
         user_id: authData.user.id,
@@ -60,7 +66,8 @@ export default function PartnerRegisterPage() {
         phone: form.phone,
         status: 'PENDING',
         category: 'Standard Anfragen',
-        balance: 0
+        balance: 0,
+        settings: defaultSettings,
       }]).select('id').single();
 
       if (profileError) {
@@ -80,7 +87,7 @@ export default function PartnerRegisterPage() {
         is_read: false,
       }]);
 
-      showToast('success', 'Registrierung erfolgreich!', 'Ihr Account wird automatisiert geprüft und anschließend freigeschaltet.');
+      showToast('success', 'Registrierung erfolgreich', 'Ihr Konto wird automatisiert geprüft und anschließend freigeschaltet.');
       router.push('/partners/dashboard');
     } catch (err: any) {
       setError(err.message);
@@ -161,7 +168,7 @@ export default function PartnerRegisterPage() {
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">E-Mail Adresse</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">E-Mail-Adresse</label>
                       <div className="relative">
                         <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
                         <input type="email" required placeholder="partner@firma.de" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15" />

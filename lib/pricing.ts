@@ -53,10 +53,10 @@ export const PLAN_META: Record<string, { title: string; description: string; fea
   },
   'Exklusive Anfragen': {
     title: 'VIP',
-    description: 'Maximale Priorität bei den wertvollsten Leads.',
+    description: 'Maximale Priorität bei den wertvollsten Kundenanfragen.',
     features: [
       'Höchste Priorität bei neuen Anfragen',
-      'Frühester Zugriff auf exklusive Leads',
+      'Frühester Zugriff auf exklusive Anfragen',
       'Ideal für hohe Abschlussquoten',
     ],
   },

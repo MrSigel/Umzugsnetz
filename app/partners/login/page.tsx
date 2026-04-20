@@ -41,17 +41,17 @@ export default function PartnerLoginPage() {
 
       if (partner.status === 'SUSPENDED') {
         await supabase.auth.signOut();
-        throw new Error('Ihr Account wurde gesperrt. Bitte kontaktieren Sie den Support.');
+        throw new Error('Ihr Konto wurde gesperrt. Bitte kontaktieren Sie den Support.');
       }
 
       if (partner.status === 'PENDING') {
         await supabase.auth.signOut();
-        throw new Error('Ihr Account wird noch geprüft. Sie erhalten eine Benachrichtigung, sobald er freigeschaltet ist.');
+        throw new Error('Ihr Konto wird noch geprüft. Sie erhalten eine Benachrichtigung, sobald es freigeschaltet ist.');
       }
 
       router.push('/partners/dashboard');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Die Anmeldung war nicht erfolgreich.');
     } finally {
       setLoading(false);
     }
@@ -117,7 +117,7 @@ export default function PartnerLoginPage() {
                   </div>
                   <h2 className="mt-6 text-3xl font-black tracking-tight">Partner Login</h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    Melden Sie sich an, um Kundenanfragen, Käufe und Einstellungen im Partnerbereich zu verwalten.
+                    Melden Sie sich an, um Kundenanfragen, Freischaltungen und Einstellungen im Partnerbereich zu verwalten.
                   </p>
                 </div>
 
@@ -130,7 +130,7 @@ export default function PartnerLoginPage() {
 
                   <form onSubmit={handleLogin} className="space-y-6">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">E-Mail Adresse</label>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">E-Mail-Adresse</label>
                       <div className="relative">
                         <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
                         <input
@@ -157,6 +157,11 @@ export default function PartnerLoginPage() {
                           className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-slate-900 transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
                         />
                       </div>
+                      <div className="mt-3 text-right">
+                        <Link href="/passwort-zuruecksetzen?bereich=partner" className="text-sm font-bold text-brand-blue hover:underline">
+                          Passwort zurücksetzen
+                        </Link>
+                      </div>
                     </div>
 
                     <button
@@ -164,7 +169,7 @@ export default function PartnerLoginPage() {
                       disabled={loading}
                       className="flex w-full items-center justify-center gap-3 rounded-2xl bg-brand-blue py-4 font-black text-white shadow-xl shadow-brand-blue/20 transition-all hover:bg-brand-blue-hover disabled:opacity-50"
                     >
-                      {loading ? 'Anmeldung...' : 'Einloggen'} <ArrowRight className="h-5 w-5" />
+                      {loading ? 'Anmeldung läuft...' : 'Einloggen'} <ArrowRight className="h-5 w-5" />
                     </button>
                   </form>
                 </div>
@@ -173,7 +178,7 @@ export default function PartnerLoginPage() {
                   Noch kein Konto? <Link href="/partners/register" className="font-bold text-brand-blue hover:underline">Registrieren</Link>
                 </p>
                 <p className="mt-3 text-center text-sm font-medium text-slate-500">
-                  Passwort vergessen? <a href="mailto:kontakt@umzugsnetz.de?subject=Passwort%20zur%C3%BCcksetzen" className="font-bold text-brand-blue hover:underline">Zugang zurücksetzen anfragen</a>
+                  Passwort vergessen? <Link href="/passwort-zuruecksetzen?bereich=partner" className="font-bold text-brand-blue hover:underline">Hier zurücksetzen</Link>
                 </p>
               </div>
             </div>
