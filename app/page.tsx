@@ -205,8 +205,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               </div>
 
               {/* TRUSTPILOT */}
-                <div className="flex flex-wrap items-center gap-4 sm:flex-nowrap">
-                  <div className="flex -space-x-3">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex -space-x-3 flex-shrink-0">
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[1]" src="/1.jpeg" width={44} height={44} alt="Trustpilot Bewertung 1" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[2]" src="/2.jpeg" width={44} height={44} alt="Trustpilot Bewertung 2" sizes="44px" />
                   <Image className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-sm relative z-[3]" src="/3.jpeg" width={44} height={44} alt="Trustpilot Bewertung 3" sizes="44px" />
@@ -222,7 +222,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   href="https://de.trustpilot.com/review/umzugsnetz.de" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="flex flex-col justify-center hover:opacity-80 transition-opacity"
+                  className="flex min-w-0 flex-col justify-center hover:opacity-80 transition-opacity"
                   title="Zu unseren Bewertungen auf Trustpilot"
                 >
                   <img src="/IconTOP.png" alt="Trustpilot Sterne" className="mb-1 h-5 w-auto object-contain rendering-pixelated" style={{ imageRendering: 'auto' }} />

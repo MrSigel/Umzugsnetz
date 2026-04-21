@@ -533,7 +533,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="pointer-events-auto absolute bottom-20 right-0 flex h-[min(70vh,40rem)] w-full max-w-none flex-col overflow-hidden rounded-[1.75rem] border border-slate-100 bg-white/98 shadow-2xl backdrop-blur-md max-sm:left-0 max-sm:right-0 sm:w-[380px] sm:max-w-[380px]"
           >
-            <div className="flex items-center justify-between bg-gradient-to-r from-brand-blue to-brand-green p-4 text-white">
+            <div className="flex items-center justify-between bg-brand-blue p-4 text-white">
               <div>
                 <h3 className="font-bold">Umzugsnetz Servicechat</h3>
                 <p className="text-xs text-white/80">Schnelle Hilfe zu häufigen Fragen</p>
@@ -576,7 +576,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
                     <button
                       type="submit"
                       disabled={sending}
-                      className="mt-4 w-full rounded-xl bg-gradient-to-r from-brand-blue to-brand-green py-3 font-bold text-white transition-shadow hover:shadow-lg disabled:opacity-60"
+                      className="mt-4 w-full rounded-xl bg-brand-blue py-3 font-bold text-white transition-shadow hover:bg-brand-blue-hover hover:shadow-lg disabled:opacity-60"
                     >
                       {sending ? 'Startet...' : 'Chat starten'}
                     </button>
@@ -648,7 +648,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
                           key={question.id}
                           type="button"
                           onClick={() => void submitUserMessage(question.message)}
-                          className="rounded-full border border-brand-blue/15 bg-slate-50 px-3 py-2 text-xs font-bold text-brand-blue shadow-sm transition-colors hover:bg-brand-blue hover:text-white"
+                          className="rounded-full border border-brand-blue/20 bg-brand-blue-soft/35 px-3 py-2 text-xs font-bold text-brand-blue shadow-sm transition-colors hover:bg-brand-blue hover:text-white"
                         >
                           {question.label}
                         </button>
@@ -691,7 +691,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
-        className="pointer-events-auto ml-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-brand-blue/95 to-brand-green/95 text-white shadow-2xl backdrop-blur-md focus:outline-none"
+        className="pointer-events-auto ml-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-blue text-white shadow-2xl backdrop-blur-md transition-colors hover:bg-brand-blue-hover focus:outline-none"
       >
         {isOpen ? <X className="h-7 w-7" /> : <MessageCircle className="h-7 w-7" />}
         {!isOpen && hasUnreadReply && (

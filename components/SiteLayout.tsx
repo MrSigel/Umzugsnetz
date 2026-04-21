@@ -198,7 +198,7 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
   };
 
   return (
-    <footer className={`${bg_class} text-white pt-16 pb-8 text-sm`}>
+    <footer className={`${bg_class} text-white pt-16 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm`}>
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-1 space-y-6">
           <Link href="/" className="inline-block">
