@@ -37,6 +37,35 @@ export async function getAdminPartnerSnapshot() {
   return data || [];
 }
 
+export async function getAdminPartnerApplicationSnapshot() {
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const [
+    { count: applicationCount },
+    { count: verifiedApplicationCount },
+    { count: pendingInviteCount },
+    { data: applications },
+  ] = await Promise.all([
+    supabaseAdmin.from('partner_applications').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('partner_applications').select('*', { count: 'exact', head: true }).eq('verification_status', 'VERIFIED'),
+    supabaseAdmin.from('partner_applications').select('*', { count: 'exact', head: true }).is('invite_sent_at', null),
+    supabaseAdmin
+      .from('partner_applications')
+      .select('id,company_name,contact_name,email,location,status,verification_status,verification_score,invite_sent_at,invite_sent_to,created_at')
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ]);
+
+  return {
+    stats: {
+      applicationCount: applicationCount || 0,
+      verifiedApplicationCount: verifiedApplicationCount || 0,
+      pendingInviteCount: pendingInviteCount || 0,
+    },
+    applications: applications || [],
+  };
+}
+
 export async function getAdminLeadSnapshot() {
   const supabaseAdmin = getSupabaseAdmin();
   const { data } = await supabaseAdmin

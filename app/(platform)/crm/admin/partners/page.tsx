@@ -1,14 +1,28 @@
 import { AppShell } from '@/components/crm/AppShell';
+import { PartnerApplicationInviteTable } from '@/components/crm/PartnerApplicationInviteTable';
+import { StatCardGrid } from '@/components/crm/StatCardGrid';
 import { crmNavigation } from '@/lib/crm/navigation';
-import { getAdminPartnerSnapshot } from '@/lib/server/adminDashboard';
+import { getAdminPartnerApplicationSnapshot, getAdminPartnerSnapshot } from '@/lib/server/adminDashboard';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPartnersPage() {
-  const partners = await getAdminPartnerSnapshot();
+  const [partners, applicationSnapshot] = await Promise.all([
+    getAdminPartnerSnapshot(),
+    getAdminPartnerApplicationSnapshot(),
+  ]);
 
   return (
     <AppShell title="Admin Dashboard" description="Partnerverwaltung und Verifizierung." nav={crmNavigation.admin}>
+      <StatCardGrid
+        items={[
+          { label: 'Partner', value: String(partners.length), hint: 'Letzte CRM-Partner im Snapshot' },
+          { label: 'Anfragen', value: String(applicationSnapshot.stats.applicationCount), hint: `${applicationSnapshot.stats.verifiedApplicationCount} vorgeprueft` },
+          { label: 'Offene Invites', value: String(applicationSnapshot.stats.pendingInviteCount), hint: 'Noch nicht versendet' },
+          { label: 'Pipeline', value: 'Partner', hint: 'Akquise und Freischaltung' },
+        ]}
+      />
+
       <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
         <h2 className="text-2xl font-bold text-slate-900">Partner</h2>
         <p className="mt-2 text-sm text-slate-600">
@@ -44,6 +58,15 @@ export default async function AdminPartnersPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+        <h2 className="text-2xl font-bold text-slate-900">Partneranfragen</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Neue Partnerfirmen koennen hier geprueft und direkt per Einladung freigeschaltet werden.
+        </p>
+
+        <PartnerApplicationInviteTable applications={applicationSnapshot.applications} />
       </section>
     </AppShell>
   );
