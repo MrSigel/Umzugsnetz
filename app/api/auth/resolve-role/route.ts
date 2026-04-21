@@ -76,12 +76,9 @@ export async function GET(request: Request) {
   }
 
   if (!role) {
-    const looksLikePartner = !profileRow?.primary_role
-      && !partnerRow
-      && !String(user.app_metadata?.role || '').trim()
-      && !String(user.user_metadata?.role || '').trim()
-        ? true
-        : String(user.app_metadata?.role || user.user_metadata?.role || '').toUpperCase() === 'PARTNER';
+    const looksLikePartner =
+      String(user.app_metadata?.role || user.user_metadata?.role || '').toUpperCase() === 'PARTNER'
+      || Boolean(partnerRow);
 
     if (looksLikePartner) {
       await bootstrapPartnerUser(user);

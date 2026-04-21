@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
+import { requireAdminUser } from '@/lib/server/adminAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,11 +14,6 @@ function jsonError(message: string, status: number) {
 }
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get('authorization') || '';
-  if (!authHeader.toLowerCase().startsWith('bearer ')) {
-    return jsonError('Fehlende Anmeldung.', 401);
-  }
-
   let body: InviteBody;
   try {
     body = await request.json();
@@ -33,47 +28,15 @@ export async function POST(request: Request) {
     return jsonError('Bitte eine E-Mail-Adresse angeben.', 400);
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !anonKey) {
-    return jsonError('Supabase-Konfiguration fehlt.', 500);
+  let adminUser;
+  try {
+    adminUser = await requireAdminUser(request);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Admin-Rechte erforderlich.';
+    return jsonError(message, message === 'Admin-Rechte erforderlich.' ? 403 : 401);
   }
 
-  const sessionClient = createClient(supabaseUrl, anonKey, {
-    global: {
-      headers: {
-        Authorization: authHeader,
-      },
-    },
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
-
-  const { data: sessionUser, error: sessionError } = await sessionClient.auth.getUser();
-  if (sessionError || !sessionUser.user) {
-    return jsonError('Sitzung konnte nicht verifiziert werden.', 401);
-  }
-
-  const requesterEmail = sessionUser.user.email?.toLowerCase() || '';
-  const requesterIsAdmin =
-    sessionUser.user.app_metadata?.role === 'admin' ||
-    sessionUser.user.user_metadata?.role === 'admin';
-
-  if (!requesterIsAdmin) {
-    const { data: teamEntry } = await sessionClient
-      .from('team')
-      .select('role, status')
-      .ilike('email', requesterEmail)
-      .maybeSingle();
-
-    if (teamEntry?.role !== 'ADMIN' || teamEntry?.status === 'DISABLED') {
-      return jsonError('Admin-Rechte erforderlich.', 403);
-    }
-  }
-
+  const requesterEmail = adminUser.email?.toLowerCase() || '';
   const supabaseAdmin = getSupabaseAdmin();
   const appBaseUrl = process.env.APP_BASE_URL || 'https://umzugsnetz.de';
   const redirectTo = `${appBaseUrl.replace(/\/$/, '')}/admin`;

@@ -141,6 +141,7 @@ export async function POST(request: Request) {
   const supabaseAdmin = getSupabaseAdmin();
   const now = new Date().toISOString();
   const verificationStatus = verification.status === 'VERIFIED' ? 'VERIFIED' : 'MANUAL_REVIEW';
+  const partnerStatus = 'ACTIVE';
 
   const { data: partner, error: partnerError } = await supabaseAdmin
     .from('partners')
@@ -171,6 +172,7 @@ export async function POST(request: Request) {
       phone,
       website_url: websiteUrl ?? verification.websiteUrl,
       verification_status: verificationStatus,
+      status: partnerStatus,
       onboarding_completed_at: now,
       verified_at: verificationStatus === 'VERIFIED' ? now : null,
       updated_at: now,
