@@ -7,8 +7,15 @@ export default function PartnerLeadsPage() {
       <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
         <h2 className="text-2xl font-bold text-slate-900">Leads</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Basis für zugewiesene Leads, Bearbeitungsstatus und Limits.
+          Basis fuer freigegebene Leads, Bearbeitungsstatus, Paketlogik und Verzoegerungen pro Stufe.
         </p>
+
+        <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <p className="text-sm font-semibold text-slate-900">Matching vorbereitet</p>
+          <p className="mt-2 text-sm text-slate-700">
+            Neue Leads werden kuenftig automatisch nach Paket, Region und Leistung in diesen Bereich eingesteuert.
+          </p>
+        </div>
       </section>
     </AppShell>
   );
