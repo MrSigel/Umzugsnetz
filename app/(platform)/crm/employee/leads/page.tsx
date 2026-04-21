@@ -1,15 +1,11 @@
 import { AppShell } from '@/components/crm/AppShell';
+import { EmployeeDashboardPanel } from '@/components/crm/EmployeeDashboardPanel';
 import { crmNavigation } from '@/lib/crm/navigation';
 
 export default function EmployeeLeadsPage() {
   return (
-    <AppShell title="Mitarbeiter Dashboard" description="Placeholder für operative Leads." nav={crmNavigation.employee}>
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
-        <h2 className="text-2xl font-bold text-slate-900">Leads</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Platzhalter für spätere eingeschränkte Arbeitsbereiche im Mitarbeiter-Flow.
-        </p>
-      </section>
+    <AppShell title="Mitarbeiter Dashboard" description="Operative Leads und Kontaktanfragen." nav={crmNavigation.employee}>
+      <EmployeeDashboardPanel section="leads" />
     </AppShell>
   );
 }
