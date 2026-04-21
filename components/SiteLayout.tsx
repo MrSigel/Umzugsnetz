@@ -70,6 +70,16 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
               )}
             </AnimatePresence>
           </div>
+          <div className="w-px h-4 bg-white/40 flex-shrink-0" />
+          <a
+            href="https://de.trustpilot.com/review/umzugsnetz.de"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-shrink-0 items-center hover:opacity-90 transition-opacity"
+            aria-label="Bewertungen auf Trustpilot"
+          >
+            <img src="/navitrust.jpeg" alt="Trustpilot Bewertung" className="h-6 w-auto object-contain" />
+          </a>
         </div>
       </div>
 
@@ -251,8 +261,8 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
         <div className="col-span-1">
           <h4 className="font-bold text-white uppercase tracking-wider mb-6">Kontakt</h4>
           <ul className="space-y-4 text-white/80">
-            <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-white/60" /> kontakt@umzugsnetz.de</li>
-            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-white/60" /> +49 000 00000000</li>
+            <li className="flex items-start gap-3 break-words"><Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-white/60" /> <span className="min-w-0">kontakt@umzugsnetz.de</span></li>
+            <li className="flex items-start gap-3 break-words"><Phone className="mt-0.5 h-4 w-4 flex-shrink-0 text-white/60" /> <span className="min-w-0">+49 000 00000000</span></li>
             <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-white/60" /> Musterstraße 123, 12345 Musterstadt</li>
           </ul>
           <div className="mt-8 text-white/60 text-[10px]">
@@ -261,7 +271,7 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-white/10 flex justify-center gap-6 text-white/80 text-xs font-medium">
+      <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-x-6 gap-y-3 px-4 pt-8 border-t border-white/10 text-white/80 text-xs font-medium">
         <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
         <Link href="/partnerbedingungen" className="hover:text-white transition-colors">Partnerbedingungen</Link>
         <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
