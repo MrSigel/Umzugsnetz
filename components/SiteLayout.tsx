@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Network, Mail, Menu, X } from 'lucide-react';
+import { ShieldCheck, Network, Mail, Menu, Phone, X } from 'lucide-react';
 
 const Facebook = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>;
 const XIcon = (props: any) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m4 4 16 16"/><path d="M20 4 4 20"/></svg>;
@@ -246,9 +246,10 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
           <h4 className="font-bold text-white uppercase tracking-wider mb-6">Kontakt</h4>
           <ul className="space-y-4 text-white/80">
             <li className="flex items-center gap-3"><Mail className="w-4 h-4 text-white/60" /> kontakt@umzugsnetz.de</li>
+            <li className="flex items-center gap-3"><Phone className="w-4 h-4 text-white/60" /> +49 000 00000000</li>
           </ul>
           <div className="mt-8 text-white/60 text-[10px]">
-            © {new Date().getFullYear()} Umzugsnetz
+            © {new Date().getFullYear()} Umzugsnetz. Alle Rechte vorbehalten.
           </div>
         </div>
       </div>

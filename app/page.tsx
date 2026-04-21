@@ -261,11 +261,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     animate="rest"
                     whileHover="hover"
                     whileTap="tap"
-                    onClick={(e) => {
-                      scrollTo(e as any, 'rechner');
-                      setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'privatumzug' } })), 400);
-                    }}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0167B0] bg-[#0167B0] px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(1,103,176,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#015A99] hover:shadow-[0_18px_40px_rgba(1,103,176,0.34)]"
+                    onClick={(e) => scrollTo(e as any, 'rechner')}
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0167B0] bg-[#0167B0]/80 px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(1,103,176,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#015A99]/90 hover:shadow-[0_18px_40px_rgba(1,103,176,0.34)]"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -286,11 +283,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     animate="rest"
                     whileHover="hover"
                     whileTap="tap"
-                    onClick={(e) => {
-                      scrollTo(e as any, 'rechner');
-                      setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'entruempelung' } })), 400);
-                    }}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0FA774] bg-[#0FA774] px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(15,167,116,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#0D9668] hover:shadow-[0_18px_40px_rgba(15,167,116,0.34)]"
+                    onClick={(e) => scrollTo(e as any, 'rechner')}
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0FA774] bg-[#0FA774]/80 px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(15,167,116,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#0D9668]/90 hover:shadow-[0_18px_40px_rgba(15,167,116,0.34)]"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -519,7 +513,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 <motion.div
                   whileHover={{ y: -5, scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full sm:min-w-[240px] bg-brand-green/30 hover:bg-brand-green/50 border-2 border-brand-green/35 hover:border-brand-green/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
+                  className="w-full sm:min-w-[240px] bg-brand-green/70 hover:bg-brand-green/85 border-2 border-brand-green/55 hover:border-brand-green/80 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
                 >
                   <Trash2 className="w-7 h-7 mb-1 opacity-90" />
                   <span className="text-xs font-bold uppercase tracking-widest opacity-70">Für</span>

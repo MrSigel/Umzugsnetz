@@ -160,8 +160,8 @@ export default function KostenrechnerWidget() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // STEP 1
-  const [wohnflaeche, setWohnflaeche] = useState(0);
-  const [entfernung, setEntfernung] = useState(0);
+  const [wohnflaeche, setWohnflaeche] = useState(60);
+  const [entfernung, setEntfernung] = useState(50);
   const [selectedService, setSelectedService] = useState('privatumzug');
 
   // STEP 2 – Umzug
@@ -240,6 +240,11 @@ export default function KostenrechnerWidget() {
         { label: 'Entfernung', amount: entfernungCost, suffix: `${entfernung} km` },
         ...umzugExtras.map((item) => ({ label: item.label, amount: item.amount })),
       ];
+  const entruempelOrientation = [
+    { label: 'Gegenstände auswählen', description: 'z. B. Sofa, Schränke oder Elektrogeräte' },
+    { label: 'Zugang & Etage', description: 'Etagen ohne Aufzug erhöhen den Aufwand' },
+    { label: 'Zusatzaufwand', description: 'Erschwerter Zugang oder Parkverbot werden berücksichtigt' },
+  ];
 
   // Lausche auf Custom Events und URL-Parameter
   useEffect(() => {
@@ -377,34 +382,59 @@ export default function KostenrechnerWidget() {
                 </div>
 
                 <div className="bg-white p-5 sm:p-8 rounded-[1.75rem] sm:rounded-[2rem] shadow-inner border border-slate-100 text-center flex flex-col items-center justify-center min-h-[280px]">
-                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Geschätzter Festpreis ab</p>
-                  <div className="text-4xl sm:text-5xl md:text-6xl font-black text-brand-blue mb-6 sm:mb-8 tracking-tight break-words">{estimatedPrice} €</div>
-                  <div className="w-full rounded-[1.5rem] border border-brand-blue/10 bg-brand-blue-soft/40 p-4 text-left mb-6">
-                    <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-brand-blue mb-3">
+                  <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">{isEntruempelung ? 'Erste Preisorientierung' : 'Geschätzter Festpreis ab'}</p>
+                  <div className={`text-4xl sm:text-5xl md:text-6xl font-black mb-6 sm:mb-8 tracking-tight break-words ${isEntruempelung ? 'text-brand-green' : 'text-brand-blue'}`}>
+                    {isEntruempelung ? `${entruempelPrice.toLocaleString('de-DE')} €` : `${estimatedPrice} €`}
+                  </div>
+                  <div className={`w-full rounded-[1.5rem] p-4 text-left mb-6 ${isEntruempelung ? 'border border-brand-green/10 bg-brand-green/10' : 'border border-brand-blue/10 bg-brand-blue-soft/40'}`}>
+                    <div className={`flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] mb-3 ${isEntruempelung ? 'text-brand-green' : 'text-brand-blue'}`}>
                       <span>Preisaufteilung</span>
                       <span>Orientierung</span>
                     </div>
                     <div className="space-y-2">
-                      {priceBreakdown.slice(0, 3).map((item) => (
-                        <div key={item.label} className="flex items-start justify-between gap-3 text-sm">
-                          <div className="min-w-0">
-                            <span className="font-bold text-slate-700">{item.label}</span>
-                            {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
+                      {isEntruempelung ? (
+                        entruempelOrientation.map((item) => (
+                          <div key={item.label} className="flex items-start justify-between gap-3 text-sm">
+                            <div className="min-w-0">
+                              <span className="font-bold text-slate-700">{item.label}</span>
+                            </div>
+                            <span className="text-right text-xs font-semibold text-slate-500">{item.description}</span>
                           </div>
-                          <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        priceBreakdown.slice(0, 3).map((item) => (
+                          <div key={item.label} className="flex items-start justify-between gap-3 text-sm">
+                            <div className="min-w-0">
+                              <span className="font-bold text-slate-700">{item.label}</span>
+                              {'suffix' in item && item.suffix ? <span className="ml-1 text-slate-400">({item.suffix})</span> : null}
+                            </div>
+                            <span className="font-black text-slate-900">{item.amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                          </div>
+                        ))
+                      )}
                     </div>
                     <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                      Diese erste Schätzung basiert auf Wohnfläche und Entfernung. Im nächsten Schritt verfeinern Sonderleistungen und Zugangssituation den Preis.
+                      {isEntruempelung
+                        ? 'Für Entrümpelungen ergibt sich der Preis aus Menge, Zugangssituation und möglichen Zusatzaufwänden. Im nächsten Schritt konkretisieren Sie Ihre Angaben.'
+                        : 'Diese erste Schätzung basiert auf Wohnfläche und Entfernung. Im nächsten Schritt verfeinern Sonderleistungen und Zugangssituation den Preis.'}
                     </p>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+                  <div className="flex flex-col items-center gap-3 w-full">
                     <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                       onClick={() => setStep('details')}
-                      className="flex-1 w-full bg-brand-blue text-white py-4 rounded-full font-extrabold shadow-lg hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-2">
+                      className="w-full bg-brand-blue text-white py-4 rounded-full font-extrabold shadow-lg hover:bg-brand-blue-hover transition-all flex items-center justify-center gap-2">
                       Angebote vergleichen <ChevronRight className="w-5 h-5" />
                     </motion.button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedService('entruempelung');
+                        setStep('details');
+                      }}
+                      className="text-sm font-bold text-brand-green underline underline-offset-4 transition-colors hover:text-brand-green-hover"
+                    >
+                      Entrümpelungskosten Berechnen
+                    </button>
                     <button onClick={() => setIsInfoOpen(true)}
                       className="p-4 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all shadow-sm" title="Berechnungsgrundlage">
                       <Info className="w-6 h-6" />
