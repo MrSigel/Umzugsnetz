@@ -280,9 +280,14 @@ export default function KostenrechnerWidget() {
 
   const kontaktValid = vorname && nachname && email && telefon;
 
+  const resetToPreviewState = () => {
+    setSelectedService('privatumzug');
+    setStep('rechner');
+  };
+
   const goBack = () => {
     if (step === 'kontakt') setStep('details');
-    if (step === 'details') setStep('rechner');
+    if (step === 'details') resetToPreviewState();
   };
 
   const handleSubmit = async () => {
@@ -433,7 +438,7 @@ export default function KostenrechnerWidget() {
                       }}
                       className="text-sm font-bold text-brand-green underline underline-offset-4 transition-colors hover:text-brand-green-hover"
                     >
-                      Entrümpelungskosten Berechnen
+                      Entrümpelungskosten berechnen
                     </button>
                     <button onClick={() => setIsInfoOpen(true)}
                       className="p-4 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all shadow-sm" title="Berechnungsgrundlage">

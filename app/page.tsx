@@ -241,11 +241,11 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={(e) => scrollTo(e as any, 'rechner')}
-                  className="group w-full rounded-[1.75rem] border border-slate-900/10 bg-white/95 px-8 py-4 text-[#0167B0] shadow-[0_18px_50px_rgba(15,23,42,0.16)] transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_22px_60px_rgba(15,23,42,0.22)]"
+                  className="group w-full rounded-[2rem] border border-[#0167B0] bg-[#0167B0] px-8 py-4 text-white shadow-[0_18px_44px_rgba(1,103,176,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#015A99] hover:shadow-[0_22px_54px_rgba(1,103,176,0.34)]"
                 >
                   <span className="flex items-center justify-center gap-3 text-lg font-extrabold">
                     Jetzt kostenlos anfragen
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0167B0]/10 text-[#0167B0] transition-colors group-hover:bg-[#0167B0]/16">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white/16">
                       <ChevronRight className="w-5 h-5" />
                     </span>
                   </span>
@@ -262,17 +262,17 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     whileHover="hover"
                     whileTap="tap"
                     onClick={(e) => scrollTo(e as any, 'rechner')}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0167B0] bg-[#0167B0]/80 px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(1,103,176,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#015A99]/90 hover:shadow-[0_18px_40px_rgba(1,103,176,0.34)]"
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#9FC3DE] bg-[rgba(232,238,243,0.94)] px-4 py-3 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(226,234,240,0.98)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                   >
                     <motion.span
                       aria-hidden="true"
                       variants={calcSheenVariants}
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
-                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/16 to-transparent"
+                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent"
                     />
-                    <div className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap text-white">
+                    <div className="relative z-10 flex items-center justify-center gap-2 text-[#0167B0]">
                       <Calculator className="h-4.5 w-4.5 flex-shrink-0" />
-                      <span className="text-sm font-black">Umzugskosten berechnen</span>
+                      <span className="text-[13px] font-black leading-[1.15] text-center">Umzugskosten<br />berechnen</span>
                     </div>
                   </motion.button>
                   
@@ -284,17 +284,17 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     whileHover="hover"
                     whileTap="tap"
                     onClick={(e) => scrollTo(e as any, 'rechner')}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0FA774] bg-[#0FA774]/80 px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(15,167,116,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#0D9668]/90 hover:shadow-[0_18px_40px_rgba(15,167,116,0.34)]"
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#9CD8C2] bg-[rgba(225,242,234,0.8)] px-4 py-3 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(217,238,227,0.88)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                   >
                     <motion.span
                       aria-hidden="true"
                       variants={calcSheenVariants}
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
-                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/16 to-transparent"
+                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                     />
-                    <div className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap text-white">
+                    <div className="relative z-10 flex items-center justify-center gap-2 text-[#0FA774]">
                       <Trash2 className="h-4.5 w-4.5 flex-shrink-0" />
-                      <span className="text-sm font-black">Entrümpelungskosten berechnen</span>
+                      <span className="text-[13px] font-black leading-[1.15] text-center">Entrümpelungskosten<br />berechnen</span>
                     </div>
                   </motion.button>
 
