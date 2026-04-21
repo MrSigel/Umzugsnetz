@@ -14,7 +14,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const c_primary = theme === 'green' ? '#00b67a' : '#005ea6';
+  const c_primary = theme === 'green' ? '#11b980' : '#0276c8';
   const bg_class = theme === 'green' ? 'bg-brand-green' : 'bg-brand-blue';
   const text_hoverClass = theme === 'green' ? 'hover:text-brand-green' : 'hover:text-brand-blue';
   const text_activeClass = theme === 'green' ? 'text-brand-green' : 'text-brand-blue';
@@ -64,24 +64,12 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
             <AnimatePresence>
               {copyStatus === 'copied' && (
                 <motion.div initial={{ opacity: 0, y: 10, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} exit={{ opacity: 0, y: -10, x: '-50%' }}
-                  className="absolute bottom-full mb-2 left-1/2 bg-emerald-500 text-white text-[11px] font-bold py-1 px-3 rounded shadow-lg z-[60]">
+                  className="absolute bottom-full mb-2 left-1/2 bg-brand-green text-white text-[11px] font-bold py-1 px-3 rounded shadow-lg z-[60]">
                   E-Mail kopiert!
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-          <a
-            href="https://de.trustpilot.com/review/umzugsnetz.de"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative ml-2 flex flex-shrink-0 items-center hover:opacity-80 transition-opacity"
-            aria-label="Bewertungen auf Trustpilot"
-          >
-            <img src="/IconTOP.png" alt="Trustpilot Bewertung" className="h-5.5 w-auto object-contain" />
-            <span className="absolute inset-y-0 right-0 flex items-center bg-transparent pl-2 text-sm font-black tracking-[0.08em] text-white">
-              Trustpilot
-            </span>
-          </a>
         </div>
       </div>
 
@@ -188,8 +176,8 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
 }
 
 export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
-  const bg_class = theme === 'green' ? 'bg-[#004d33]' : 'bg-brand-blue';
-  const hover_bg = theme === 'green' ? 'hover:text-[#004d33]' : 'hover:text-brand-blue';
+  const bg_class = theme === 'green' ? 'bg-[#0d8e63]' : 'bg-brand-blue';
+  const hover_bg = theme === 'green' ? 'hover:text-[#0d8e63]' : 'hover:text-brand-blue';
 
   const handleServiceClick = (service?: string) => {
     if (window.location.pathname !== '/') {

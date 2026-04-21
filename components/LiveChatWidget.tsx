@@ -10,6 +10,7 @@ import { useToast } from '@/components/ToastProvider';
 type WidgetMessage = {
   sender: 'user' | 'admin';
   text: string;
+  createdAt?: string;
 };
 
 type SuggestedQuestion = {
@@ -33,6 +34,10 @@ const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
 ];
 
 const SERVICE_FALLBACK_MESSAGE = 'Vielen Dank für Ihre Nachricht. Wenn Sie möchten, leiten wir Ihr Anliegen direkt an die zuständige Fachabteilung weiter. Hinterlegen Sie dazu bitte Ihre Kontaktdaten sowie ein passendes Zeitfenster für die Rückmeldung.';
+const CHAT_INACTIVITY_WARNING_MESSAGE = 'Hinweis: Wegen Inaktivität wird dieser Chat in 2 Minuten automatisch geschlossen.';
+const CHAT_AUTO_CLOSE_MARKER = '[TICKET_GESCHLOSSEN]';
+const CHAT_WARNING_AFTER_MS = 8 * 60 * 1000;
+const CHAT_CLOSE_AFTER_MS = 10 * 60 * 1000;
 
 function createSessionId() {
   return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
@@ -114,6 +119,13 @@ export default function LiveChatWidget() {
   const [contactEmail, setContactEmail] = useState('');
   const [contactBestTime, setContactBestTime] = useState('');
   const [lastUnhandledQuestion, setLastUnhandledQuestion] = useState('');
+  const [lastUserActivityAt, setLastUserActivityAt] = useState<number | null>(null);
+  const warningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const supportCategory = useMemo<'KUNDE' | 'PARTNER'>(() => {
+    return pathname?.startsWith('/partner') ? 'PARTNER' : 'KUNDE';
+  }, [pathname]);
 
   const resetLocalChatSession = () => {
     localStorage.removeItem('umzugapp_chat_sid');
@@ -131,6 +143,15 @@ export default function LiveChatWidget() {
     setContactEmail('');
     setContactBestTime('');
     setLastUnhandledQuestion('');
+    setLastUserActivityAt(null);
+    if (warningTimeoutRef.current) {
+      clearTimeout(warningTimeoutRef.current);
+      warningTimeoutRef.current = null;
+    }
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
   };
 
   useEffect(() => {
@@ -180,7 +201,7 @@ export default function LiveChatWidget() {
         }
 
         if (data.length > 0) {
-          const wasClosed = data.some((message) => message.text === '[TICKET_GESCHLOSSEN]');
+          const wasClosed = data.some((message) => message.text === CHAT_AUTO_CLOSE_MARKER);
           if (wasClosed) {
             localStorage.removeItem('umzugapp_chat_sid');
             const nextSessionId = createSessionId();
@@ -194,8 +215,17 @@ export default function LiveChatWidget() {
           setMessages(data.map((message) => ({
             sender: message.sender as WidgetMessage['sender'],
             text: message.text,
+            createdAt: message.created_at,
           })));
           setStep('chat');
+
+          const lastRelevantActivity = [...data]
+            .reverse()
+            .find((message) => (message.sender === 'user' || message.text !== CHAT_AUTO_CLOSE_MARKER) && message.created_at);
+
+          if (lastRelevantActivity?.created_at) {
+            setLastUserActivityAt(new Date(lastRelevantActivity.created_at).getTime());
+          }
 
           const lastNamedMessage = [...data].reverse().find((message) => message.user_name);
           if (lastNamedMessage?.user_name) {
@@ -223,7 +253,7 @@ export default function LiveChatWidget() {
             return;
           }
 
-          if (payload.new.text === '[TICKET_GESCHLOSSEN]') {
+          if (payload.new.text === CHAT_AUTO_CLOSE_MARKER) {
             resetLocalChatSession();
             return;
           }
@@ -232,6 +262,7 @@ export default function LiveChatWidget() {
             const nextMessage = {
               sender: payload.new.sender as WidgetMessage['sender'],
               text: payload.new.text,
+              createdAt: payload.new.created_at,
             };
             const lastMessage = currentMessages[currentMessages.length - 1];
             if (lastMessage?.sender === nextMessage.sender && lastMessage?.text === nextMessage.text) {
@@ -254,6 +285,43 @@ export default function LiveChatWidget() {
     };
   }, [pathname, showToast, isOpen]);
 
+  useEffect(() => {
+    if (step !== 'chat' || !sessionId || !lastUserActivityAt) {
+      return;
+    }
+
+    if (warningTimeoutRef.current) {
+      clearTimeout(warningTimeoutRef.current);
+    }
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+
+    const elapsedMs = Date.now() - lastUserActivityAt;
+    const warningDelayMs = Math.max(CHAT_WARNING_AFTER_MS - elapsedMs, 0);
+    const closeDelayMs = Math.max(CHAT_CLOSE_AFTER_MS - elapsedMs, 0);
+
+    warningTimeoutRef.current = setTimeout(() => {
+      void insertAdminMessage(CHAT_INACTIVITY_WARNING_MESSAGE, true);
+    }, warningDelayMs);
+
+    closeTimeoutRef.current = setTimeout(() => {
+      void insertAdminMessage(CHAT_AUTO_CLOSE_MARKER, true);
+      resetLocalChatSession();
+    }, closeDelayMs);
+
+    return () => {
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current);
+        warningTimeoutRef.current = null;
+      }
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    };
+  }, [lastUserActivityAt, sessionId, step]);
+
   const displayName = useMemo(() => `${firstName} ${lastName}`.trim(), [firstName, lastName]);
   const contactFormValid = firstName.trim() && lastName.trim() && contactPhone.trim() && contactEmail.trim() && contactBestTime.trim();
 
@@ -261,15 +329,19 @@ export default function LiveChatWidget() {
     return null;
   }
 
-async function insertAdminMessage(text: string) {
+async function insertAdminMessage(text: string, skipLocalEcho = false) {
     if (!sessionId) {
+      return;
+    }
+
+    if (skipLocalEcho && messages.some((message) => message.text === text)) {
       return;
     }
 
     const payload = {
       sender: 'admin',
       session_id: sessionId,
-      support_category: 'KUNDE',
+      support_category: supportCategory,
       user_name: displayName,
       text,
     };
@@ -289,6 +361,10 @@ async function insertAdminMessage(text: string) {
     if (error) {
       throw error;
     }
+
+    if (!skipLocalEcho) {
+      setMessages((currentMessages) => [...currentMessages, { sender: 'admin', text }]);
+    }
   }
 
   async function handleStartChat(event: React.FormEvent) {
@@ -303,8 +379,8 @@ async function insertAdminMessage(text: string) {
     try {
       setSending(true);
       await insertAdminMessage(welcomeMessage);
-      setMessages([{ sender: 'admin', text: welcomeMessage }]);
       setStep('chat');
+      setLastUserActivityAt(Date.now());
     } catch (error: any) {
       showToast('error', 'Chat konnte nicht gestartet werden', error.message);
     } finally {
@@ -317,7 +393,6 @@ async function insertAdminMessage(text: string) {
 
     try {
       await insertAdminMessage(answer.text);
-      setMessages((currentMessages) => [...currentMessages, { sender: 'admin', text: answer.text }]);
       setEscalationOpen(!answer.handled);
       if (!answer.handled) {
         setLastUnhandledQuestion(nextMessage);
@@ -335,13 +410,14 @@ async function insertAdminMessage(text: string) {
     const nextMessage = rawMessage.trim();
     setMessages((currentMessages) => [...currentMessages, { sender: 'user', text: nextMessage }]);
     setInput('');
+    setLastUserActivityAt(Date.now());
 
     try {
       setSending(true);
       const payload = {
         sender: 'user',
         session_id: sessionId,
-        support_category: 'KUNDE',
+        support_category: supportCategory,
         user_name: displayName,
         text: nextMessage,
       };
@@ -400,7 +476,7 @@ async function insertAdminMessage(text: string) {
       const escalationPayload = {
         sender: 'user',
         session_id: sessionId,
-        support_category: 'KUNDE',
+        support_category: supportCategory,
         user_name: displayName,
         text: summaryMessage,
       };
@@ -433,11 +509,11 @@ async function insertAdminMessage(text: string) {
       }
 
       await insertAdminMessage(confirmationMessage);
+      setLastUserActivityAt(Date.now());
 
       setMessages((currentMessages) => [
         ...currentMessages,
         { sender: 'user', text: summaryMessage },
-        { sender: 'admin', text: confirmationMessage },
       ]);
       setEscalationOpen(false);
     } catch (error: any) {

@@ -179,7 +179,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               In unter 2 Minuten Angebote für <br />
               
               <span className="inline-block transition-all duration-300 hover:scale-105 hover:drop-shadow-md cursor-default origin-left">
-                 <span className="text-brand-blue">Umzug</span> & <span className="text-[#00b67a]">Entrümpelung</span>
+                 <span className="text-brand-blue">Umzug</span> & <span className="text-brand-green">Entrümpelung</span>
               </span> <br />
               
               vergleichen und sparen.
@@ -234,20 +234,25 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               </div>
 
               {/* ACTION BEREICH: Haupt-Button + 2 Sub-Buttons */}
-              <div className="flex flex-col gap-3 w-full sm:w-max">
+              <div className="flex w-full max-w-xl flex-col gap-3">
                 
                 {/* HAUPT BUTTON */}
                 <motion.button 
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={(e) => scrollTo(e as any, 'rechner')}
-                  className="w-full bg-brand-blue text-white px-8 md:px-12 py-4 rounded-full font-extrabold text-lg shadow-xl hover:bg-brand-blue-hover transition-colors flex items-center justify-center gap-3"
+                  className="group w-full rounded-[1.75rem] border border-slate-900/10 bg-white/95 px-8 py-4 text-[#0167B0] shadow-[0_18px_50px_rgba(15,23,42,0.16)] transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_22px_60px_rgba(15,23,42,0.22)]"
                 >
-                  Jetzt kostenlos anfragen <ChevronRight className="w-6 h-6" />
+                  <span className="flex items-center justify-center gap-3 text-lg font-extrabold">
+                    Jetzt kostenlos anfragen
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0167B0]/10 text-[#0167B0] transition-colors group-hover:bg-[#0167B0]/16">
+                      <ChevronRight className="w-5 h-5" />
+                    </span>
+                  </span>
                 </motion.button>
 
                 {/* SEKUNDÄRE BUTTONS */}
-                <div className="grid grid-cols-2 gap-2 w-full">
+                <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
                   
                   {/* Sub-Button 1: Umzugskosten */}
                   <motion.button 
@@ -260,18 +265,18 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'privatumzug' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 border border-brand-blue/30 bg-white/55 backdrop-blur-md rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:border-brand-blue/45 hover:bg-white/72 hover:shadow-lg"
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0167B0] bg-[#0167B0] px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(1,103,176,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#015A99] hover:shadow-[0_18px_40px_rgba(1,103,176,0.34)]"
                   >
                     <motion.span
                       aria-hidden="true"
                       variants={calcSheenVariants}
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
-                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/16 to-transparent"
                     />
-                    <Calculator className="w-3.5 h-3.5 text-brand-blue flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-brand-blue leading-tight text-center transition-colors">
-                      Umzugskosten<br/>berechnen
-                    </span>
+                    <div className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap text-white">
+                      <Calculator className="h-4.5 w-4.5 flex-shrink-0" />
+                      <span className="text-sm font-black">Umzugskosten berechnen</span>
+                    </div>
                   </motion.button>
                   
                   {/* Sub-Button 2: Entrümpelungskosten */}
@@ -285,18 +290,18 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       scrollTo(e as any, 'rechner');
                       setTimeout(() => window.dispatchEvent(new CustomEvent('openRechner', { detail: { service: 'entruempelung' } })), 400);
                     }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-1.5 border border-[#00b67a]/35 bg-white/55 backdrop-blur-md rounded-full py-2.5 px-2 transition-[color,background-color,border-color,box-shadow] shadow-sm hover:border-[#00b67a]/50 hover:bg-white/72 hover:shadow-lg"
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#0FA774] bg-[#0FA774] px-4 py-4 text-left text-white shadow-[0_14px_34px_rgba(15,167,116,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#0D9668] hover:shadow-[0_18px_40px_rgba(15,167,116,0.34)]"
                   >
                     <motion.span
                       aria-hidden="true"
                       variants={calcSheenVariants}
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
-                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                      className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/16 to-transparent"
                     />
-                    <Trash2 className="w-3.5 h-3.5 text-[#00b67a] flex-shrink-0 transition-colors" />
-                    <span className="text-[10px] md:text-[11px] font-bold text-[#008b60] leading-tight text-center transition-colors">
-                      Entrümpelungskosten<br/>berechnen
-                    </span>
+                    <div className="relative z-10 flex items-center justify-center gap-2 whitespace-nowrap text-white">
+                      <Trash2 className="h-4.5 w-4.5 flex-shrink-0" />
+                      <span className="text-sm font-black">Entrümpelungskosten berechnen</span>
+                    </div>
                   </motion.button>
 
                 </div>
@@ -320,7 +325,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   'Keine versteckten Kosten'
                 ].map((item, idx) => (
                   <motion.div key={idx} variants={listItem} className="flex items-center gap-4 group">
-                    <div className="bg-[#00b67a]/10 group-hover:bg-[#00b67a] transition-colors p-2 rounded-full text-[#00b67a] group-hover:text-white flex-shrink-0 shadow-sm">
+                    <div className="bg-brand-green/10 group-hover:bg-brand-green transition-colors p-2 rounded-full text-brand-green group-hover:text-white flex-shrink-0 shadow-sm">
                       <Check className="w-5 h-5" strokeWidth={3} />
                     </div>
                     <span className="text-slate-900 font-bold text-[17px]">{item}</span>
@@ -354,7 +359,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
         
         {/* Dekorative Hintergrund-Elemente (weiche Farbkleckse) */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-blue/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-100/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-green/15 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
@@ -411,8 +416,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest shadow-md">
                   Schritt 2
                 </div>
-                <div className="w-20 h-20 bg-emerald-50 group-hover:bg-[#00b67a] transition-colors duration-300 rounded-2xl flex items-center justify-center mb-8 -rotate-3 group-hover:rotate-0 shadow-inner">
-                  <Mails className="w-10 h-10 text-[#00b67a] group-hover:text-white transition-colors duration-300" />
+                <div className="w-20 h-20 bg-brand-green/10 group-hover:bg-brand-green transition-colors duration-300 rounded-2xl flex items-center justify-center mb-8 -rotate-3 group-hover:rotate-0 shadow-inner">
+                  <Mails className="w-10 h-10 text-brand-green group-hover:text-white transition-colors duration-300" />
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-800 mb-4">Angebote erhalten</h3>
                 <p className="text-slate-600 leading-relaxed">
@@ -514,7 +519,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 <motion.div
                   whileHover={{ y: -5, scale: 1.03 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full sm:min-w-[240px] bg-[#00b67a]/30 hover:bg-[#00b67a]/50 border-2 border-[#00ff9d]/30 hover:border-[#00ff9d]/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
+                  className="w-full sm:min-w-[240px] bg-brand-green/30 hover:bg-brand-green/50 border-2 border-brand-green/35 hover:border-brand-green/60 text-white px-8 py-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer backdrop-blur-sm text-center"
                 >
                   <Trash2 className="w-7 h-7 mb-1 opacity-90" />
                   <span className="text-xs font-bold uppercase tracking-widest opacity-70">Für</span>
@@ -602,7 +607,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               className="lg:col-span-5 relative"
             >
               {/* Dekorativer Hintergrund-Shape */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-brand-blue/15 to-emerald-100 rounded-[3rem] blur-2xl opacity-40 -z-10"></div>
+              <div className="absolute -inset-4 bg-gradient-to-tr from-brand-blue/15 to-brand-green/15 rounded-[3rem] blur-2xl opacity-40 -z-10"></div>
               
               <div className="bg-white p-1 md:p-2 rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
                 <div className="relative rounded-[2rem] overflow-hidden bg-slate-50 px-8 py-12 text-center">
@@ -623,7 +628,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgb(16 185 129 / 0.3)" }}
                     whileTap={{ scale: 0.95 }}
                     onClick={(e) => scrollTo(e as any, 'rechner')}
-                    className="w-full bg-gradient-to-r from-[#00b67a] to-[#10b981] text-white py-5 rounded-2xl font-extrabold text-lg shadow-xl transition-all flex items-center justify-center gap-3"
+                    className="w-full bg-gradient-to-r from-brand-green to-brand-green-hover text-white py-5 rounded-2xl font-extrabold text-lg shadow-xl transition-all flex items-center justify-center gap-3"
                   >
                     Jetzt kostenlos anfragen <ArrowRight className="w-5 h-5" />
                   </motion.button>
@@ -640,7 +645,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-50 hidden md:flex items-center gap-4"
               >
-                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                <div className="w-10 h-10 bg-brand-green/10 rounded-full flex items-center justify-center text-brand-green">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div className="pr-4">
@@ -797,7 +802,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 title: "Die ultimative Umzug-Checkliste (PDF & Online)",
                 desc: "Verpassen Sie nichts mit unserer umfassenden Umzug-Checkliste. Alle Aufgaben chronologisch sortiert.",
                 img: "/umzug_checkliste.png",
-                color: "emerald"
+                color: "green"
               },
               {
                 slug: "umzugskosten-berechnen",
@@ -881,7 +886,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 30px -10px rgb(0 182 122 / 0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={(e) => scrollTo(e as any, 'rechner')}
-                className="bg-[#00b67a] text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl transition-all flex items-center justify-center gap-3 mx-auto"
+                className="bg-brand-green text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl transition-all flex items-center justify-center gap-3 mx-auto"
               >
                 Jetzt kostenlos anfragen <ChevronRight className="w-6 h-6" />
               </motion.button>

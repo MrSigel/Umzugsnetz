@@ -12,14 +12,14 @@
   --font-mono: var(--font-geist-mono);
 
   /* Brand colors */
-  --color-brand-blue: #005ea6;
-  --color-brand-blue-hover: #004b85;
-  --color-brand-blue-2: #0b6bbf;
-  --color-brand-blue-3: #1c78cc;
-  --color-brand-blue-soft: #e8f2ff;
+  --color-brand-blue: #0276c8;
+  --color-brand-blue-hover: #0163a8;
+  --color-brand-blue-2: #1386da;
+  --color-brand-blue-3: #349ae3;
+  --color-brand-blue-soft: #e7f4ff;
 
-  --color-brand-green: #00b67a;
-  --color-brand-green-hover: #009968;
+  --color-brand-green: #11b980;
+  --color-brand-green-hover: #0e9e6d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -75,7 +75,7 @@ body {
 .brand-range::-webkit-slider-runnable-track {
   height: 0.75rem;
   border-radius: 9999px;
-  background: linear-gradient(90deg, rgba(0, 94, 166, 0.18) 0%, rgba(0, 94, 166, 0.35) 100%);
+  background: linear-gradient(90deg, rgba(2, 118, 200, 0.18) 0%, rgba(2, 118, 200, 0.35) 100%);
 }
 
 .brand-range::-webkit-slider-thumb {
@@ -86,14 +86,14 @@ body {
   border-radius: 9999px;
   margin-top: -0.32rem;
   border: 3px solid #fff;
-  background: linear-gradient(135deg, #005ea6 0%, #1c78cc 100%);
-  box-shadow: 0 10px 24px rgba(0, 94, 166, 0.28);
+  background: linear-gradient(135deg, #0276c8 0%, #349ae3 100%);
+  box-shadow: 0 10px 24px rgba(2, 118, 200, 0.28);
 }
 
 .brand-range::-moz-range-track {
   height: 0.75rem;
   border-radius: 9999px;
-  background: linear-gradient(90deg, rgba(0, 94, 166, 0.18) 0%, rgba(0, 94, 166, 0.35) 100%);
+  background: linear-gradient(90deg, rgba(2, 118, 200, 0.18) 0%, rgba(2, 118, 200, 0.35) 100%);
 }
 
 .brand-range::-moz-range-thumb {
@@ -101,6 +101,6 @@ body {
   height: 1.4rem;
   border: 3px solid #fff;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #005ea6 0%, #1c78cc 100%);
-  box-shadow: 0 10px 24px rgba(0, 94, 166, 0.28);
+  background: linear-gradient(135deg, #0276c8 0%, #349ae3 100%);
+  box-shadow: 0 10px 24px rgba(2, 118, 200, 0.28);
 }
