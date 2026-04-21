@@ -1,5 +1,5 @@
 import { AppShell } from '@/components/crm/AppShell';
-import { ModuleGrid } from '@/components/crm/ModuleGrid';
+import { PartnerDashboardPanel } from '@/components/crm/PartnerDashboardPanel';
 import { crmNavigation } from '@/lib/crm/navigation';
 
 export default function PartnerCrmPage() {
@@ -9,12 +9,7 @@ export default function PartnerCrmPage() {
       description="Eigene Leads, Paketstatus, Regionen, Limits und Verifizierungsstatus."
       nav={crmNavigation.partner}
     >
-      <ModuleGrid
-        eyebrow="Partner"
-        title="Arbeitsbereiche"
-        description="Basis für Leadbearbeitung, Profilpflege und Abrechnung."
-        items={crmNavigation.partner}
-      />
+      <PartnerDashboardPanel section="overview" />
     </AppShell>
   );
 }
