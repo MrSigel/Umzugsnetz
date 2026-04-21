@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
+import { bootstrapPartnerUser } from '@/lib/auth/bootstrapPartnerUser';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,49 +56,10 @@ export async function POST(request: Request) {
     return jsonError('Benutzerkonto ohne E-Mail-Adresse.', 400);
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
-  const fullName = String(user.user_metadata?.full_name || '').trim() || null;
-  const companyName = body.companyName?.trim() || String(user.user_metadata?.company_name || '').trim() || email;
-  const phone = body.phone?.trim() || null;
-
-  await supabaseAdmin.from('profiles').upsert([{
-    id: user.id,
-    full_name: fullName,
-    email,
-    phone,
-    primary_role: 'PARTNER',
-    updated_at: new Date().toISOString(),
-  }], { onConflict: 'id' });
-
-  await supabaseAdmin.from('user_roles').upsert([{
-    user_id: user.id,
-    role_code: 'PARTNER',
-  }], { onConflict: 'user_id,role_code' });
-
-  const { data: partner } = await supabaseAdmin
-    .from('partners')
-    .select('id')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  if (!partner) {
-    await supabaseAdmin.from('partners').insert([{
-      user_id: user.id,
-      profile_id: user.id,
-      name: companyName,
-      email,
-      phone,
-      status: 'PENDING',
-      verification_status: 'PENDING',
-      package_code: 'FREE',
-      category: 'Standard Anfragen',
-      balance: 0,
-      settings: {
-        emailNotif: true,
-        smsNotif: true,
-      },
-    }]);
-  }
+  await bootstrapPartnerUser(user, {
+    companyName: body.companyName || email,
+    phone: body.phone,
+  });
 
   return NextResponse.json({ success: true });
 }

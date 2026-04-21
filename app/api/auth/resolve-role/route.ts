@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
 import { roleRedirectMap } from '@/lib/auth/roles';
+import { bootstrapPartnerUser } from '@/lib/auth/bootstrapPartnerUser';
 import type { AppRole } from '@/lib/crm/types';
 
 export const dynamic = 'force-dynamic';
@@ -71,6 +72,59 @@ export async function GET(request: Request) {
       role = metadataRole as AppRole;
     } else if (partnerRow) {
       role = 'PARTNER';
+    }
+  }
+
+  if (!role) {
+    const looksLikePartner = !profileRow?.primary_role
+      && !partnerRow
+      && !String(user.app_metadata?.role || '').trim()
+      && !String(user.user_metadata?.role || '').trim()
+        ? true
+        : String(user.app_metadata?.role || user.user_metadata?.role || '').toUpperCase() === 'PARTNER';
+
+    if (looksLikePartner) {
+      await bootstrapPartnerUser(user);
+
+      const [{ data: repairedRoleRows }, { data: repairedPartnerRow }, { data: repairedProfileRow }] = await Promise.all([
+        supabaseAdmin
+          .from('user_roles')
+          .select('role_code')
+          .eq('user_id', user.id),
+        supabaseAdmin
+          .from('partners')
+          .select('id, onboarding_completed_at, verification_status')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabaseAdmin
+          .from('profiles')
+          .select('onboarding_completed_at, primary_role')
+          .eq('id', user.id)
+          .maybeSingle(),
+      ]);
+
+      role = repairedRoleRows?.[0]?.role_code as AppRole | undefined;
+
+      if (!role && repairedPartnerRow) {
+        role = 'PARTNER';
+      }
+
+      if (role) {
+        return NextResponse.json({
+          role,
+          redirectTo:
+            role === 'PARTNER'
+            && !repairedPartnerRow?.onboarding_completed_at
+            && !repairedProfileRow?.onboarding_completed_at
+              ? '/portal/onboarding/partner'
+              : roleRedirectMap[role],
+          requiresPartnerOnboarding:
+            role === 'PARTNER'
+            && !repairedPartnerRow?.onboarding_completed_at
+            && !repairedProfileRow?.onboarding_completed_at,
+          verificationStatus: repairedPartnerRow?.verification_status || null,
+        });
+      }
     }
   }
 
