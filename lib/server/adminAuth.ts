@@ -1,5 +1,23 @@
 import { createClient, type User } from '@supabase/supabase-js';
 
+function normalizeInternalRole(value: unknown) {
+  const normalized = String(value || '').trim().toUpperCase();
+
+  if (normalized === 'ADMIN' || normalized === 'ADMINISTRATOR') {
+    return 'ADMIN';
+  }
+
+  if (normalized === 'DEVELOPER') {
+    return 'DEVELOPER';
+  }
+
+  if (normalized === 'EMPLOYEE' || normalized === 'MITARBEITER') {
+    return 'EMPLOYEE';
+  }
+
+  return null;
+}
+
 function getSupabaseSessionClient(authHeader: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
@@ -48,8 +66,22 @@ export async function requireAdminUser(request: Request): Promise<User> {
     .select('role_code')
     .eq('user_id', user.id);
 
-  const hasAdminRole = (ownRoles || []).some((entry) => entry.role_code === 'ADMIN' || entry.role_code === 'DEVELOPER');
+  const hasAdminRole = (ownRoles || []).some((entry) => {
+    const role = normalizeInternalRole(entry.role_code);
+    return role === 'ADMIN' || role === 'DEVELOPER';
+  });
   if (hasAdminRole) {
+    return user;
+  }
+
+  const { data: ownProfile } = await sessionClient
+    .from('profiles')
+    .select('primary_role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const profileRole = normalizeInternalRole(ownProfile?.primary_role);
+  if (profileRole === 'ADMIN' || profileRole === 'DEVELOPER') {
     return user;
   }
 
@@ -59,7 +91,8 @@ export async function requireAdminUser(request: Request): Promise<User> {
     .ilike('email', requesterEmail)
     .maybeSingle();
 
-  if (teamEntry?.role !== 'ADMIN' || teamEntry?.status === 'DISABLED') {
+  const teamRole = normalizeInternalRole(teamEntry?.role);
+  if ((teamRole !== 'ADMIN' && teamRole !== 'DEVELOPER') || teamEntry?.status === 'DISABLED') {
     throw new Error('Admin-Rechte erforderlich.');
   }
 
