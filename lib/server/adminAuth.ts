@@ -43,6 +43,16 @@ export async function requireAdminUser(request: Request): Promise<User> {
     return user;
   }
 
+  const { data: ownRoles } = await sessionClient
+    .from('user_roles')
+    .select('role_code')
+    .eq('user_id', user.id);
+
+  const hasAdminRole = (ownRoles || []).some((entry) => entry.role_code === 'ADMIN' || entry.role_code === 'DEVELOPER');
+  if (hasAdminRole) {
+    return user;
+  }
+
   const { data: teamEntry } = await sessionClient
     .from('team')
     .select('role, status')

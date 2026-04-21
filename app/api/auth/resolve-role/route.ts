@@ -15,6 +15,15 @@ function isAppRole(value: string): value is AppRole {
   return value === 'ADMIN' || value === 'DEVELOPER' || value === 'PARTNER' || value === 'EMPLOYEE';
 }
 
+function pickHighestRole(roles: string[]): AppRole | undefined {
+  const normalized = roles.filter(isAppRole);
+  if (normalized.includes('ADMIN')) return 'ADMIN';
+  if (normalized.includes('DEVELOPER')) return 'DEVELOPER';
+  if (normalized.includes('EMPLOYEE')) return 'EMPLOYEE';
+  if (normalized.includes('PARTNER')) return 'PARTNER';
+  return undefined;
+}
+
 export async function GET(request: Request) {
   try {
     const authHeader = request.headers.get('authorization') || '';
@@ -66,7 +75,7 @@ export async function GET(request: Request) {
         .maybeSingle(),
     ]);
 
-    let role = roleRows?.[0]?.role_code as AppRole | undefined;
+    let role = pickHighestRole((roleRows || []).map((row) => String(row.role_code || '')));
     const metadataRole = String(
       user.app_metadata?.role || user.user_metadata?.role || profileRow?.primary_role || '',
     ).toUpperCase();
@@ -97,7 +106,7 @@ export async function GET(request: Request) {
           .maybeSingle(),
       ]);
 
-      role = repairedRoleRows?.[0]?.role_code as AppRole | undefined;
+      role = pickHighestRole((repairedRoleRows || []).map((row) => String(row.role_code || '')));
 
       if (!role && repairedPartnerRow) {
         role = 'PARTNER';
