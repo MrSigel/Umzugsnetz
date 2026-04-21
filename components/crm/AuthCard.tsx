@@ -67,7 +67,6 @@ export function AuthCard() {
         throw error || new Error('Anmeldung fehlgeschlagen.');
       }
 
-      await bootstrapPartner(data.session.access_token).catch(() => undefined);
       const redirectTo = await resolveRoleRedirect(data.session.access_token);
       router.push(redirectTo);
     } catch (err: any) {
