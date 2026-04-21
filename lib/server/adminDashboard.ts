@@ -47,3 +47,102 @@ export async function getAdminLeadSnapshot() {
 
   return data || [];
 }
+
+export async function getAdminPaymentSnapshot() {
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const [
+    { count: paymentCount },
+    { count: paidCount },
+    { count: subscriptionCount },
+    { count: topupRequestCount },
+    { data: payments },
+    { data: subscriptions },
+    { data: topupRequests },
+  ] = await Promise.all([
+    supabaseAdmin.from('payments').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'PAID'),
+    supabaseAdmin.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
+    supabaseAdmin.from('wallet_topup_requests').select('*', { count: 'exact', head: true }).in('status', ['REQUESTED', 'IN_REVIEW']),
+    supabaseAdmin
+      .from('payments')
+      .select('id,amount,currency,status,provider,paid_at,created_at,partner:partners(name,email)')
+      .order('created_at', { ascending: false })
+      .limit(8),
+    supabaseAdmin
+      .from('subscriptions')
+      .select('id,status,package_code,current_period_end,cancel_at_period_end,partner:partners(name,email)')
+      .order('updated_at', { ascending: false })
+      .limit(8),
+    supabaseAdmin
+      .from('wallet_topup_requests')
+      .select('id,reference,amount,status,payment_method,created_at,partner:partners(name,email)')
+      .order('created_at', { ascending: false })
+      .limit(8),
+  ]);
+
+  return {
+    stats: {
+      paymentCount: paymentCount || 0,
+      paidCount: paidCount || 0,
+      activeSubscriptionCount: subscriptionCount || 0,
+      openTopupRequestCount: topupRequestCount || 0,
+    },
+    payments: payments || [],
+    subscriptions: subscriptions || [],
+    topupRequests: topupRequests || [],
+  };
+}
+
+export async function getAdminSettingsSnapshot() {
+  const supabaseAdmin = getSupabaseAdmin();
+  const { data } = await supabaseAdmin
+    .from('system_settings')
+    .select('id,key,value,updated_at')
+    .order('key', { ascending: true });
+
+  return data || [];
+}
+
+export async function getAdminCommunicationSnapshot() {
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const [
+    { count: openConversationCount },
+    { count: unreadMessageCount },
+    { count: openContactRequestCount },
+    { data: conversations },
+    { data: recentMessages },
+    { data: contactRequests },
+  ] = await Promise.all([
+    supabaseAdmin.from('chat_conversations').select('*', { count: 'exact', head: true }).eq('status', 'OPEN'),
+    supabaseAdmin.from('chat_messages').select('*', { count: 'exact', head: true }).eq('is_read', false),
+    supabaseAdmin.from('contact_requests').select('*', { count: 'exact', head: true }).neq('status', 'DONE'),
+    supabaseAdmin
+      .from('chat_conversations')
+      .select('id,external_session_id,customer_name,customer_email,status,source,updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(8),
+    supabaseAdmin
+      .from('chat_messages')
+      .select('id,session_id,sender,support_category,user_name,text,is_read,created_at')
+      .order('created_at', { ascending: false })
+      .limit(10),
+    supabaseAdmin
+      .from('contact_requests')
+      .select('id,first_name,last_name,email,support_category,status,created_at')
+      .order('created_at', { ascending: false })
+      .limit(8),
+  ]);
+
+  return {
+    stats: {
+      openConversationCount: openConversationCount || 0,
+      unreadMessageCount: unreadMessageCount || 0,
+      openContactRequestCount: openContactRequestCount || 0,
+    },
+    conversations: conversations || [],
+    recentMessages: recentMessages || [],
+    contactRequests: contactRequests || [],
+  };
+}
