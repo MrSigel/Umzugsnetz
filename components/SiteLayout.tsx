@@ -141,6 +141,12 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
                     ))}
                   </div>
                   <div className="px-4 pb-4">
+                    <div className="border-t border-slate-100 pt-4 text-center">
+                      <p className="text-sm font-black text-slate-900">Noch Fragen?</p>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                        Unser Support-Team ist werktags von 09:00 bis 18:00 Uhr persönlich für Sie da.
+                      </p>
+                    </div>
                     <div className="mb-4 flex items-center justify-center gap-3 border-t border-slate-100 pt-4">
                       {socialLinks.map(({ label, href, Icon }) => (
                         <a
