@@ -78,7 +78,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
             className="flex flex-shrink-0 items-center hover:opacity-90 transition-opacity"
             aria-label="Bewertungen auf Trustpilot"
           >
-            <img src="/navitrust.jpeg" alt="Trustpilot Bewertung" className="h-6 w-auto object-contain" />
+            <img src="/tustpilot1.png" alt="Trustpilot Bewertung" className="h-6 w-auto object-contain" />
           </a>
         </div>
       </div>

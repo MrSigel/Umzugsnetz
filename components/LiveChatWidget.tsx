@@ -70,14 +70,14 @@ function getServiceAnswer(message: string): ServiceAnswer {
   if (normalized.includes('partner') && (normalized.includes('werden') || normalized.includes('registrieren') || normalized.includes('bewerben'))) {
     return {
       handled: true,
-      text: 'Partner registrieren sich über umzugsnetz.de/partners/register. Für die Registrierung wird in der Regel ein Einladungscode benötigt, der nach einer kurzen Prüfung bereitgestellt wird.',
+      text: 'Partner registrieren sich über umzugsnetz.de/login. Wenn Firmenname, Standort, geschäftliche E-Mail, Telefonnummer und erreichbare Website vollständig sind, kann die Freischaltung automatisch erfolgen.',
     };
   }
 
   if (normalized.includes('einladungscode') || normalized.includes('invite') || normalized.includes('registrierungscode')) {
     return {
       handled: true,
-      text: 'Wenn Sie einen Einladungscode erhalten haben, können Sie sich unter umzugsnetz.de/partners/register registrieren. Der Code wird dort während des Registrierungsprozesses geprüft.',
+      text: 'Für die Registrierung werden Firmenname, Standort, geschäftliche E-Mail, Telefonnummer und Website geprüft. Falls die Daten nicht ausreichen, meldet sich das Team per E-Mail oder telefonisch zurück.',
     };
   }
 
@@ -688,11 +688,27 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        animate={{
+          y: [0, -4, 0],
+          boxShadow: [
+            '0 18px 40px rgba(2,118,200,0.22)',
+            '0 24px 52px rgba(2,118,200,0.32)',
+            '0 18px 40px rgba(2,118,200,0.22)',
+          ],
+        }}
+        transition={{
+          duration: 2.8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+        whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen((currentValue) => !currentValue)}
-        className="pointer-events-auto ml-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-blue text-white shadow-2xl backdrop-blur-md transition-colors hover:bg-brand-blue-hover focus:outline-none"
+        className="pointer-events-auto relative ml-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-blue text-white shadow-2xl backdrop-blur-md transition-colors hover:bg-brand-blue-hover focus:outline-none"
       >
+        {!isOpen && (
+          <span className="absolute inset-0 rounded-full border border-brand-blue/35 animate-ping" />
+        )}
         {isOpen ? <X className="h-7 w-7" /> : <MessageCircle className="h-7 w-7" />}
         {!isOpen && hasUnreadReply && (
           <span className="absolute right-0 top-0 h-4 w-4 rounded-full border-2 border-white bg-red-500" />

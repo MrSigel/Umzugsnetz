@@ -26,6 +26,19 @@ function normalizeWhitespace(value: string) {
   return value.replace(/\s+/g, ' ').trim();
 }
 
+function normalizeWebsiteUrl(website?: string | null) {
+  const raw = normalizeWhitespace(website || '');
+  if (!raw) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  return `https://${raw}`;
+}
+
 export function normalizeGermanPhoneNumber(phone: string) {
   const compact = phone.replace(/[^\d+]/g, '').trim();
   if (!compact) {
@@ -86,12 +99,15 @@ export async function verifyCompanyProfile(input: {
   email: string;
   phone: string;
   location: string;
+  website?: string | null;
 }): Promise<VerificationResult> {
   const domain = getEmailDomain(input.email);
   const businessDomain = isBusinessEmailDomain(domain);
   const phoneNormalized = normalizeGermanPhoneNumber(input.phone);
   const phoneDigits = phoneNormalized?.replace(/\D/g, '') || '';
-  const websiteCandidates = businessDomain && domain ? [`https://${domain}`, `https://www.${domain}`] : [];
+  const explicitWebsite = normalizeWebsiteUrl(input.website);
+  const fallbackCandidates = businessDomain && domain ? [`https://${domain}`, `https://www.${domain}`] : [];
+  const websiteCandidates = explicitWebsite ? [explicitWebsite] : fallbackCandidates;
 
   let websiteUrl: string | null = null;
   let websiteReachable = false;
@@ -104,23 +120,28 @@ export async function verifyCompanyProfile(input: {
     }
   }
 
-  let score = 0;
-  if (normalizeWhitespace(input.companyName).length >= 4) score += 25;
-  if (normalizeWhitespace(input.location).length >= 2) score += 20;
-  if (businessDomain) score += 25;
-  if (phoneDigits.length >= 11 && phoneDigits.length <= 14) score += 20;
-  if (websiteReachable) score += 30;
+  const hasCompanyName = normalizeWhitespace(input.companyName).length >= 4;
+  const hasLocation = normalizeWhitespace(input.location).length >= 2;
+  const hasPlausiblePhone = phoneDigits.length >= 11 && phoneDigits.length <= 14;
+  const isVerified = hasCompanyName && hasLocation && businessDomain && hasPlausiblePhone && websiteReachable;
+  const score =
+    (hasCompanyName ? 20 : 0)
+    + (hasLocation ? 20 : 0)
+    + (businessDomain ? 20 : 0)
+    + (hasPlausiblePhone ? 20 : 0)
+    + (websiteReachable ? 20 : 0);
 
   const summaryParts = [
-    businessDomain ? 'Unternehmensdomain vorhanden' : 'Freemailer oder keine Unternehmensdomain erkannt',
-    websiteReachable ? `Website erreichbar (${websiteUrl})` : 'Keine erreichbare Firmenwebsite automatisch gefunden',
-    phoneDigits.length >= 11 && phoneDigits.length <= 14 ? `Telefon plausibel (${phoneNormalized})` : 'Telefonnummer manuell pruefen',
-    normalizeWhitespace(input.location).length >= 2 ? 'Standortangabe vorhanden' : 'Standortangabe zu ungenau',
+    hasCompanyName ? 'Firmenname plausibel' : 'Firmenname unvollstaendig',
+    hasLocation ? 'Standortangabe vorhanden' : 'Standortangabe zu ungenau',
+    businessDomain ? 'Geschaeftliche E-Mail erkannt' : 'Freemailer oder private E-Mail erkannt',
+    hasPlausiblePhone ? `Telefon plausibel (${phoneNormalized})` : 'Telefonnummer manuell pruefen',
+    websiteReachable ? `Website erreichbar (${websiteUrl})` : 'Website nicht erreichbar oder nicht pruefbar',
   ];
 
   return {
     score,
-    status: score >= 70 ? 'VERIFIED' : 'REVIEW',
+    status: isVerified ? 'VERIFIED' : 'REVIEW',
     summary: summaryParts.join(' | '),
     websiteUrl,
     phoneNormalized,
