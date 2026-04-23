@@ -147,7 +147,7 @@ serve(async (req) => {
     type: 'PARTNER_INVITE_SENT',
     title: 'Partner-Einladung versendet',
     message: `Supabase Invite-Link wurde an ${application.email} versendet.`,
-    link: '/admin/dashboard/partner',
+    link: '/',
     is_read: false,
   }]);
 

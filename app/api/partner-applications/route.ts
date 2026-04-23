@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     email: body.email!,
     phone: body.phone!,
     location: body.location!,
+    website: undefined,
   });
 
   const normalizedService = normalizePartnerApplicationService(body.service!, body.sourcePage!);
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
     message: verification.status === 'VERIFIED'
       ? `${application.company_name} wurde automatisch vorgeprueft und fuer die weitere Freischaltung vorbereitet.`
       : `${application.company_name} wurde erfasst und zur Pruefung vorgemerkt.`,
-    link: '/admin/dashboard/partner',
+    link: '/',
     is_read: false,
   }]);
 
@@ -142,7 +143,7 @@ export async function POST(request: Request) {
         type: 'PARTNER_INVITE_SENT',
         title: 'Freischaltung vorbereitet',
         message: `Die Einladung fuer ${application.company_name} wurde automatisch an ${application.email} versendet.`,
-        link: '/admin/dashboard/partner',
+        link: '/',
         is_read: false,
       }]);
 

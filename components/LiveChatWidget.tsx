@@ -501,7 +501,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
         type: 'CHAT_ESCALATION',
         title: 'Neue Chat-Weiterleitung',
         message: `${displayName} hat eine Rückmeldung durch einen Mitarbeiter angefordert.`,
-        link: '/admin/dashboard/chat',
+        link: '/',
       }]);
 
       if (notificationError) {

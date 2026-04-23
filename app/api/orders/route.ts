@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     type: 'NEW_ORDER',
     title: 'Neuer Kundenauftrag',
     message: `${order.customer_name} hat einen neuen Auftrag eingereicht.`,
-    link: '/admin/dashboard/auftraege',
+    link: '/',
     is_read: false,
   }]);
 
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
     type: 'ORDER_MATCHING',
     title: 'Benachrichtigungen vorbereitet',
     message: `${matchedPartners.length} Partner wurden fuer Auftrag ${order.order_number || order.id} beruecksichtigt. E-Mail: ${emailAttempts}, SMS: ${smsAttempts}.`,
-    link: '/admin/dashboard/auftraege',
+    link: '/',
     is_read: false,
   }]);
 

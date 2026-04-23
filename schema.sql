@@ -369,7 +369,7 @@ BEGIN
     'PARTNER_BONUS_ACTIVATED',
     'Startbonus aktiviert',
     'Für eine Partnerfirma wurden ' || token_count::TEXT || ' Startbonus-Token aktiviert.',
-    '/admin/dashboard/partner',
+    '/',
     FALSE
   );
 

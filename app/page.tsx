@@ -55,6 +55,17 @@ export default function Landingpage() {
     }
   };
 
+  const openCalculatorForService = (
+    e: React.MouseEvent<HTMLElement>,
+    service?: 'privatumzug' | 'firmenumzug' | 'entruempelung',
+  ) => {
+    scrollTo(e, 'rechner');
+
+    if (service) {
+      window.dispatchEvent(new CustomEvent('openRechner', { detail: { service } }));
+    }
+  };
+
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   // HIER MUSS SIE HIN:
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -252,7 +263,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                 </motion.button>
 
                 {/* SEKUNDÄRE BUTTONS */}
-                <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="grid w-full grid-cols-2 gap-2.5 sm:gap-3">
                   
                   {/* Sub-Button 1: Umzugskosten */}
                   <motion.button 
@@ -261,8 +272,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     animate="rest"
                     whileHover="hover"
                     whileTap="tap"
-                    onClick={(e) => scrollTo(e as any, 'rechner')}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#9FC3DE] bg-[rgba(232,238,243,0.94)] px-4 py-3 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(226,234,240,0.98)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
+                    onClick={(e) => openCalculatorForService(e as any, 'privatumzug')}
+                    className="group relative overflow-hidden rounded-[1.35rem] border border-[#9FC3DE] bg-[rgba(232,238,243,0.94)] px-3 py-3 sm:rounded-[1.5rem] sm:px-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(226,234,240,0.98)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -270,9 +281,9 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
                       className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent"
                     />
-                    <div className="relative z-10 flex items-center justify-center gap-2 text-[#0167B0]">
-                      <Calculator className="h-4.5 w-4.5 flex-shrink-0" />
-                      <span className="text-[13px] font-black leading-[1.15] text-center">Umzugskosten<br />berechnen</span>
+                    <div className="relative z-10 flex items-center justify-center gap-1.5 text-[#0167B0] sm:gap-2">
+                      <Calculator className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5" />
+                      <span className="text-[11px] font-black leading-[1.1] text-center sm:text-[13px] sm:leading-[1.15]">Umzugskosten<br />berechnen</span>
                     </div>
                   </motion.button>
                   
@@ -283,8 +294,8 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     animate="rest"
                     whileHover="hover"
                     whileTap="tap"
-                    onClick={(e) => scrollTo(e as any, 'rechner')}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-[#9CD8C2] bg-[rgba(225,242,234,0.8)] px-4 py-3 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(217,238,227,0.88)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
+                    onClick={(e) => openCalculatorForService(e as any, 'entruempelung')}
+                    className="group relative overflow-hidden rounded-[1.35rem] border border-[#9CD8C2] bg-[rgba(225,242,234,0.8)] px-3 py-3 sm:rounded-[1.5rem] sm:px-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(217,238,227,0.88)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -292,9 +303,9 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
                       className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                     />
-                    <div className="relative z-10 flex items-center justify-center gap-2 text-[#0FA774]">
-                      <Trash2 className="h-4.5 w-4.5 flex-shrink-0" />
-                      <span className="text-[13px] font-black leading-[1.15] text-center">Entrümpelungskosten<br />berechnen</span>
+                    <div className="relative z-10 flex items-center justify-center gap-1.5 text-[#0FA774] sm:gap-2">
+                      <Trash2 className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5" />
+                      <span className="text-[11px] font-black leading-[1.1] text-center sm:text-[13px] sm:leading-[1.15]">Entrümpelungskosten<br />berechnen</span>
                     </div>
                   </motion.button>
 

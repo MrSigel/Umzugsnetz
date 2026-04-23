@@ -213,7 +213,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     success: true,
-    redirectTo: '/crm/partner',
+    redirectTo: '/partner',
     verificationStatus,
     verificationSummary: verification.summary,
   });

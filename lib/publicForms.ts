@@ -68,7 +68,7 @@ export async function submitContactRequest(input: ContactRequestInput) {
     type: 'CONTACT_REQUEST',
     title: 'Neue Kontaktanfrage',
     message: `${input.firstName} ${input.lastName} hat eine Anfrage ueber ${input.sourcePage} gesendet.`,
-    link: '/admin/dashboard/chat',
+    link: '/',
     is_read: false,
   }]);
 }
@@ -94,7 +94,7 @@ export async function createWalletTopupRequest(input: TopupRequestInput) {
     type: 'TOPUP_REQUEST',
     title: 'Neue Guthaben-Anfrage',
     message: `Partner ${input.partnerId} hat eine Aufladung ueber ${input.amount.toFixed(2)} EUR angefragt.`,
-    link: '/admin/dashboard/partner',
+    link: '/',
     is_read: false,
   }]);
 

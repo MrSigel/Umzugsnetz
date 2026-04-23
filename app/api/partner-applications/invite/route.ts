@@ -155,7 +155,7 @@ export async function POST(request: Request) {
     type: 'PARTNER_INVITE_SENT',
     title: 'Partner-Einladung versendet',
     message: `Einladungslink wurde an ${application.email} versendet.`,
-    link: '/admin/dashboard/partner',
+    link: '/',
     is_read: false,
   }]);
 

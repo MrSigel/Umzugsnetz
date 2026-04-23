@@ -7,12 +7,10 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-type Bereich = 'partner' | 'admin';
-
 export default function PasswortZuruecksetzenClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const bereich = (searchParams.get('bereich') === 'admin' ? 'admin' : 'partner') as Bereich;
+  const bereich = searchParams.get('bereich') === 'admin' ? 'admin' : 'partner';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +20,7 @@ export default function PasswortZuruecksetzenClient() {
   const [loading, setLoading] = useState(false);
   const [isRecoveryMode, setIsRecoveryMode] = useState(false);
 
-  const loginPath = bereich === 'admin' ? '/admin' : '/partners/login';
+  const loginPath = '/';
   const portalLabel = bereich === 'admin' ? 'internen Bereich' : 'Partner-Bereich';
 
   const redirectTo = useMemo(() => {
@@ -166,7 +164,7 @@ export default function PasswortZuruecksetzenClient() {
 
             <div className="mt-6 text-center">
               <Link href={loginPath} className="text-sm font-bold text-brand-blue hover:underline">
-                Zurück zum Login
+                Zurück zur Startseite
               </Link>
             </div>
           </div>

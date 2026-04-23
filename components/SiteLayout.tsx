@@ -153,7 +153,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
                   <div className="px-4 pb-4">
                     <div className="border-t border-slate-100 pt-4 text-center">
                       <p className="text-sm font-black text-slate-900">Noch Fragen?</p>
-                      <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                      <p className="mt-1 mb-4 text-xs leading-relaxed text-slate-500">
                         Unser Support-Team ist werktags von 09:00 bis 18:00 Uhr persönlich für Sie da.
                       </p>
                     </div>
@@ -171,6 +171,12 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
                         </a>
                       ))}
                     </div>
+                    <button
+                      type="button"
+                      className="mb-3 block w-full rounded-2xl border border-slate-200 bg-white py-3.5 font-black text-slate-700 shadow-sm transition-colors"
+                    >
+                      Login
+                    </button>
                     <Link href="/#rechner" onClick={() => setIsMobileMenuOpen(false)} className="block">
                       <button
                         type="button"

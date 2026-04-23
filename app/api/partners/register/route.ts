@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server';
+import { verifyCompanyProfile } from '@/lib/companyVerification';
 import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
 
 type RegisterBody = {
-  userId?: string;
+  fullName?: string;
   companyName?: string;
+  location?: string;
   email?: string;
   phone?: string;
-  inviteCode?: string;
+  website?: string;
+  password?: string;
 };
 
 function required(value?: string) {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function normalizeWebsite(value?: string) {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 }
 
 export async function POST(request: Request) {
@@ -26,36 +36,110 @@ export async function POST(request: Request) {
   }
 
   if (
-    !required(body.userId) ||
+    !required(body.fullName) ||
     !required(body.companyName) ||
+    !required(body.location) ||
     !required(body.email) ||
     !required(body.phone) ||
-    !required(body.inviteCode)
+    !required(body.website) ||
+    !required(body.password)
   ) {
     return NextResponse.json({ error: 'Bitte füllen Sie alle Pflichtfelder aus.' }, { status: 400 });
   }
 
-  const userId = body.userId!.trim();
-  const normalizedEmail = body.email!.trim().toLowerCase();
-  const normalizedCode = body.inviteCode!.trim().toUpperCase();
-
-  const [{ data: authUserData, error: authUserError }, { data: inviteCode, error: inviteCodeError }] = await Promise.all([
-    supabaseAdmin.auth.admin.getUserById(userId),
-    supabaseAdmin
-      .from('partner_invite_codes')
-      .select('*')
-      .eq('code', normalizedCode)
-      .eq('is_used', false)
-      .single(),
-  ]);
-
-  if (authUserError || !authUserData.user) {
-    return NextResponse.json({ error: 'Benutzerkonto konnte nicht geprüft werden.' }, { status: 400 });
+  if (String(body.password).length < 8) {
+    return NextResponse.json({ error: 'Das Passwort muss mindestens 8 Zeichen lang sein.' }, { status: 400 });
   }
 
-  if (inviteCodeError || !inviteCode) {
-    return NextResponse.json({ error: 'Ungültiger oder bereits verwendeter Einmalcode.' }, { status: 400 });
+  const email = body.email!.trim().toLowerCase();
+  const companyName = body.companyName!.trim();
+  const website = normalizeWebsite(body.website);
+  const now = new Date().toISOString();
+
+  const verification = await verifyCompanyProfile({
+    companyName,
+    email,
+    phone: body.phone!.trim(),
+    location: body.location!.trim(),
+    website,
+  });
+
+  const meetsAutomaticApproval =
+    verification.status === 'VERIFIED' &&
+    Boolean(website) &&
+    verification.websiteReachable;
+
+  if (!meetsAutomaticApproval) {
+    await supabaseAdmin.from('partner_applications').insert([{
+      company_name: companyName,
+      contact_name: body.fullName!.trim(),
+      email,
+      phone: body.phone!.trim(),
+      location: body.location!.trim(),
+      service: 'UMZUG',
+      source_page: 'login_register',
+      status: 'NEW',
+      verification_status: 'REVIEW',
+      verification_score: verification.score,
+      verification_summary: verification.summary,
+      website_url: website,
+      website_checked_at: now,
+      updated_at: now,
+    }]);
+
+    return NextResponse.json({
+      success: true,
+      activated: false,
+    });
   }
+
+  const existingUser = await supabaseAdmin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+
+  if (existingUser.error) {
+    return NextResponse.json({ error: 'Benutzerprüfung fehlgeschlagen.' }, { status: 500 });
+  }
+
+  if (existingUser.data.users.some((user) => user.email?.toLowerCase() === email)) {
+    return NextResponse.json({ error: 'Für diese E-Mail-Adresse existiert bereits ein Konto.' }, { status: 409 });
+  }
+
+  const { data: createdUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password: body.password!,
+    email_confirm: true,
+    user_metadata: {
+      full_name: body.fullName!.trim(),
+      company_name: companyName,
+      phone: body.phone!.trim(),
+      role: 'partner',
+    },
+    app_metadata: {
+      role: 'PARTNER',
+    },
+  });
+
+  if (createUserError || !createdUser.user) {
+    return NextResponse.json({ error: createUserError?.message || 'Konto konnte nicht erstellt werden.' }, { status: 500 });
+  }
+
+  const userId = createdUser.user.id;
+
+  await supabaseAdmin.from('profiles').upsert([{
+    id: userId,
+    full_name: body.fullName!.trim(),
+    email,
+    phone: body.phone!.trim(),
+    primary_role: 'PARTNER',
+    updated_at: now,
+  }], { onConflict: 'id' });
+
+  await supabaseAdmin.from('user_roles').upsert([{
+    user_id: userId,
+    role_code: 'PARTNER',
+  }], { onConflict: 'user_id,role_code' });
 
   const { data: existingPartner } = await supabaseAdmin
     .from('partners')
@@ -63,54 +147,38 @@ export async function POST(request: Request) {
     .eq('user_id', userId)
     .maybeSingle();
 
-  let partnerId = existingPartner?.id || null;
+  const partnerPayload = {
+    user_id: userId,
+    profile_id: userId,
+    name: companyName,
+    email,
+    phone: body.phone!.trim(),
+    regions: body.location!.trim(),
+    status: 'ACTIVE',
+    verification_status: 'VERIFIED',
+    package_code: 'FREE',
+    category: 'Standard Anfragen',
+    balance: 0,
+    website_url: website,
+    verified_at: now,
+    settings: {
+      emailNotif: true,
+      smsNotif: true,
+      smsNumber: body.phone!.trim(),
+    },
+    updated_at: now,
+  };
 
-  if (!existingPartner) {
-    const { data: partnerProfile, error: profileError } = await supabaseAdmin
-      .from('partners')
-      .insert([{
-        user_id: userId,
-        name: body.companyName!.trim(),
-        email: normalizedEmail,
-        phone: body.phone!.trim(),
-        status: 'PENDING',
-        category: 'Standard Anfragen',
-        balance: 0,
-        settings: {
-          emailNotif: true,
-          smsNotif: true,
-          smsNumber: body.phone!.trim(),
-        },
-      }])
-      .select('id')
-      .single();
+  const { error: partnerError } = existingPartner
+    ? await supabaseAdmin.from('partners').update(partnerPayload).eq('id', existingPartner.id)
+    : await supabaseAdmin.from('partners').insert([partnerPayload]);
 
-    if (profileError || !partnerProfile) {
-      return NextResponse.json({ error: profileError?.message || 'Profil konnte nicht erstellt werden.' }, { status: 500 });
-    }
-
-    partnerId = partnerProfile.id;
+  if (partnerError) {
+    return NextResponse.json({ error: partnerError.message }, { status: 500 });
   }
-
-  const { error: inviteUpdateError } = await supabaseAdmin
-    .from('partner_invite_codes')
-    .update({ is_used: true, used_by: partnerId })
-    .eq('id', inviteCode.id);
-
-  if (inviteUpdateError) {
-    return NextResponse.json({ error: inviteUpdateError.message }, { status: 500 });
-  }
-
-  await supabaseAdmin.from('notifications').insert([{
-    type: 'NEW_PARTNER',
-    title: 'Neue Partner-Registrierung',
-    message: `${body.companyName!.trim()} hat sich als Partner registriert und wartet auf Freischaltung.`,
-    link: '/admin/dashboard/partner',
-    is_read: false,
-  }]);
 
   return NextResponse.json({
     success: true,
-    partnerId,
+    activated: true,
   });
 }

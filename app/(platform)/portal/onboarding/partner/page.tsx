@@ -103,7 +103,7 @@ export default function PartnerOnboardingPage() {
       }
 
       showToast('success', 'Onboarding gespeichert', payload?.verificationSummary || 'Ihre Angaben wurden gespeichert.');
-      router.push(payload?.redirectTo || '/crm/partner');
+      router.push(payload?.redirectTo || '/partner');
     } catch (err: any) {
       showToast('error', 'Speichern fehlgeschlagen', err.message);
     } finally {

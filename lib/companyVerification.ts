@@ -86,12 +86,20 @@ export async function verifyCompanyProfile(input: {
   email: string;
   phone: string;
   location: string;
+  website?: string | null;
 }): Promise<VerificationResult> {
   const domain = getEmailDomain(input.email);
   const businessDomain = isBusinessEmailDomain(domain);
   const phoneNormalized = normalizeGermanPhoneNumber(input.phone);
   const phoneDigits = phoneNormalized?.replace(/\D/g, '') || '';
-  const websiteCandidates = businessDomain && domain ? [`https://${domain}`, `https://www.${domain}`] : [];
+  const explicitWebsite = typeof input.website === 'string' ? input.website.trim() : '';
+  const normalizedExplicitWebsite = explicitWebsite
+    ? (/^https?:\/\//i.test(explicitWebsite) ? explicitWebsite : `https://${explicitWebsite}`)
+    : '';
+  const websiteCandidates = [
+    ...(normalizedExplicitWebsite ? [normalizedExplicitWebsite] : []),
+    ...(businessDomain && domain ? [`https://${domain}`, `https://www.${domain}`] : []),
+  ];
 
   let websiteUrl: string | null = null;
   let websiteReachable = false;

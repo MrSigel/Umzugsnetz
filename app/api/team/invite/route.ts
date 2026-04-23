@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     type: 'TEAM_INVITE_SENT',
     title: 'Mitarbeiter-Einladung versendet',
     message: `${email} wurde als ${role === 'ADMIN' ? 'Administrator' : 'Mitarbeiter'} eingeladen.`,
-    link: '/admin/dashboard/team',
+    link: '/',
     is_read: false,
   }]);
 

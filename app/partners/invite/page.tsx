@@ -48,8 +48,8 @@ export default function PartnerInviteAcceptPage() {
         throw error;
       }
 
-      showToast('success', 'Passwort gesetzt', 'Sie können jetzt das Partner-Dashboard nutzen.');
-      router.push('/partners/dashboard');
+      showToast('success', 'Passwort gesetzt', 'Ihr Zugang wurde aktualisiert.');
+      router.push('/partner');
     } catch (err: any) {
       showToast('error', 'Fehler', err.message);
     } finally {
@@ -77,8 +77,8 @@ export default function PartnerInviteAcceptPage() {
             Der Einladungslink ist abgelaufen oder wurde bereits verwendet. Bitte melden Sie sich an oder lassen Sie sich erneut einladen.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
-            <Link href="/partners/login" className="px-6 py-3 bg-brand-blue text-white rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-brand-blue-hover transition-colors">
-              Zum Login
+            <Link href="/" className="px-6 py-3 bg-brand-blue text-white rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-brand-blue-hover transition-colors">
+              Zur Startseite
             </Link>
           </div>
         </div>
