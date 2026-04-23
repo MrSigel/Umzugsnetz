@@ -306,6 +306,7 @@ function InputField({ label, icon: Icon, ...props }: any) {
 export default function KostenrechnerWidget() {
   const { showToast } = useToast();
   const widgetRef = useRef<HTMLDivElement | null>(null);
+  const hasMountedRef = useRef(false);
   const [step, setStep] = useState<Step>('rechner');
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -420,6 +421,11 @@ export default function KostenrechnerWidget() {
   }, []);
 
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
+
     if (!widgetRef.current) {
       return;
     }
@@ -739,10 +745,6 @@ export default function KostenrechnerWidget() {
                         icon={Flag}
                       />
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-                      Bitte wählen Sie beide Adressen aus den OpenStreetMap-Vorschlägen aus, damit nur echte Adressen übernommen werden.
-                    </div>
-
                     <div>
                       <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Wunschtermin</label>
                       <div className="relative">

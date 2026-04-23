@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Network, Mail, MapPin, Menu, Phone, X } from 'lucide-react';
@@ -18,6 +18,16 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
   const bg_class = theme === 'green' ? 'bg-brand-green' : 'bg-brand-blue';
   const text_hoverClass = theme === 'green' ? 'hover:text-brand-green' : 'hover:text-brand-blue';
   const text_activeClass = theme === 'green' ? 'text-brand-green' : 'text-brand-blue';
+
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    if (!window.location.hash) {
+      window.requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0 }));
+    }
+  }, []);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText('kontakt@umzugsnetz.de');

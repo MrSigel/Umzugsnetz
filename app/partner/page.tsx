@@ -77,7 +77,7 @@ export default function PartnerPage() {
       <SiteHeader activeNav="partner" theme="blue" />
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-blue-hover via-brand-blue to-brand-blue-3 text-white py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-blue-hover via-brand-blue to-brand-blue-3 text-white py-16 sm:py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[-80px] right-[-120px] w-[500px] h-[500px] bg-white/5 rounded-full" />
           <div className="absolute bottom-[-60px] left-[-80px] w-[350px] h-[350px] bg-white/5 rounded-full" />
@@ -87,11 +87,11 @@ export default function PartnerPage() {
             <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 backdrop-blur-sm px-5 py-2 rounded-full text-sm font-bold uppercase tracking-widest mb-8">
               <BadgeCheck className="w-4 h-4 text-[#00ff9d]" /> Gemeinsam wachsen
             </div>
-            <h1 className="text-5xl md:text-7xl font-black leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight mb-6 break-words">
               Partner werden &<br />
               <span className="text-[#00ff9d]">mehr Aufträge erhalten</span>
             </h1>
-            <p className="text-white/80 text-xl max-w-2xl mx-auto mb-10">
+            <p className="text-white/80 text-base sm:text-xl max-w-2xl mx-auto mb-10">
               Registrieren Sie Ihr Unternehmen und erhalten Sie passende Kundenanfragen aus Ihrer Region — 100 % kostenlos & unverbindlich.
             </p>
             <div className="flex flex-wrap justify-center gap-8 text-white/90">
@@ -114,7 +114,7 @@ export default function PartnerPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz-Partner</span> werden?</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz-Partner</span> werden?</h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">Profitieren Sie von unserem deutschlandweiten Netzwerk und erhalten Sie regelmäßig neue Aufträge.</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -145,7 +145,7 @@ export default function PartnerPage() {
               <div className="inline-flex items-center gap-2 bg-brand-blue/10 border border-brand-blue/20 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-widest text-brand-blue mb-8">
                 Jetzt starten
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-[#1e293b] leading-tight mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#1e293b] leading-tight mb-6">
                 Starten Sie hier<br />
                 <span className="text-brand-blue">kostenlos durch</span>
               </h2>
@@ -172,7 +172,7 @@ export default function PartnerPage() {
               {/* Service Logos */}
               <div className="mt-12 pt-8 border-t border-slate-200">
                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Für wen ist das geeignet?</p>
-                <div className="flex gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   {[
                     { icon: Truck, label: 'Umzugsunternehmen' },
                     { icon: Trash2, label: 'Entrümpelungsfirmen' },
@@ -194,7 +194,7 @@ export default function PartnerPage() {
                   <motion.div
                     key="form"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-10"
+                    className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-slate-100 p-5 sm:p-8 md:p-10"
                   >
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-brand-blue/10 rounded-2xl">
@@ -207,7 +207,7 @@ export default function PartnerPage() {
                     </div>
 
                     <div className="space-y-5">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                           <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Firmenname *</label>
                           <input
@@ -226,7 +226,7 @@ export default function PartnerPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                           <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Standort *</label>
                           <div className="relative">
@@ -252,7 +252,7 @@ export default function PartnerPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                           <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">E-Mail Adresse *</label>
                           <input

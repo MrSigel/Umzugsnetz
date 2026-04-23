@@ -48,7 +48,7 @@ export default function PartnerEntruempelungPage() {
       <SiteHeader activeNav="partner" theme="green" />
 
       {/* HERO – Grüner Gradient */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#004d33] via-[#007a50] to-[#00b67a] text-white py-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#004d33] via-[#007a50] to-[#00b67a] text-white py-16 sm:py-28">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-[#00ff9d]/10 rounded-full" />
           <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-white/5 rounded-full" />
@@ -60,11 +60,11 @@ export default function PartnerEntruempelungPage() {
               <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-widest mb-8">
                 <Trash2 className="w-4 h-4" /> Für Entrümpelungsunternehmen
               </div>
-              <h1 className="text-5xl md:text-7xl font-black leading-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight mb-6 break-words">
                 Volle Auslastung.<br />
                 <span className="text-[#00ff9d]">Mehr Umsatz.</span>
               </h1>
-              <p className="text-white/80 text-xl mb-10 leading-relaxed max-w-2xl">
+              <p className="text-white/80 text-base sm:text-xl mb-10 leading-relaxed max-w-2xl">
                 Registrieren Sie Ihr Entrümpelungsunternehmen kostenlos und erhalten Sie qualifizierte Anfragen — von Wohnungsentrümpelungen bis zu kompletten Haushaltsauflösungen.
               </p>
               <div className="flex flex-wrap gap-8">
@@ -84,7 +84,7 @@ export default function PartnerEntruempelungPage() {
       <section className="py-20 bg-[#f0fdf6]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-4xl font-black text-[#1e293b] mb-4">In 3 Schritten zu mehr Aufträgen</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">In 3 Schritten zu mehr Aufträgen</h2>
             <p className="text-slate-500 text-lg">Einfach, schnell und ohne Risiko.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -105,7 +105,7 @@ export default function PartnerEntruempelungPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-[#00b67a]">Umzugsnetz-Partner</span> werden?</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-[#00b67a]">Umzugsnetz-Partner</span> werden?</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {BENEFITS.map(({ icon: Icon, title, desc }, idx) => (
@@ -125,7 +125,7 @@ export default function PartnerEntruempelungPage() {
       {/* UNIQUE – Was Entrümpelung besonders macht */}
       <section className="py-16 bg-[#f0fdf6]">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-gradient-to-r from-[#004d33] to-[#00b67a] rounded-[3rem] p-10 md:p-14 text-white flex flex-col md:flex-row items-center gap-10">
+          <div className="bg-gradient-to-r from-[#004d33] to-[#00b67a] rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 md:p-14 text-white flex flex-col md:flex-row items-center gap-8 md:gap-10">
             <div className="flex-shrink-0 w-20 h-20 bg-white/15 rounded-3xl flex items-center justify-center">
               <Leaf className="w-10 h-10" />
             </div>
@@ -148,7 +148,7 @@ export default function PartnerEntruempelungPage() {
               <div className="inline-flex items-center gap-2 bg-[#00b67a]/10 border border-[#00b67a]/20 px-5 py-2 rounded-full text-sm font-bold text-[#00b67a] uppercase tracking-widest mb-8">
                 Jetzt durchstarten
               </div>
-              <h2 className="text-4xl font-black text-[#1e293b] mb-6">Als Entrümpelungsfirma<br /><span className="text-[#00b67a]">Partner werden</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-6">Als Entrümpelungsfirma<br /><span className="text-[#00b67a]">Partner werden</span></h2>
               <p className="text-slate-500 text-lg mb-10 leading-relaxed">Melden Sie sich kostenlos an und erhalten Sie in der Testphase bis zu 5 Entrümpelungsanfragen aus Ihrer Region — ohne Risiko.</p>
               <div className="space-y-4 mb-10">
                 {['Kostenlose Registrierung ohne versteckte Gebühren', 'Anfragen mit vollständigen Gegenstandslisten', 'Einzugsgebiet selbst frei definierbar', 'Persönlicher Support & Ansprechpartner', 'DSGVO-konform & datenschutzsicher'].map(t => (
@@ -174,7 +174,7 @@ export default function PartnerEntruempelungPage() {
               <AnimatePresence mode="wait">
                 {!submitted ? (
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="bg-white rounded-[2.5rem] shadow-2xl border border-emerald-100 p-8 md:p-10">
+                    className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-emerald-100 p-5 sm:p-8 md:p-10">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-[#00b67a]/10 rounded-2xl"><Trash2 className="w-7 h-7 text-[#00b67a]" /></div>
                       <div>
@@ -183,7 +183,7 @@ export default function PartnerEntruempelungPage() {
                       </div>
                     </div>
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div><label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Firmenname *</label>
                           <input type="text" value={form.firmenname} onChange={e => set('firmenname', e.target.value)} placeholder="z. B. Sauber GmbH"
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#00b67a] transition-colors text-sm font-medium text-slate-700 placeholder:text-slate-300" /></div>
@@ -191,7 +191,7 @@ export default function PartnerEntruempelungPage() {
                           <input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Max Mustermann"
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#00b67a] transition-colors text-sm font-medium text-slate-700 placeholder:text-slate-300" /></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div><label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Standort *</label>
                           <div className="relative"><MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                             <input type="text" value={form.standort} onChange={e => set('standort', e.target.value)} placeholder="Berlin"
@@ -204,7 +204,7 @@ export default function PartnerEntruempelungPage() {
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" /></div></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div><label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">E-Mail *</label>
                           <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="max@firma.de"
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#00b67a] transition-colors text-sm font-medium text-slate-700 placeholder:text-slate-300" /></div>

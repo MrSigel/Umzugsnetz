@@ -46,7 +46,7 @@ export default function PartnerUmzugPage() {
       <SiteHeader activeNav="partner" />
 
       {/* HERO – Blauer Gradient */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-blue-hover via-brand-blue to-brand-blue-2 text-white py-28">
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-blue-hover via-brand-blue to-brand-blue-2 text-white py-16 sm:py-28">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-brand-blue-2/10 rounded-full" />
           <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-white/5 rounded-full" />
@@ -57,10 +57,10 @@ export default function PartnerUmzugPage() {
             <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 px-5 py-2 rounded-full text-sm font-bold uppercase tracking-widest mb-8">
               <Truck className="w-4 h-4" /> Für Umzugsunternehmen
             </div>
-            <h1 className="text-5xl md:text-7xl font-black leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight mb-6 break-words">
               Mehr Aufträge.<br /><span className="text-brand-blue-soft">Weniger Leerlauf.</span>
             </h1>
-            <p className="text-white/80 text-xl mb-10 leading-relaxed max-w-2xl">
+            <p className="text-white/80 text-base sm:text-xl mb-10 leading-relaxed max-w-2xl">
               Registrieren Sie Ihr Umzugsunternehmen kostenlos und erhalten Sie qualifizierte Anfragen von Privat- und Firmenkunden direkt in Ihre Inbox.
             </p>
             <div className="flex flex-wrap gap-8">
@@ -79,7 +79,7 @@ export default function PartnerUmzugPage() {
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-4xl font-black text-[#1e293b] mb-4">So einfach funktioniert es</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">So einfach funktioniert es</h2>
             <p className="text-slate-500 text-lg">In drei Schritten zu mehr Aufträgen.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -100,7 +100,7 @@ export default function PartnerUmzugPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
-            <h2 className="text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz-Partner</span> werden?</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz-Partner</span> werden?</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {BENEFITS.map(({ icon: Icon, title, desc }, idx) => (
@@ -123,7 +123,7 @@ export default function PartnerUmzugPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <div className="inline-flex items-center gap-2 bg-brand-blue/10 border border-brand-blue/20 px-5 py-2 rounded-full text-sm font-bold text-brand-blue uppercase tracking-widest mb-8">Jetzt durchstarten</div>
-              <h2 className="text-4xl font-black text-[#1e293b] mb-6">Als Umzugsunternehmen<br /><span className="text-brand-blue">Partner werden</span></h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-6">Als Umzugsunternehmen<br /><span className="text-brand-blue">Partner werden</span></h2>
               <p className="text-slate-500 text-lg mb-10 leading-relaxed">Melden Sie sich jetzt an und erhalten Sie bereits in der Testphase bis zu 5 kostenlose Kundenanfragen aus Ihrer Region.</p>
               <div className="space-y-4 mb-10">
                 {['Kostenlose Registrierung', 'Sofortige Anfragen nach Freischaltung', 'Einzugsgebiet selbst definierbar', 'Persönlicher Support & Ansprechpartner', 'DSGVO-konform & datenschutzsicher'].map(t => (
@@ -143,7 +143,7 @@ export default function PartnerUmzugPage() {
               <AnimatePresence mode="wait">
                 {!submitted ? (
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-10">
+                    className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border border-slate-100 p-5 sm:p-8 md:p-10">
                     <div className="flex items-center gap-3 mb-8">
                       <div className="p-3 bg-brand-blue/10 rounded-2xl"><Truck className="w-7 h-7 text-brand-blue" /></div>
                       <div>
@@ -152,7 +152,7 @@ export default function PartnerUmzugPage() {
                       </div>
                     </div>
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div><label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Firmenname *</label>
                           <input type="text" value={form.firmenname} onChange={e => set('firmenname', e.target.value)} placeholder="z. B. Müller Umzüge GmbH"
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm font-medium text-slate-700 placeholder:text-slate-300" /></div>
@@ -160,7 +160,7 @@ export default function PartnerUmzugPage() {
                           <input type="text" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Max Mustermann"
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm font-medium text-slate-700 placeholder:text-slate-300" /></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div><label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Standort *</label>
                           <div className="relative"><MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                             <input type="text" value={form.standort} onChange={e => set('standort', e.target.value)} placeholder="Berlin"
@@ -173,7 +173,7 @@ export default function PartnerUmzugPage() {
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" /></div></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div><label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">E-Mail *</label>
                           <input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="max@firma.de"
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-blue transition-colors text-sm font-medium text-slate-700 placeholder:text-slate-300" /></div>
