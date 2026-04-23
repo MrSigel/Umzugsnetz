@@ -241,7 +241,7 @@ export default function LoginPage() {
             <Link href="/" aria-label="Zur Startseite" className="mb-10 flex justify-center">
               <Image src="/logo_transparent.png" alt="Umzugsnetz" width={190} height={48} className="h-12 w-auto brightness-0 invert" priority />
             </Link>
-            <h1 className="mb-8 whitespace-nowrap text-center text-xl font-black tracking-tight text-white sm:text-2xl">
+            <h1 className="mx-auto mb-8 max-w-md whitespace-nowrap text-center text-base font-black tracking-tight text-white sm:text-lg">
               Zugang zum Umzugsnetz Dashboard
             </h1>
             <div className="mx-auto max-w-md">
