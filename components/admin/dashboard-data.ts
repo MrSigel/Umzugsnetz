@@ -5,10 +5,12 @@ import {
   Handshake,
   LayoutTemplate,
   Mail,
+  MessageSquareText,
   ReceiptText,
   Settings2,
   SplitSquareVertical,
   TriangleAlert,
+  UserCog,
   Users,
 } from 'lucide-react';
 
@@ -17,6 +19,8 @@ export type AdminSectionId =
   | 'requests'
   | 'partners'
   | 'distribution'
+  | 'employees'
+  | 'tickets'
   | 'billing'
   | 'content'
   | 'settings';
@@ -33,6 +37,7 @@ export type NavItem = {
 
 export type PortalLead = {
   id: string;
+  partner_id?: string | null;
   order_number?: string | null;
   service_category?: string | null;
   customer_name?: string | null;
@@ -58,6 +63,7 @@ export type PortalPartner = {
   regions?: string | null;
   status?: string | null;
   category?: string | null;
+  service?: string | null;
   balance?: number | string | null;
 };
 
@@ -135,6 +141,8 @@ export const baseNavigation: Record<StaffRole, NavItem[]> = {
     { id: 'requests', label: 'Anfragen', icon: Mail },
     { id: 'partners', label: 'Partner', icon: Handshake },
     { id: 'distribution', label: 'Lead-Verteilung', icon: SplitSquareVertical },
+    { id: 'employees', label: 'Mitarbeiter', icon: UserCog },
+    { id: 'tickets', label: 'Tickets', icon: MessageSquareText },
     { id: 'billing', label: 'Abrechnung', icon: ReceiptText },
     { id: 'content', label: 'Inhalte', icon: LayoutTemplate },
     { id: 'settings', label: 'Einstellungen', icon: Settings2 },
@@ -143,6 +151,7 @@ export const baseNavigation: Record<StaffRole, NavItem[]> = {
     { id: 'dashboard', label: 'Dashboard', icon: Gauge },
     { id: 'requests', label: 'Anfragen', icon: Mail },
     { id: 'distribution', label: 'Lead-Verteilung', icon: SplitSquareVertical },
+    { id: 'tickets', label: 'Tickets', icon: MessageSquareText },
     { id: 'content', label: 'Inhalte', icon: LayoutTemplate },
   ],
 };
@@ -239,6 +248,14 @@ export const emptyStateBySection: Record<AdminSectionId, { title: string; text: 
     title: 'Keine offene Lead-Verteilung',
     text: 'Es gibt aktuell keine offenen oder pruefpflichtigen Leads fuer die Zuweisung.',
   },
+  employees: {
+    title: 'Keine Mitarbeiter vorhanden',
+    text: 'Sobald Nutzer in der `team`-Tabelle existieren, erscheinen sie hier.',
+  },
+  tickets: {
+    title: 'Keine Tickets vorhanden',
+    text: 'Eingehende Live-Chat-Anfragen erscheinen hier automatisch, sobald Nachrichten gespeichert sind.',
+  },
   billing: {
     title: 'Keine Abrechnungsdaten vorhanden',
     text: 'Sobald Transaktionen vorliegen, werden sie hier in der Abrechnung angezeigt.',
@@ -258,6 +275,8 @@ export const sectionDescriptions: Record<AdminSectionId, string> = {
   requests: 'Lead-Eingang, Statuspflege und echte Anfragen aus dem System.',
   partners: 'Partnernetzwerk mit Regionen, Kontakt und Kontostand aus der Datenbank.',
   distribution: 'Offene Leads mit tatsaechlichen Partner-Matches nach Regionen.',
+  employees: 'Mitarbeiter direkt anlegen und bestehende Zugänge verwalten.',
+  tickets: 'Alle gespeicherten Live-Chat-Anfragen und Support-Konversationen.',
   billing: 'Transaktionen, Umsatz und offene Finanzbewegungen aus dem System.',
   content: 'Aktive Ratgeber- und FAQ-Inhalte aus der live eingebundenen Website.',
   settings: 'Konfigurationen und Team-Struktur aus den aktuellen Systemdaten.',

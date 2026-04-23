@@ -31,7 +31,7 @@ function jsonError(message: string, status: number) {
 function mapSupabaseAdminError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error || 'Unbekannter Fehler');
   if (message.toLowerCase().includes('invalid api key')) {
-    return 'SUPABASE_SERVICE_ROLE_KEY ist ungueltig. Bitte den Service-Role-Key in der Umgebung korrigieren.';
+    return 'SUPABASE_SERVICE_ROLE_KEY ist ungültig. Bitte den Service-Role-Key in der Umgebung korrigieren.';
   }
 
   return message;
@@ -104,7 +104,7 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope:
           .limit(scope === 'dashboard' ? 80 : 200)
       : Promise.resolve({ data: [], error: null }),
     includePartners
-      ? supabase.from('partners').select('id, name, email, phone, regions, status, category, balance').order('created_at', { ascending: false }).limit(120)
+      ? supabase.from('partners').select('id, name, email, phone, regions, status, category, service, balance').order('created_at', { ascending: false }).limit(120)
       : Promise.resolve({ data: [], error: null }),
     includeTransactions
       ? supabase.from('transactions').select('id, type, amount, description, created_at').order('created_at', { ascending: false }).limit(150)
@@ -209,7 +209,7 @@ export async function PATCH(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return jsonError('Ungueltige Anfrage.', 400);
+    return jsonError('Ungültige Anfrage.', 400);
   }
 
   const action = String(body.action || '');
@@ -238,6 +238,7 @@ export async function PATCH(request: Request) {
     const updates: JsonRecord = { updated_at: new Date().toISOString() };
     if (typeof body.status === 'string') updates.status = body.status;
     if (typeof body.category === 'string') updates.category = body.category;
+    if (typeof body.regions === 'string') updates.regions = body.regions.slice(0, 500);
     if (typeof body.notes === 'string') updates.settings = { internal_notes: body.notes.slice(0, 4000) };
 
     const { error } = await adminClient.from('partners').update(updates).eq('id', id);
@@ -250,11 +251,11 @@ export async function PATCH(request: Request) {
     if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
     const id = String(body.id || '');
     const status = String(body.status || '');
-    if (!id || !['PENDING', 'ACTIVE', 'DISABLED'].includes(status)) return jsonError('Team-Daten ungueltig.', 400);
+    if (!id || !['PENDING', 'ACTIVE', 'DISABLED'].includes(status)) return jsonError('Team-Daten ungültig.', 400);
 
     const { data: current } = await adminClient.from('team').select('role').eq('id', id).maybeSingle();
     if (current?.role === 'ADMIN' && status === 'DISABLED') {
-      return jsonError('Admin-Rolle ist geschuetzt.', 403);
+      return jsonError('Admin-Rolle ist geschützt.', 403);
     }
 
     const { error } = await adminClient.from('team').update({ status }).eq('id', id);
@@ -313,6 +314,68 @@ export async function PATCH(request: Request) {
     } catch (error) {
       return jsonError(mapSupabaseAdminError(error), 500);
     }
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+  }
+
+  if (action === 'assignLeadPartner') {
+    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+
+    const id = String(body.id || '');
+    const partnerId = String(body.partnerId || '').trim();
+    if (!id || !partnerId) return jsonError('Lead oder Partner fehlt.', 400);
+
+    const { data: partner, error: partnerError } = await adminClient.from('partners').select('id, name').eq('id', partnerId).maybeSingle();
+    if (partnerError) return jsonError(partnerError.message, 500);
+    if (!partner) return jsonError('Partner nicht gefunden.', 404);
+
+    const { data: currentLead, error: leadReadError } = await adminClient.from('orders').select('notes').eq('id', id).maybeSingle();
+    if (leadReadError) return jsonError(leadReadError.message, 500);
+
+    const currentNotes = String(currentLead?.notes || '').trim();
+    const assignmentNote = `Zugewiesen an ${partner.name || 'Partner'} am ${new Date().toLocaleString('de-DE')}`;
+    const notes = currentNotes ? `${currentNotes}\n${assignmentNote}` : assignmentNote;
+
+    const { error } = await adminClient.from('orders').update({
+      notes: notes.slice(0, 4000),
+      updated_at: new Date().toISOString(),
+    }).eq('id', id);
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+  }
+
+  if (action === 'updateSetting') {
+    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+
+    const id = String(body.id || '').trim();
+    const key = String(body.key || '').trim();
+    const value = body.value;
+    if (!id && !key) return jsonError('Einstellung fehlt.', 400);
+
+    const payload: JsonRecord = {
+      value,
+      updated_at: new Date().toISOString(),
+    };
+
+    let error;
+    if (id) {
+      ({ error } = await adminClient.from('system_settings').update(payload).eq('id', id));
+    } else {
+      ({ error } = await adminClient.from('system_settings').upsert([{ key, ...payload }], { onConflict: 'key' }));
+    }
+
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+  }
+
+  if (action === 'markTicketRead') {
+    const sessionId = String(body.sessionId || '').trim();
+    if (!sessionId) return jsonError('Ticket fehlt.', 400);
+
+    const { error } = await adminClient.from('chat_messages').update({ is_read: true }).eq('session_id', sessionId).eq('sender', 'user');
+    if (error) return jsonError(error.message, 500);
 
     return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
   }

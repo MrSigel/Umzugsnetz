@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Bell, Menu, Search, Sparkles, UserCircle2, X } from 'lucide-react';
+import { Bell, LogOut, Menu, Search, Sparkles, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {
   baseNavigation,
@@ -22,6 +22,7 @@ import {
   type PortalResponse,
   type PortalSetting,
   type PortalTeam,
+  type PortalTicket,
   type PortalTransaction,
   type StaffRole,
   type StatusTone,
@@ -37,7 +38,7 @@ type DistributionItem = {
   leadId: string;
   customer: string;
   area: string;
-  suggestedPartners: string[];
+  suggestedPartners: Array<{ id: string; name: string }>;
   status: string;
 };
 
@@ -87,7 +88,7 @@ function getLeadStatusTone(status?: string | null): StatusTone {
 
 function leadStatusLabel(status?: string | null) {
   const value = String(status || 'Neu');
-  if (value === 'Kontaktiert') return 'Geprueft';
+  if (value === 'Kontaktiert') return 'GeprÃ¼ft';
   if (value === 'Angebot') return 'Gesendet';
   if (value === 'Gebucht') return 'Abgeschlossen';
   if (value === 'Abgelehnt') return 'Storniert';
@@ -164,7 +165,7 @@ function LoadingState() {
     <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_28%),linear-gradient(180deg,#f6f9fc,#eef4f8)] p-6">
       <div className="rounded-[2rem] border border-white/80 bg-white p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
         <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-11 w-auto" priority />
-        <p className="mt-5 font-black text-slate-950">Laedt Dashboard...</p>
+        <p className="mt-5 font-black text-slate-950">LÃ¤dt Dashboard...</p>
       </div>
     </main>
   );
@@ -236,18 +237,6 @@ function Sidebar({
             </button>
           ))}
         </nav>
-
-        <div className="mt-auto rounded-[1.75rem] border border-slate-200 bg-slate-50 p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
-              <UserCircle2 className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="font-black text-slate-950">Interner Zugriff</p>
-              <p className="text-sm font-medium text-slate-500">Admin- und Mitarbeiterbereich</p>
-            </div>
-          </div>
-        </div>
       </aside>
     </>
   );
@@ -258,16 +247,23 @@ function HeaderBar({
   search,
   onSearch,
   onOpenMenu,
-  notificationCount,
+  notifications,
   role,
+  userEmail,
+  onLogout,
 }: {
   active: AdminSectionId;
   search: string;
   onSearch: (value: string) => void;
   onOpenMenu: () => void;
-  notificationCount: number;
+  notifications: PortalNotification[];
   role: StaffRole;
+  userEmail?: string | null;
+  onLogout: () => void;
 }) {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+
   return (
     <header className="mb-6 rounded-[2rem] border border-white/80 bg-white/90 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -278,7 +274,7 @@ function HeaderBar({
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-brand-blue">
               <Sparkles className="h-4 w-4" />
-              Interne Verwaltungsoberflaeche
+              Interne VerwaltungsoberflÃ¤che
             </div>
             <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">{baseNavigation[role].find((item) => item.id === active)?.label}</h1>
             <p className="mt-1 text-sm font-medium text-slate-500">{sectionDescriptions[active]}</p>
@@ -295,18 +291,51 @@ function HeaderBar({
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm font-semibold text-slate-900 outline-none transition-colors focus:border-brand-blue"
             />
           </label>
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">
-            <Bell className="h-4 w-4 text-brand-blue" />
-            {notificationCount} Hinweise
+          <div className="relative">
+            <button type="button" onClick={() => { setShowNotifications((value) => !value); setShowProfile(false); }} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">
+              <Bell className="h-4 w-4 text-brand-blue" />
+              {notifications.length} Hinweise
+            </button>
+            {showNotifications ? (
+              <div className="absolute right-0 top-[calc(100%+10px)] z-20 w-[320px] rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.14)]">
+                {notifications.length ? (
+                  <div className="space-y-2">
+                    {notifications.slice(0, 5).map((item) => (
+                      <div key={item.id} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
+                        <p className="text-sm font-black text-slate-900">{item.title || 'Hinweis'}</p>
+                        <p className="mt-1 text-xs font-medium text-slate-500">{item.message || '-'}</p>
+                        <p className="mt-2 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{formatDateTime(item.created_at)}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-semibold text-slate-500">Keine Hinweise vorhanden.</p>
+                )}
+              </div>
+            ) : null}
           </div>
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-blue text-white">
-              {role === 'ADMIN' ? 'AD' : 'MA'}
-            </div>
-            <div>
-              <p className="text-sm font-black text-slate-900">{role === 'ADMIN' ? 'Admin Profil' : 'Mitarbeiter Profil'}</p>
-              <p className="text-xs font-medium text-slate-500">Live-System aktiv</p>
-            </div>
+          <div className="relative">
+            <button type="button" onClick={() => { setShowProfile((value) => !value); setShowNotifications(false); }} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-blue text-white">
+                {role === 'ADMIN' ? 'AD' : 'MA'}
+              </div>
+              <div>
+                <p className="text-sm font-black text-slate-900">{role === 'ADMIN' ? 'Admin Profil' : 'Mitarbeiter Profil'}</p>
+                <p className="max-w-[180px] truncate text-xs font-medium text-slate-500">{userEmail || 'Live-System aktiv'}</p>
+              </div>
+            </button>
+            {showProfile ? (
+              <div className="absolute right-0 top-[calc(100%+10px)] z-20 w-[260px] rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.14)]">
+                <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
+                  <p className="text-sm font-black text-slate-900">{role === 'ADMIN' ? 'Admin' : 'Mitarbeiter'}</p>
+                  <p className="mt-1 break-all text-xs font-medium text-slate-500">{userEmail || '-'}</p>
+                </div>
+                <button type="button" onClick={onLogout} className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-4 py-3 text-sm font-black text-white">
+                  <LogOut className="h-4 w-4" />
+                  Abmelden
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -344,6 +373,30 @@ function DataTable<T extends { id: string }>({
       </div>
     </div>
   );
+}
+
+async function patchPortal(body: Record<string, unknown>) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) {
+    throw new Error('Bitte einloggen.');
+  }
+
+  const response = await fetch('/api/admin/portal', {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload?.error || 'Aenderung konnte nicht gespeichert werden.');
+  }
+
+  return payload as PortalResponse;
 }
 
 function DashboardSection({
@@ -392,7 +445,7 @@ function DashboardSection({
                   return (
                     <div>
                       <p className="font-black text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
-                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.order_number || row.id} · {formatDateTime(row.created_at)}</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.order_number || row.id} Â· {formatDateTime(row.created_at)}</p>
                     </div>
                   );
                 }
@@ -423,11 +476,11 @@ function DashboardSection({
                 ))}
               </div>
             ) : (
-              <EmptyState title="Keine Hinweise vorhanden" text="In `notifications` liegen aktuell keine Eintraege vor." />
+              <EmptyState title="Keine Hinweise vorhanden" text="In `notifications` liegen aktuell keine EintrÃ¤ge vor." />
             )}
           </SectionCard>
 
-          <SectionCard title="Aktivitaeten" description="Automatisch aus echten Leads, Tickets und Transaktionen abgeleitet.">
+          <SectionCard title="AktivitÃ¤ten" description="Automatisch aus echten Leads, Tickets und Transaktionen abgeleitet.">
             {activities.length ? (
               <div className="space-y-3">
                 {activities.map((item) => (
@@ -442,7 +495,7 @@ function DashboardSection({
                 ))}
               </div>
             ) : (
-              <EmptyState title="Keine Aktivitaeten vorhanden" text="Sobald neue Leads, Tickets oder Transaktionen eintreffen, erscheinen sie hier." />
+              <EmptyState title="Keine AktivitÃ¤ten vorhanden" text="Sobald neue Leads, Tickets oder Transaktionen eintreffen, erscheinen sie hier." />
             )}
           </SectionCard>
         </div>
@@ -451,95 +504,261 @@ function DashboardSection({
   );
 }
 
-function RequestsSection({ leads, search }: { leads: PortalLead[]; search: string }) {
+function RequestsSection({ leads, search, onSave }: { leads: PortalLead[]; search: string; onSave: (payload: PortalResponse) => void }) {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return leads;
     return leads.filter((lead) => [lead.customer_name, lead.city, lead.service_category, lead.status, lead.order_number].join(' ').toLowerCase().includes(query));
   }, [leads, search]);
+  const [selectedLeadId, setSelectedLeadId] = useState('');
+  const [status, setStatus] = useState('Neu');
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!filtered.length) {
+      setSelectedLeadId('');
+      return;
+    }
+    if (!filtered.some((lead) => lead.id === selectedLeadId)) {
+      setSelectedLeadId(filtered[0].id);
+    }
+  }, [filtered, selectedLeadId]);
+
+  const selectedLead = filtered.find((lead) => lead.id === selectedLeadId) || filtered[0];
+
+  useEffect(() => {
+    if (!selectedLead) return;
+    setStatus(String(selectedLead.status || 'Neu'));
+    setNotes(String(selectedLead.notes || ''));
+  }, [selectedLead]);
+
+  const saveLead = async () => {
+    if (!selectedLead) return;
+    setSaving(true);
+    try {
+      onSave(await patchPortal({
+        action: 'updateLead',
+        id: selectedLead.id,
+        status,
+        notes,
+        scope: 'all',
+      }));
+    } catch (saveError) {
+      window.alert(saveError instanceof Error ? saveError.message : 'Anfrage konnte nicht gespeichert werden.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
-    <SectionCard title="Anfragen" description="Nur echte Leads aus dem System.">
-      {filtered.length ? (
-        <DataTable<PortalLead>
-          columns={[
-            { key: 'customer', label: 'Kunde' },
-            { key: 'service', label: 'Leistung' },
-            { key: 'route', label: 'Strecke' },
-            { key: 'date', label: 'Termin' },
-            { key: 'price', label: 'Preis' },
-            { key: 'status', label: 'Status' },
-          ]}
-          rows={filtered}
-          renderCell={(row, key) => {
-            if (key === 'customer') {
-              return (
-                <div>
-                  <p className="font-black text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.customer_email || '-'} · {row.customer_phone || '-'}</p>
+    <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+      <SectionCard title="Anfragen" description="Nur echte Leads aus dem System.">
+        {filtered.length ? (
+          <div className="space-y-3">
+            {filtered.map((row) => (
+              <button
+                key={row.id}
+                type="button"
+                onClick={() => setSelectedLeadId(row.id)}
+                className={cx(
+                  'w-full rounded-[1.5rem] border p-4 text-left transition-all',
+                  selectedLeadId === row.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50/80 hover:border-slate-200',
+                )}
+              >
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="font-black text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.customer_email || '-'} · {row.customer_phone || '-'}</p>
+                    <p className="mt-3 text-sm font-semibold text-slate-500">{row.service_category || '-'} · {row.von_city || '-'} → {row.nach_city || '-'}</p>
+                  </div>
+                  <div className="flex flex-col items-start gap-2 lg:items-end">
+                    <StatusBadge label={leadStatusLabel(row.status)} tone={getLeadStatusTone(row.status)} />
+                    <span className="text-sm font-black text-slate-900">{formatCurrency(row.estimated_price)}</span>
+                  </div>
                 </div>
-              );
-            }
-            if (key === 'service') return row.service_category || '-';
-            if (key === 'route') return `${row.von_city || '-'} → ${row.nach_city || '-'}`;
-            if (key === 'date') return formatDate(row.move_date);
-            if (key === 'price') return formatCurrency(row.estimated_price);
-            if (key === 'status') return <StatusBadge label={leadStatusLabel(row.status)} tone={getLeadStatusTone(row.status)} />;
-            return '-';
-          }}
-        />
-      ) : (
-        <EmptyState {...emptyStateBySection.requests} />
-      )}
-    </SectionCard>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <EmptyState {...emptyStateBySection.requests} />
+        )}
+      </SectionCard>
+
+      <SectionCard title="Anfrage bearbeiten" description="Status und Notizen direkt speichern.">
+        {selectedLead ? (
+          <div className="space-y-4">
+            <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
+              <p className="font-black text-slate-900">{selectedLead.customer_name || 'Ohne Namen'}</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">{selectedLead.order_number || selectedLead.id}</p>
+              <p className="mt-3 text-sm font-semibold text-slate-600">{selectedLead.service_category || '-'} · {formatDate(selectedLead.move_date)}</p>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status</label>
+              <select value={status} onChange={(event) => setStatus(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
+                {['Neu', 'Kontaktiert', 'Angebot', 'Gebucht', 'Abgelehnt'].map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notizen</label>
+              <textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={8} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
+            </div>
+            <button type="button" onClick={saveLead} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+              {saving ? 'Speichert...' : 'Anfrage speichern'}
+            </button>
+          </div>
+        ) : (
+          <EmptyState {...emptyStateBySection.requests} />
+        )}
+      </SectionCard>
+    </div>
   );
 }
 
-function PartnersSection({ partners, search }: { partners: PortalPartner[]; search: string }) {
+function PartnersSection({ partners, search, onSave }: { partners: PortalPartner[]; search: string; onSave: (payload: PortalResponse) => void }) {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return partners;
     return partners.filter((partner) => [partner.name, partner.email, partner.phone, partner.regions, partner.category, partner.status].join(' ').toLowerCase().includes(query));
   }, [partners, search]);
+  const [selectedPartnerId, setSelectedPartnerId] = useState('');
+  const [partnerStatus, setPartnerStatus] = useState('ACTIVE');
+  const [partnerCategory, setPartnerCategory] = useState('Standard Anfragen');
+  const [partnerRegions, setPartnerRegions] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!filtered.length) {
+      setSelectedPartnerId('');
+      return;
+    }
+    if (!filtered.some((partner) => partner.id === selectedPartnerId)) {
+      setSelectedPartnerId(filtered[0].id);
+    }
+  }, [filtered, selectedPartnerId]);
+
+  const selectedPartner = filtered.find((partner) => partner.id === selectedPartnerId) || filtered[0];
+
+  useEffect(() => {
+    if (!selectedPartner) return;
+    setPartnerStatus(String(selectedPartner.status || 'ACTIVE'));
+    setPartnerCategory(String(selectedPartner.category || 'Standard Anfragen'));
+    setPartnerRegions(String(selectedPartner.regions || ''));
+  }, [selectedPartner]);
+
+  const savePartner = async () => {
+    if (!selectedPartner) return;
+    setSaving(true);
+    try {
+      onSave(await patchPortal({
+        action: 'updatePartner',
+        id: selectedPartner.id,
+        status: partnerStatus,
+        category: partnerCategory,
+        regions: partnerRegions,
+        scope: 'all',
+      }));
+    } catch (saveError) {
+      window.alert(saveError instanceof Error ? saveError.message : 'Partner konnte nicht gespeichert werden.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
-    <SectionCard title="Partner" description="Reale Partnerdaten aus Supabase.">
-      {filtered.length ? (
-        <DataTable<PortalPartner>
-          columns={[
-            { key: 'partner', label: 'Partner' },
-            { key: 'regions', label: 'Regionen' },
-            { key: 'contact', label: 'Kontakt' },
-            { key: 'category', label: 'Kategorie' },
-            { key: 'balance', label: 'Kontostand' },
-            { key: 'status', label: 'Status' },
-          ]}
-          rows={filtered}
-          renderCell={(row, key) => {
-            if (key === 'partner') {
-              return (
-                <div>
-                  <p className="font-black text-slate-900">{row.name || 'Unbenannter Partner'}</p>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.id}</p>
+    <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <SectionCard title="Partner" description="Reale Partnerdaten aus Supabase.">
+        {filtered.length ? (
+          <div className="space-y-3">
+            {filtered.map((row) => (
+              <button
+                key={row.id}
+                type="button"
+                onClick={() => setSelectedPartnerId(row.id)}
+                className={cx(
+                  'w-full rounded-[1.5rem] border p-4 text-left transition-all',
+                  selectedPartnerId === row.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50/80 hover:border-slate-200',
+                )}
+              >
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <p className="font-black text-slate-900">{row.name || 'Unbenannter Partner'}</p>
+                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{[row.email, row.phone].filter(Boolean).join(' · ') || row.id}</p>
+                    <p className="mt-3 text-sm font-semibold text-slate-500">{row.regions || 'Keine Regionen'} · {row.service || 'BEIDES'}</p>
+                  </div>
+                  <div className="flex flex-col items-start gap-2 lg:items-end">
+                    <StatusBadge label={String(row.status || 'Unbekannt')} />
+                    <span className="text-sm font-black text-slate-900">{formatCurrency(row.balance)}</span>
+                  </div>
                 </div>
-              );
-            }
-            if (key === 'regions') return row.regions || '-';
-            if (key === 'contact') return [row.email, row.phone].filter(Boolean).join(' · ') || '-';
-            if (key === 'category') return row.category || '-';
-            if (key === 'balance') return formatCurrency(row.balance);
-            if (key === 'status') return <StatusBadge label={String(row.status || 'Unbekannt')} />;
-            return '-';
-          }}
-        />
-      ) : (
-        <EmptyState {...emptyStateBySection.partners} />
-      )}
-    </SectionCard>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <EmptyState {...emptyStateBySection.partners} />
+        )}
+      </SectionCard>
+
+      <SectionCard title="Partner bearbeiten" description="Status, Kategorie und Regionen aktualisieren.">
+        {selectedPartner ? (
+          <div className="space-y-4">
+            <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
+              <p className="font-black text-slate-900">{selectedPartner.name || 'Unbenannter Partner'}</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">{selectedPartner.email || '-'} · {selectedPartner.phone || '-'}</p>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status</label>
+              <select value={partnerStatus} onChange={(event) => setPartnerStatus(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
+                {['ACTIVE', 'PENDING', 'SUSPENDED'].map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Kategorie</label>
+              <select value={partnerCategory} onChange={(event) => setPartnerCategory(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
+                {['Standard Anfragen', 'Priorisierte Anfragen', 'Exklusive Anfragen'].map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Regionen</label>
+              <textarea value={partnerRegions} onChange={(event) => setPartnerRegions(event.target.value)} rows={5} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
+            </div>
+            <button type="button" onClick={savePartner} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+              {saving ? 'Speichert...' : 'Partner speichern'}
+            </button>
+          </div>
+        ) : (
+          <EmptyState {...emptyStateBySection.partners} />
+        )}
+      </SectionCard>
+    </div>
   );
 }
 
-function DistributionSection({ items }: { items: DistributionItem[] }) {
+function DistributionSection({ items, onSave }: { items: DistributionItem[]; onSave: (payload: PortalResponse) => void }) {
+  const [savingLeadId, setSavingLeadId] = useState('');
+
+  const assignPartner = async (leadId: string, partnerId: string) => {
+    setSavingLeadId(leadId);
+    try {
+      onSave(await patchPortal({
+        action: 'assignLeadPartner',
+        id: leadId,
+        partnerId,
+        scope: 'all',
+      }));
+    } catch (saveError) {
+      window.alert(saveError instanceof Error ? saveError.message : 'Lead konnte nicht zugewiesen werden.');
+    } finally {
+      setSavingLeadId('');
+    }
+  };
+
   return (
     <SectionCard title="Lead-Verteilung" description="Offene Leads mit tatsaechlich passenden Partnern auf Basis der Regionen.">
       {items.length ? (
@@ -547,7 +766,7 @@ function DistributionSection({ items }: { items: DistributionItem[] }) {
           {items.map((item) => (
             <div key={item.id} className="rounded-[1.7rem] border border-slate-100 bg-slate-50/80 p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-lg font-black text-slate-950">{item.customer}</p>
                     <StatusBadge label={item.status} tone={item.status === 'Ohne Match' ? 'red' : item.status === 'Offen' ? 'amber' : 'blue'} />
@@ -555,7 +774,15 @@ function DistributionSection({ items }: { items: DistributionItem[] }) {
                   <p className="mt-2 text-sm font-semibold text-slate-500">{item.leadId} · {item.area}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {item.suggestedPartners.length ? item.suggestedPartners.map((partner) => (
-                      <span key={partner} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black text-slate-600">{partner}</span>
+                      <button
+                        key={partner.id}
+                        type="button"
+                        onClick={() => assignPartner(item.id, partner.id)}
+                        disabled={savingLeadId === item.id}
+                        className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-brand-blue hover:text-brand-blue disabled:opacity-60"
+                      >
+                        {savingLeadId === item.id ? 'Speichert...' : partner.name}
+                      </button>
                     )) : <span className="text-sm font-medium text-slate-500">Kein regionaler Partner gefunden.</span>}
                   </div>
                 </div>
@@ -632,7 +859,7 @@ function ContentSection({ search }: { search: string }) {
   }, [search]);
 
   return (
-    <SectionCard title="Inhalte" description="Tatsaechlich vorhandene Ratgeber- und FAQ-Inhalte der Website.">
+    <SectionCard title="Inhalte" description="TatsÃ¤chlich vorhandene Ratgeber- und FAQ-Inhalte der Website.">
       {filtered.length ? (
         <DataTable<ContentRecord>
           columns={[
@@ -659,7 +886,60 @@ function ContentSection({ search }: { search: string }) {
   );
 }
 
-function SettingsSection({ settings, team }: { settings: PortalSetting[]; team: PortalTeam[] }) {
+function SettingsSection({ settings, team, onSave }: { settings: PortalSetting[]; team: PortalTeam[]; onSave: (payload: PortalResponse) => void }) {
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [savingSettingId, setSavingSettingId] = useState('');
+  const [savingTeamId, setSavingTeamId] = useState('');
+
+  useEffect(() => {
+    const nextDrafts: Record<string, string> = {};
+    settings.forEach((item) => {
+      nextDrafts[item.id] = typeof item.value === 'object' ? JSON.stringify(item.value, null, 2) : String(item.value ?? '');
+    });
+    setDrafts(nextDrafts);
+  }, [settings]);
+
+  const saveSetting = async (item: PortalSetting) => {
+    const raw = drafts[item.id] ?? '';
+    let value: unknown = raw;
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      value = raw;
+    }
+
+    setSavingSettingId(item.id);
+    try {
+      onSave(await patchPortal({
+        action: 'updateSetting',
+        id: item.id,
+        key: item.key,
+        value,
+        scope: 'all',
+      }));
+    } catch (saveError) {
+      window.alert(saveError instanceof Error ? saveError.message : 'Einstellung konnte nicht gespeichert werden.');
+    } finally {
+      setSavingSettingId('');
+    }
+  };
+
+  const updateTeamStatus = async (member: PortalTeam, status: string) => {
+    setSavingTeamId(member.id);
+    try {
+      onSave(await patchPortal({
+        action: 'updateTeam',
+        id: member.id,
+        status,
+        scope: 'all',
+      }));
+    } catch (saveError) {
+      window.alert(saveError instanceof Error ? saveError.message : 'Team-Status konnte nicht gespeichert werden.');
+    } finally {
+      setSavingTeamId('');
+    }
+  };
+
   return (
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
       <SectionCard title="Systemeinstellungen" description="Echte Eintraege aus `system_settings`.">
@@ -668,7 +948,15 @@ function SettingsSection({ settings, team }: { settings: PortalSetting[]; team: 
             {settings.map((item) => (
               <div key={item.id} className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{item.key || 'Schluessel'}</p>
-                <p className="mt-2 break-words text-sm font-semibold text-slate-700">{typeof item.value === 'object' ? JSON.stringify(item.value) : String(item.value ?? '-')}</p>
+                <textarea
+                  value={drafts[item.id] ?? ''}
+                  onChange={(event) => setDrafts((current) => ({ ...current, [item.id]: event.target.value }))}
+                  rows={6}
+                  className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+                />
+                <button type="button" onClick={() => saveSetting(item)} disabled={savingSettingId === item.id} className="mt-3 rounded-2xl bg-brand-blue px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+                  {savingSettingId === item.id ? 'Speichert...' : 'Speichern'}
+                </button>
               </div>
             ))}
           </div>
@@ -682,12 +970,19 @@ function SettingsSection({ settings, team }: { settings: PortalSetting[]; team: 
           <div className="space-y-3">
             {team.map((member) => (
               <div key={member.id} className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <p className="font-black text-slate-900">{member.email || 'Ohne E-Mail'}</p>
                     <p className="mt-1 text-sm font-medium text-slate-500">{member.role || '-'} · {formatDateTime(member.created_at)}</p>
                   </div>
-                  <StatusBadge label={String(member.status || 'Unbekannt')} />
+                  <div className="flex items-center gap-3">
+                    <select value={String(member.status || 'PENDING')} onChange={(event) => updateTeamStatus(member, event.target.value)} disabled={savingTeamId === member.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue disabled:opacity-60">
+                      {['PENDING', 'ACTIVE', 'DISABLED'].map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    <StatusBadge label={String(member.status || 'Unbekannt')} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -707,6 +1002,16 @@ export function AdminDashboard() {
   const [portal, setPortal] = useState<PortalResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [employeeEmail, setEmployeeEmail] = useState('');
+  const [employeePassword, setEmployeePassword] = useState('');
+  const [employeeSubmitting, setEmployeeSubmitting] = useState(false);
+  const [ticketSavingSessionId, setTicketSavingSessionId] = useState('');
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
 
   useEffect(() => {
     const loadPortal = async () => {
@@ -715,6 +1020,7 @@ export function AdminDashboard() {
       try {
         const { data: sessionData } = await supabase.auth.getSession();
         const token = sessionData.session?.access_token;
+        setCurrentUserEmail(sessionData.session?.user?.email || '');
         if (!token) {
           setError('Bitte einloggen.');
           return;
@@ -754,11 +1060,13 @@ export function AdminDashboard() {
       if (item.id === 'requests') return { ...item, counter: String(leads.length) };
       if (item.id === 'partners') return { ...item, counter: String(partners.length) };
       if (item.id === 'distribution') return { ...item, counter: String(leads.filter((lead) => ['Neu', 'Kontaktiert', 'Angebot'].includes(String(lead.status || ''))).length) };
+      if (item.id === 'employees') return { ...item, counter: String(team.length) };
+      if (item.id === 'tickets') return { ...item, counter: String(tickets.length) };
       if (item.id === 'billing') return { ...item, counter: String(transactions.length) };
       if (item.id === 'settings') return { ...item, counter: String(settings.length || team.length) };
       return item;
     });
-  }, [role, leads, partners, transactions, settings.length, team.length]);
+  }, [role, leads, partners, tickets.length, transactions.length, settings.length, team.length]);
 
   const distributionItems = useMemo<DistributionItem[]>(() => {
     return leads
@@ -768,8 +1076,8 @@ export function AdminDashboard() {
         const city = String(lead.city || lead.von_city || '').trim();
         const matches = partners
           .filter((partner) => String(partner.regions || '').toLowerCase().includes(city.toLowerCase()))
-          .map((partner) => partner.name || 'Partner')
-          .filter(Boolean);
+          .map((partner) => ({ id: partner.id, name: partner.name || 'Partner' }))
+          .filter((partner) => Boolean(partner.id && partner.name));
 
         return {
           id: lead.id,
@@ -805,7 +1113,7 @@ export function AdminDashboard() {
     const leadActivities = leads.slice(0, 3).map((lead) => ({
       id: `lead-${lead.id}`,
       title: `Lead ${lead.order_number || lead.id} eingegangen`,
-      meta: `${lead.customer_name || 'Ohne Namen'} · ${lead.city || lead.von_city || 'Ohne Stadt'}`,
+      meta: `${lead.customer_name || 'Ohne Namen'} Â· ${lead.city || lead.von_city || 'Ohne Stadt'}`,
       time: formatDateTime(lead.created_at),
       tone: getLeadStatusTone(lead.status),
     }));
@@ -829,6 +1137,54 @@ export function AdminDashboard() {
       .slice(0, 7);
   }, [leads, tickets, transactions]);
 
+  const handlePortalSave = (payload: PortalResponse) => {
+    setPortal(payload);
+    setError('');
+  };
+
+  const createEmployee = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!employeeEmail.trim() || employeePassword.length < 8) {
+      setError('E-Mail und Passwort mit mindestens 8 Zeichen erforderlich.');
+      return;
+    }
+
+    setEmployeeSubmitting(true);
+    setError('');
+    try {
+      const payload = await patchPortal({
+          action: 'createTeamMember',
+          email: employeeEmail.trim().toLowerCase(),
+          password: employeePassword,
+          role: 'EMPLOYEE',
+          scope: 'all',
+        });
+      handlePortalSave(payload);
+      setEmployeeEmail('');
+      setEmployeePassword('');
+    } catch (submitError) {
+      window.alert(submitError instanceof Error ? submitError.message : 'Mitarbeiter konnte nicht erstellt werden.');
+    } finally {
+      setEmployeeSubmitting(false);
+    }
+  };
+
+  const markTicketRead = async (ticket: PortalTicket) => {
+    setTicketSavingSessionId(ticket.session_id);
+    setError('');
+    try {
+      handlePortalSave(await patchPortal({
+        action: 'markTicketRead',
+        sessionId: ticket.session_id,
+        scope: 'all',
+      }));
+    } catch (submitError) {
+      window.alert(submitError instanceof Error ? submitError.message : 'Ticket konnte nicht aktualisiert werden.');
+    } finally {
+      setTicketSavingSessionId('');
+    }
+  };
+
   if (loading) return <LoadingState />;
   if (error || !portal) return <ErrorState message={error || 'Dashboard konnte nicht geladen werden.'} />;
 
@@ -839,17 +1195,126 @@ export function AdminDashboard() {
         <Sidebar items={navigation} active={activeSection} onSelect={setActiveSection} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
 
         <div className="min-w-0 p-4 sm:p-6 lg:p-8">
-          <HeaderBar active={activeSection} search={search} onSearch={setSearch} onOpenMenu={() => setMobileOpen(true)} notificationCount={notifications.length} role={role} />
+          <HeaderBar
+            active={activeSection}
+            search={search}
+            onSearch={setSearch}
+            onOpenMenu={() => setMobileOpen(true)}
+            notifications={notifications}
+            role={role}
+            userEmail={currentUserEmail || null}
+            onLogout={handleLogout}
+          />
 
           {activeSection === 'dashboard' ? <DashboardSection leads={leads} kpiCards={kpiCards} notifications={notifications} activities={activities} search={search} /> : null}
-          {activeSection === 'requests' ? <RequestsSection leads={leads} search={search} /> : null}
-          {activeSection === 'partners' && role === 'ADMIN' ? <PartnersSection partners={partners} search={search} /> : null}
-          {activeSection === 'distribution' ? <DistributionSection items={distributionItems} /> : null}
+          {activeSection === 'requests' ? <RequestsSection leads={leads} search={search} onSave={handlePortalSave} /> : null}
+          {activeSection === 'partners' && role === 'ADMIN' ? <PartnersSection partners={partners} search={search} onSave={handlePortalSave} /> : null}
+          {activeSection === 'distribution' ? <DistributionSection items={distributionItems} onSave={handlePortalSave} /> : null}
+          {activeSection === 'employees' && role === 'ADMIN' ? (
+            <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <SectionCard title="Mitarbeiter anlegen" description="Neue E-Mail und Passwort eingeben. Der Account wird direkt als Mitarbeiter erstellt.">
+                <form onSubmit={createEmployee} className="space-y-4">
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">E-Mail</label>
+                    <input
+                      type="email"
+                      required
+                      value={employeeEmail}
+                      onChange={(event) => setEmployeeEmail(event.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+                      placeholder="mitarbeiter@umzugsnetz.de"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Passwort</label>
+                    <input
+                      type="password"
+                      required
+                      minLength={8}
+                      value={employeePassword}
+                      onChange={(event) => setEmployeePassword(event.target.value)}
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+                      placeholder="Mindestens 8 Zeichen"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={employeeSubmitting}
+                    className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+                  >
+                    {employeeSubmitting ? 'Wird erstellt...' : 'Mitarbeiter erstellen'}
+                  </button>
+                </form>
+              </SectionCard>
+
+              <SectionCard title="Bestehende Mitarbeiter" description="Alle vorhandenen Team-EintrÃ¤ge aus dem System.">
+                {team.length ? (
+                  <div className="space-y-3">
+                    {team.map((member) => (
+                      <div key={member.id} className="rounded-[1.6rem] border border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)] p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <p className="truncate text-base font-black text-slate-950">{member.email || 'Ohne E-Mail'}</p>
+                            <p className="mt-2 text-sm font-medium text-slate-500">
+                              {member.role || '-'} Â· {formatDateTime(member.created_at)}
+                            </p>
+                          </div>
+                          <StatusBadge label={String(member.status || 'Unbekannt')} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState {...emptyStateBySection.employees} />
+                )}
+              </SectionCard>
+            </div>
+          ) : null}
+          {activeSection === 'tickets' ? (
+            <SectionCard title="Tickets" description="Gespeicherte Live-Chat-Anfragen aus `chat_messages`.">
+              {tickets.length ? (
+                <div className="space-y-4">
+                  {tickets.map((ticket) => (
+                    <div key={ticket.session_id} className="rounded-[1.6rem] border border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)] p-5">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-lg font-black text-slate-950">{ticket.user_name || 'Unbekannter Chat'}</p>
+                            <StatusBadge label={String(ticket.support_category || 'KUNDE')} />
+                            {ticket.unread_count ? <StatusBadge label={`${ticket.unread_count} neu`} tone="amber" /> : null}
+                          </div>
+                          <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">{ticket.session_id}</p>
+                          <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600">{ticket.last_message || 'Keine Nachricht vorhanden.'}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-right">
+                          <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Letzte AktivitÃ¤t</p>
+                          <p className="mt-2 text-sm font-black text-slate-900">{formatDateTime(ticket.last_at)}</p>
+                          {ticket.unread_count ? (
+                            <button
+                              type="button"
+                              onClick={() => markTicketRead(ticket)}
+                              disabled={ticketSavingSessionId === ticket.session_id}
+                              className="mt-3 rounded-2xl bg-brand-blue px-4 py-2 text-xs font-black text-white disabled:opacity-60"
+                            >
+                              {ticketSavingSessionId === ticket.session_id ? 'Speichert...' : 'Als gelesen markieren'}
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState {...emptyStateBySection.tickets} />
+              )}
+            </SectionCard>
+          ) : null}
           {activeSection === 'billing' && role === 'ADMIN' ? <BillingSection transactions={transactions} /> : null}
           {activeSection === 'content' ? <ContentSection search={search} /> : null}
-          {activeSection === 'settings' && role === 'ADMIN' ? <SettingsSection settings={settings} team={team} /> : null}
+          {activeSection === 'settings' && role === 'ADMIN' ? <SettingsSection settings={settings} team={team} onSave={handlePortalSave} /> : null}
         </div>
       </div>
     </main>
   );
 }
+
