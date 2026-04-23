@@ -13,9 +13,9 @@
 
   /* Brand colors */
   --color-brand-blue: #0276c8;
-  --color-brand-blue-hover: #0163a8;
-  --color-brand-blue-2: #1386da;
-  --color-brand-blue-3: #349ae3;
+  --color-brand-blue-hover: #0276c8;
+  --color-brand-blue-2: #0276c8;
+  --color-brand-blue-3: #0276c8;
   --color-brand-blue-soft: #e7f4ff;
 
   --color-brand-green: #11b980;
@@ -86,7 +86,7 @@ body {
   border-radius: 9999px;
   margin-top: -0.32rem;
   border: 3px solid #fff;
-  background: linear-gradient(135deg, #0276c8 0%, #349ae3 100%);
+  background: linear-gradient(135deg, #0276c8 0%, #0276c8 100%);
   box-shadow: 0 10px 24px rgba(2, 118, 200, 0.28);
 }
 
@@ -101,6 +101,6 @@ body {
   height: 1.4rem;
   border: 3px solid #fff;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #0276c8 0%, #349ae3 100%);
+  background: linear-gradient(135deg, #0276c8 0%, #0276c8 100%);
   box-shadow: 0 10px 24px rgba(2, 118, 200, 0.28);
 }

@@ -252,7 +252,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={(e) => scrollTo(e as any, 'rechner')}
-                  className="group w-full rounded-[2rem] border border-[#0167B0] bg-[#0167B0] px-8 py-4 text-white shadow-[0_18px_44px_rgba(1,103,176,0.28)] transition-all hover:-translate-y-0.5 hover:bg-[#015A99] hover:shadow-[0_22px_54px_rgba(1,103,176,0.34)]"
+                  className="group w-full rounded-[2rem] border border-brand-blue bg-brand-blue px-8 py-4 text-white shadow-[0_18px_44px_rgba(2,118,200,0.28)] transition-all hover:-translate-y-0.5 hover:bg-brand-blue hover:shadow-[0_22px_54px_rgba(2,118,200,0.34)]"
                 >
                   <span className="flex items-center justify-center gap-3 text-lg font-extrabold">
                     Jetzt kostenlos anfragen
@@ -273,7 +273,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     whileHover="hover"
                     whileTap="tap"
                     onClick={(e) => openCalculatorForService(e as any, 'privatumzug')}
-                    className="group relative overflow-hidden rounded-[1.35rem] border border-[#9FC3DE] bg-[rgba(232,238,243,0.94)] px-3 py-3 sm:rounded-[1.5rem] sm:px-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-[rgba(226,234,240,0.98)] hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
+                    className="group relative overflow-hidden rounded-[1.35rem] border border-brand-blue/35 bg-brand-blue-soft/80 px-3 py-3 sm:rounded-[1.5rem] sm:px-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-brand-blue-soft hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -281,7 +281,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                       transition={{ duration: 0.75, ease: 'easeInOut' }}
                       className="pointer-events-none absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent"
                     />
-                    <div className="relative z-10 flex items-center justify-center gap-1.5 text-[#0167B0] sm:gap-2">
+                    <div className="relative z-10 flex items-center justify-center gap-1.5 text-brand-blue sm:gap-2">
                       <Calculator className="h-4 w-4 flex-shrink-0 sm:h-4.5 sm:w-4.5" />
                       <span className="text-[11px] font-black leading-[1.1] text-center sm:text-[13px] sm:leading-[1.15]">Umzugskosten<br />berechnen</span>
                     </div>
@@ -908,7 +908,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
               
               <div className="flex flex-wrap justify-center gap-4">
                 {[
-                  { icon: Facebook, label: "Facebook", action: 'facebook', color: "hover:text-[#1877F2] hover:bg-[#1877F2]/10" },
+                  { icon: Facebook, label: "Facebook", action: 'facebook', color: "hover:text-brand-blue hover:bg-brand-blue/10" },
                   { icon: XIcon, label: "X", action: 'x', color: "hover:text-black hover:bg-black/5" },
                   { icon: MessageCircle, label: "WhatsApp", action: 'whatsapp', color: "hover:text-[#25D366] hover:bg-[#25D366]/10" },
                   { icon: Instagram, label: "Instagram", action: 'instagram', color: "hover:text-[#E4405F] hover:bg-[#E4405F]/10" },

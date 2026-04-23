@@ -36,9 +36,7 @@ export async function POST(request: Request) {
   }
 
   if (
-    !required(body.fullName) ||
     !required(body.companyName) ||
-    !required(body.location) ||
     !required(body.email) ||
     !required(body.phone) ||
     !required(body.website) ||
@@ -53,6 +51,8 @@ export async function POST(request: Request) {
 
   const email = body.email!.trim().toLowerCase();
   const companyName = body.companyName!.trim();
+  const fullName = body.fullName?.trim() || companyName;
+  const location = body.location?.trim() || 'Nicht angegeben';
   const website = normalizeWebsite(body.website);
   const now = new Date().toISOString();
 
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     companyName,
     email,
     phone: body.phone!.trim(),
-    location: body.location!.trim(),
+    location,
     website,
   });
 
@@ -72,10 +72,10 @@ export async function POST(request: Request) {
   if (!meetsAutomaticApproval) {
     await supabaseAdmin.from('partner_applications').insert([{
       company_name: companyName,
-      contact_name: body.fullName!.trim(),
+      contact_name: fullName,
       email,
       phone: body.phone!.trim(),
-      location: body.location!.trim(),
+      location,
       service: 'UMZUG',
       source_page: 'login_register',
       status: 'NEW',
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
     password: body.password!,
     email_confirm: true,
     user_metadata: {
-      full_name: body.fullName!.trim(),
+      full_name: fullName,
       company_name: companyName,
       phone: body.phone!.trim(),
       role: 'partner',
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
 
   await supabaseAdmin.from('profiles').upsert([{
     id: userId,
-    full_name: body.fullName!.trim(),
+    full_name: fullName,
     email,
     phone: body.phone!.trim(),
     primary_role: 'PARTNER',
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
     name: companyName,
     email,
     phone: body.phone!.trim(),
-    regions: body.location!.trim(),
+    regions: location,
     status: 'ACTIVE',
     verification_status: 'VERIFIED',
     package_code: 'FREE',
