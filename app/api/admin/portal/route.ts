@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
+import { type SupabaseClient } from '@supabase/supabase-js';
 import { requireStaffUser, type StaffRole } from '@/lib/server/staffAuth';
 
 export const dynamic = 'force-dynamic';
@@ -49,22 +49,21 @@ function buildKpis(orders: JsonRecord[], transactions: JsonRecord[]) {
   };
 }
 
-async function fetchPortalData(role: StaffRole) {
-  const supabaseAdmin = getSupabaseAdmin();
+async function fetchPortalData(role: StaffRole, supabase: SupabaseClient) {
   const [ordersResult, partnersResult, transactionsResult, notificationsResult, teamResult, settingsResult] = await Promise.all([
-    supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false }).limit(500),
+    supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(500),
     role === 'ADMIN'
-      ? supabaseAdmin.from('partners').select('*').order('created_at', { ascending: false }).limit(300)
+      ? supabase.from('partners').select('*').order('created_at', { ascending: false }).limit(300)
       : Promise.resolve({ data: [], error: null }),
     role === 'ADMIN'
-      ? supabaseAdmin.from('transactions').select('*').order('created_at', { ascending: false }).limit(500)
+      ? supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(500)
       : Promise.resolve({ data: [], error: null }),
-    supabaseAdmin.from('notifications').select('*').order('created_at', { ascending: false }).limit(20),
+    supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(20),
     role === 'ADMIN'
-      ? supabaseAdmin.from('team').select('*').order('created_at', { ascending: false }).limit(200)
+      ? supabase.from('team').select('*').order('created_at', { ascending: false }).limit(200)
       : Promise.resolve({ data: [], error: null }),
     role === 'ADMIN'
-      ? supabaseAdmin.from('system_settings').select('*').order('key', { ascending: true })
+      ? supabase.from('system_settings').select('*').order('key', { ascending: true })
       : Promise.resolve({ data: [], error: null }),
   ]);
 
@@ -105,7 +104,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    return NextResponse.json(await fetchPortalData(staff.role));
+    return NextResponse.json(await fetchPortalData(staff.role, staff.client));
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : 'Portal konnte nicht geladen werden.', 500);
   }
@@ -126,7 +125,6 @@ export async function PATCH(request: Request) {
     return jsonError('Ungueltige Anfrage.', 400);
   }
 
-  const supabaseAdmin = getSupabaseAdmin();
   const action = String(body.action || '');
 
   if (action === 'updateLead') {
@@ -137,10 +135,10 @@ export async function PATCH(request: Request) {
     if (typeof body.status === 'string') updates.status = sanitizeStatus(body.status);
     if (typeof body.notes === 'string') updates.notes = body.notes.slice(0, 4000);
 
-    const { error } = await supabaseAdmin.from('orders').update(updates).eq('id', id);
+    const { error } = await staff.client.from('orders').update(updates).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role));
+    return NextResponse.json(await fetchPortalData(staff.role, staff.client));
   }
 
   if (action === 'updatePartner') {
@@ -153,10 +151,10 @@ export async function PATCH(request: Request) {
     if (typeof body.category === 'string') updates.category = body.category;
     if (typeof body.notes === 'string') updates.settings = { internal_notes: body.notes.slice(0, 4000) };
 
-    const { error } = await supabaseAdmin.from('partners').update(updates).eq('id', id);
+    const { error } = await staff.client.from('partners').update(updates).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role));
+    return NextResponse.json(await fetchPortalData(staff.role, staff.client));
   }
 
   if (action === 'updateTeam') {
@@ -165,15 +163,15 @@ export async function PATCH(request: Request) {
     const status = String(body.status || '');
     if (!id || !['PENDING', 'ACTIVE', 'DISABLED'].includes(status)) return jsonError('Team-Daten ungueltig.', 400);
 
-    const { data: current } = await supabaseAdmin.from('team').select('role').eq('id', id).maybeSingle();
+    const { data: current } = await staff.client.from('team').select('role').eq('id', id).maybeSingle();
     if (current?.role === 'ADMIN' && status === 'DISABLED') {
       return jsonError('Admin-Rolle ist geschützt.', 403);
     }
 
-    const { error } = await supabaseAdmin.from('team').update({ status }).eq('id', id);
+    const { error } = await staff.client.from('team').update({ status }).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role));
+    return NextResponse.json(await fetchPortalData(staff.role, staff.client));
   }
 
   return jsonError('Aktion nicht gefunden.', 400);

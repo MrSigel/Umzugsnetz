@@ -1,10 +1,11 @@
-import { createClient, type User } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 
 export type StaffRole = 'ADMIN' | 'EMPLOYEE';
 
 export type StaffUser = {
   user: User;
   role: StaffRole;
+  client: SupabaseClient;
 };
 
 function normalizeStaffRole(value: unknown): StaffRole | null {
@@ -54,7 +55,7 @@ export async function requireStaffUser(request: Request, minimumRole: StaffRole 
   const metadataRole = normalizeStaffRole(user.app_metadata?.role || user.user_metadata?.role);
 
   if (metadataRole === 'ADMIN') {
-    return { user, role: 'ADMIN' };
+    return { user, role: 'ADMIN', client: sessionClient };
   }
 
   const { data: profile } = await sessionClient
@@ -65,7 +66,7 @@ export async function requireStaffUser(request: Request, minimumRole: StaffRole 
   const profileRole = normalizeStaffRole(profile?.primary_role);
 
   if (profileRole === 'ADMIN') {
-    return { user, role: 'ADMIN' };
+    return { user, role: 'ADMIN', client: sessionClient };
   }
 
   if (!email) {
@@ -86,11 +87,11 @@ export async function requireStaffUser(request: Request, minimumRole: StaffRole 
   const resolvedRole = teamRole || profileRole || metadataRole;
 
   if (resolvedRole === 'ADMIN') {
-    return { user, role: 'ADMIN' };
+    return { user, role: 'ADMIN', client: sessionClient };
   }
 
   if (resolvedRole === 'EMPLOYEE' && minimumRole === 'EMPLOYEE') {
-    return { user, role: 'EMPLOYEE' };
+    return { user, role: 'EMPLOYEE', client: sessionClient };
   }
 
   throw new Error(minimumRole === 'ADMIN' ? 'Admin-Rechte erforderlich.' : 'Mitarbeiter-Rechte erforderlich.');
