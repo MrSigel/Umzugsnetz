@@ -165,7 +165,7 @@ export default function LoginPage() {
       });
 
       if (error) throw error;
-      router.push('/');
+      router.push('/admin');
     } catch (error) {
       setErrors({ login: error instanceof Error ? error.message : 'Login fehlgeschlagen.' });
     } finally {

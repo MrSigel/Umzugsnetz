@@ -109,6 +109,12 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
           </nav>
 
           <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="hidden rounded-full border border-slate-200 bg-white px-6 py-3 font-bold text-slate-700 shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 md:block"
+            >
+              Login
+            </Link>
             <Link href="/#rechner" className="hidden md:block">
               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                 style={{ backgroundColor: c_primary }}
