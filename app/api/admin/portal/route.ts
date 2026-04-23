@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { requireStaffUser, type StaffRole } from '@/lib/server/staffAuth';
+import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
 
 export const dynamic = 'force-dynamic';
 
 type JsonRecord = Record<string, unknown>;
+type TicketRecord = JsonRecord & {
+  session_id: string;
+  user_name: unknown;
+  support_category: unknown;
+  last_message: unknown;
+  last_at: unknown;
+  unread_count: number;
+  messages: JsonRecord[];
+};
 
 const leadStatuses = ['Neu', 'Kontaktiert', 'Angebot', 'Gebucht', 'Abgelehnt'] as const;
 const legacyStatusMap: Record<string, string> = {
@@ -36,6 +46,16 @@ function sanitizeStatus(value: unknown) {
   return leadStatuses.includes(status as (typeof leadStatuses)[number]) ? status : 'Neu';
 }
 
+function toDatabaseOrderStatus(value: unknown) {
+  const status = String(value || '').trim();
+
+  if (status === 'Gebucht' || status === 'abgeschlossen') return 'Abgeschlossen';
+  if (status === 'Abgelehnt') return 'Storniert';
+  if (status === 'Kontaktiert' || status === 'Angebot' || status === 'geplant' || status === 'aktiv') return 'In Bearbeitung';
+
+  return 'Neu';
+}
+
 function buildKpis(orders: JsonRecord[], transactions: JsonRecord[]) {
   const booked = orders.filter((order) => normalizeLeadStatus(order.status) === 'Gebucht');
   const revenue = transactions.reduce((sum, transaction) => sum + Math.max(0, toNumber(transaction.amount)), 0);
@@ -50,7 +70,7 @@ function buildKpis(orders: JsonRecord[], transactions: JsonRecord[]) {
 }
 
 async function fetchPortalData(role: StaffRole, supabase: SupabaseClient) {
-  const [ordersResult, partnersResult, transactionsResult, notificationsResult, teamResult, settingsResult] = await Promise.all([
+  const [ordersResult, partnersResult, transactionsResult, notificationsResult, teamResult, settingsResult, chatResult] = await Promise.all([
     supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(500),
     role === 'ADMIN'
       ? supabase.from('partners').select('*').order('created_at', { ascending: false }).limit(300)
@@ -65,6 +85,7 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient) {
     role === 'ADMIN'
       ? supabase.from('system_settings').select('*').order('key', { ascending: true })
       : Promise.resolve({ data: [], error: null }),
+    supabase.from('chat_messages').select('*').order('created_at', { ascending: false }).limit(500),
   ]);
 
   if (ordersResult.error) throw new Error(ordersResult.error.message);
@@ -73,10 +94,37 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient) {
   if (notificationsResult.error) throw new Error(notificationsResult.error.message);
   if (teamResult.error) throw new Error(teamResult.error.message);
   if (settingsResult.error) throw new Error(settingsResult.error.message);
+  if (chatResult.error) throw new Error(chatResult.error.message);
 
   const orders = (ordersResult.data || []) as JsonRecord[];
   const transactions = (transactionsResult.data || []) as JsonRecord[];
+  const chatMessages = (chatResult.data || []) as JsonRecord[];
   const cities = Array.from(new Set(orders.map(cityFromOrder).filter(Boolean))).sort();
+  const tickets = Array.from(
+    chatMessages.reduce((map, message) => {
+      const sessionId = String(message.session_id || '');
+      if (!sessionId) return map;
+
+      const existing = map.get(sessionId);
+      if (!existing) {
+        map.set(sessionId, {
+          session_id: sessionId,
+          user_name: message.user_name || 'Chat',
+          support_category: message.support_category || 'KUNDE',
+          last_message: message.text || '',
+          last_at: message.created_at || null,
+          unread_count: message.is_read === false && message.sender === 'user' ? 1 : 0,
+          messages: [message],
+        });
+        return map;
+      }
+
+      existing.messages.push(message);
+      if (message.is_read === false && message.sender === 'user') existing.unread_count += 1;
+      return map;
+    }, new Map<string, TicketRecord>())
+      .values(),
+  );
 
   return {
     role,
@@ -90,6 +138,7 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient) {
     partners: role === 'ADMIN' ? partnersResult.data || [] : [],
     transactions: role === 'ADMIN' ? transactions : [],
     notifications: notificationsResult.data || [],
+    tickets,
     team: role === 'ADMIN' ? teamResult.data || [] : [],
     settings: role === 'ADMIN' ? settingsResult.data || [] : [],
   };
@@ -132,7 +181,7 @@ export async function PATCH(request: Request) {
     if (!id) return jsonError('Lead fehlt.', 400);
 
     const updates: JsonRecord = { updated_at: new Date().toISOString() };
-    if (typeof body.status === 'string') updates.status = sanitizeStatus(body.status);
+    if (typeof body.status === 'string') updates.status = toDatabaseOrderStatus(sanitizeStatus(body.status) === 'Neu' ? body.status : sanitizeStatus(body.status));
     if (typeof body.notes === 'string') updates.notes = body.notes.slice(0, 4000);
 
     const { error } = await staff.client.from('orders').update(updates).eq('id', id);
@@ -170,6 +219,57 @@ export async function PATCH(request: Request) {
 
     const { error } = await staff.client.from('team').update({ status }).eq('id', id);
     if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, staff.client));
+  }
+
+  if (action === 'createTeamMember') {
+    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+
+    const email = String(body.email || '').trim().toLowerCase();
+    const password = String(body.password || '');
+    const role = String(body.role || 'EMPLOYEE').trim().toUpperCase() === 'ADMIN' ? 'ADMIN' : 'EMPLOYEE';
+
+    if (!email || password.length < 8) {
+      return jsonError('E-Mail und Passwort mit mindestens 8 Zeichen erforderlich.', 400);
+    }
+
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: createdUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        role: role === 'ADMIN' ? 'admin' : 'employee',
+        full_name: email.split('@')[0],
+      },
+    });
+
+    if (createError) return jsonError(createError.message, 500);
+
+    const now = new Date().toISOString();
+    const { error: teamError } = await staff.client
+      .from('team')
+      .upsert([{
+        email,
+        role,
+        status: 'ACTIVE',
+        invited_by_email: staff.user.email?.toLowerCase() || null,
+        invitation_sent_at: now,
+      }], { onConflict: 'email' });
+
+    if (teamError) return jsonError(teamError.message, 500);
+
+    if (createdUser.user?.id) {
+      await supabaseAdmin.from('profiles').upsert([{
+        id: createdUser.user.id,
+        email,
+        full_name: email.split('@')[0],
+        primary_role: role,
+        status: 'ACTIVE',
+        updated_at: now,
+      }]);
+    }
 
     return NextResponse.json(await fetchPortalData(staff.role, staff.client));
   }
