@@ -181,12 +181,13 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
                         </a>
                       ))}
                     </div>
-                    <button
-                      type="button"
-                      className="mb-3 block w-full rounded-2xl border border-slate-200 bg-white py-3.5 font-black text-slate-700 shadow-sm transition-colors"
+                    <Link
+                      href="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="mb-3 block w-full rounded-2xl border border-slate-200 bg-white py-3.5 text-center font-black text-slate-700 shadow-sm transition-colors"
                     >
                       Login
-                    </button>
+                    </Link>
                     <Link href="/#rechner" onClick={() => setIsMobileMenuOpen(false)} className="block">
                       <button
                         type="button"
