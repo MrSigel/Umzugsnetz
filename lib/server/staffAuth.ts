@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
 
 export type StaffRole = 'ADMIN' | 'EMPLOYEE';
 
@@ -53,12 +54,28 @@ export async function requireStaffUser(request: Request, minimumRole: StaffRole 
   const user = sessionUser.user;
   const email = user.email?.toLowerCase() || '';
   const metadataRole = normalizeStaffRole(user.app_metadata?.role || user.user_metadata?.role);
+  const adminClient = getSupabaseAdmin();
 
   if (metadataRole === 'ADMIN') {
     return { user, role: 'ADMIN', client: sessionClient };
   }
 
-  const { data: profile } = await sessionClient
+  const { data: ownRoles } = await adminClient
+    .from('user_roles')
+    .select('role_code')
+    .eq('user_id', user.id);
+
+  const explicitRole = ((ownRoles || [])).reduce<StaffRole | null>((resolved, entry) => {
+    if (resolved === 'ADMIN') return resolved;
+    const role = normalizeStaffRole(entry.role_code);
+    return role || resolved;
+  }, null);
+
+  if (explicitRole === 'ADMIN') {
+    return { user, role: 'ADMIN', client: sessionClient };
+  }
+
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('primary_role')
     .eq('id', user.id)
@@ -73,18 +90,19 @@ export async function requireStaffUser(request: Request, minimumRole: StaffRole 
     throw new Error('Mitarbeiter-Rechte erforderlich.');
   }
 
-  const { data: teamEntry } = await sessionClient
+  const { data: teamEntry } = await adminClient
     .from('team')
     .select('role, status')
     .ilike('email', email)
     .maybeSingle();
+  const resolvedTeamEntry = teamEntry || null;
 
-  if (teamEntry?.status === 'DISABLED') {
+  if (resolvedTeamEntry?.status === 'DISABLED') {
     throw new Error('Nutzer ist gesperrt.');
   }
 
-  const teamRole = normalizeStaffRole(teamEntry?.role);
-  const resolvedRole = teamRole || profileRole || metadataRole;
+  const teamRole = normalizeStaffRole(resolvedTeamEntry?.role);
+  const resolvedRole = teamRole || explicitRole || profileRole || metadataRole;
 
   if (resolvedRole === 'ADMIN') {
     return { user, role: 'ADMIN', client: sessionClient };

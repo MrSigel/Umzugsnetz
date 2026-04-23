@@ -163,13 +163,24 @@ export default function LoginPage() {
 
     setLoginLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: loginForm.email.trim().toLowerCase(),
         password: loginForm.password,
       });
 
       if (error) throw error;
-      router.push('/admin');
+      const accessToken = data.session?.access_token;
+      if (!accessToken) throw new Error('Sitzung konnte nicht erstellt werden.');
+
+      const roleResponse = await fetch('/api/auth/resolve-role', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const rolePayload = await roleResponse.json().catch(() => ({}));
+      if (!roleResponse.ok) throw new Error(rolePayload?.error || 'Rolle konnte nicht ermittelt werden.');
+
+      router.push(rolePayload?.redirectTo || '/');
     } catch (error) {
       setErrors({ login: error instanceof Error ? error.message : 'Login fehlgeschlagen.' });
     } finally {
