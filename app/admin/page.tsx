@@ -143,6 +143,20 @@ function statusClass(status?: string | null) {
   return 'bg-brand-blue/10 text-brand-blue border-brand-blue/20';
 }
 
+function settingEntries(value: unknown): Array<[string, unknown]> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return Object.entries(value as Record<string, unknown>);
+  }
+
+  return [['Wert', value]];
+}
+
+function formatSettingValue(value: unknown) {
+  if (Array.isArray(value)) return `${value.length} Einträge`;
+  if (value && typeof value === 'object') return JSON.stringify(value);
+  return String(value ?? '-');
+}
+
 function MetricCard({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
   return (
     <div className="group relative overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur transition-all hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
@@ -349,12 +363,12 @@ export default function AdminPage() {
       <div className="pointer-events-none fixed -left-32 top-24 h-96 w-96 rounded-full bg-brand-blue/10 blur-3xl" />
       <div className="pointer-events-none fixed -right-32 bottom-10 h-96 w-96 rounded-full bg-brand-green/10 blur-3xl" />
       <div className="relative grid min-h-screen lg:grid-cols-[300px_1fr]">
-        <aside className="border-b border-white/70 bg-white/80 p-4 shadow-[0_20px_70px_rgba(15,23,42,0.08)] backdrop-blur-2xl lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:p-5">
+        <aside className="flex flex-col border-b border-white/70 bg-white/80 p-4 shadow-[0_20px_70px_rgba(15,23,42,0.08)] backdrop-blur-2xl lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:p-5">
           <div className="mb-5 rounded-[1.75rem] border border-slate-100 bg-white p-5 shadow-sm">
             <Image src="/logo_transparent.png" alt="Umzugsnetz" width={190} height={48} className="h-12 w-auto" priority />
           </div>
 
-          <nav className="grid grid-cols-2 gap-2 lg:block lg:space-y-2">
+          <nav className="grid grid-cols-2 gap-2 lg:block lg:flex-1 lg:space-y-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -372,7 +386,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-black text-red-700 transition-colors hover:bg-red-100 lg:justify-start"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-black text-red-700 transition-colors hover:bg-red-100 lg:mt-auto lg:justify-start"
           >
             <LogOut className="h-5 w-5" />
             Abmelden
@@ -721,11 +735,26 @@ function TeamPanel({
 
 function SettingsPanel({ settings }: { settings: SettingItem[] }) {
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 xl:grid-cols-2">
       {settings.map((setting) => (
         <div key={setting.id} className="rounded-[2rem] border border-white/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur">
-          <p className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-brand-blue">{setting.key}</p>
-          <pre className="overflow-auto rounded-2xl bg-slate-950 p-4 text-xs font-semibold text-white">{JSON.stringify(setting.value, null, 2)}</pre>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-blue">Einstellung</p>
+              <h2 className="mt-2 text-xl font-black text-slate-950">{String(setting.key || '').replaceAll('_', ' ')}</h2>
+            </div>
+            <Settings className="h-6 w-6 text-brand-blue" />
+          </div>
+          <div className="space-y-3">
+            {settingEntries(setting.value).map(([key, value]) => (
+              <div key={key} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">{key.replaceAll('_', ' ')}</p>
+                <p className="break-words text-sm font-bold text-slate-700">
+                  {formatSettingValue(value)}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>

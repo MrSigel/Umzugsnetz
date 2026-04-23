@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Building2, Check, Eye, EyeOff, Globe2, Lock, Mail, Phone, X } from 'lucide-react';
@@ -58,7 +59,7 @@ function TextInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">{label}</span>
+      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/75">{label}</span>
       <span className="relative block">
         <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
         <input
@@ -75,11 +76,13 @@ function TextInput({
 
 function PasswordInput({
   label,
+  placeholder,
   error,
   value,
   onChange,
 }: {
   label: string;
+  placeholder?: string;
   error?: string;
   value: string;
   onChange: (value: string) => void;
@@ -88,11 +91,12 @@ function PasswordInput({
 
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">{label}</span>
+      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/75">{label}</span>
       <span className="relative block">
         <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
         <input
           type={visible ? 'text' : 'password'}
+          placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className={`w-full rounded-2xl border-2 bg-white py-4 pl-12 pr-12 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-300 hover:border-slate-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 ${
@@ -204,7 +208,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(1,103,176,0.12),transparent_32%),linear-gradient(135deg,#f8fafc,#eef4f8)] px-4 py-6 text-slate-900 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_32%),linear-gradient(135deg,#f8fafc,#eef4f8)] px-4 py-6 text-slate-900 sm:px-6 lg:px-8">
       {legalModal ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl sm:p-8">
@@ -233,13 +237,12 @@ export default function LoginPage() {
 
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl items-center">
         <section className="grid w-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_30px_100px_rgba(15,23,42,0.16)] backdrop-blur-xl lg:h-[860px] lg:grid-cols-[40fr_2px_60fr]">
-          <div className="p-6 sm:p-10 lg:overflow-y-auto lg:p-12">
-            <div className="mb-10 flex justify-center">
-              <Image src="/logo_transparent.png" alt="Umzugsnetz" width={176} height={44} className="h-11 w-auto" priority />
-            </div>
-
+          <div className="bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_34%),linear-gradient(135deg,#0276c8,#015a99)] p-6 text-white sm:p-10 lg:overflow-y-auto lg:p-12">
+            <Link href="/" aria-label="Zur Startseite" className="mb-10 flex justify-center">
+              <Image src="/logo_transparent.png" alt="Umzugsnetz" width={190} height={48} className="h-12 w-auto brightness-0 invert" priority />
+            </Link>
             <div className="mx-auto max-w-md">
-              <div className="mb-8 grid grid-cols-2 rounded-2xl border border-slate-200 bg-slate-50 p-1">
+              <div className="mb-8 grid grid-cols-2 rounded-2xl border border-white/20 bg-white/10 p-1">
                 {[
                   { id: 'login', label: 'Anmelden' },
                   { id: 'register', label: 'Registrieren' },
@@ -252,7 +255,7 @@ export default function LoginPage() {
                       setErrors({});
                     }}
                     className={`rounded-xl px-4 py-3 text-sm font-black transition-all ${
-                      activeTab === tab.id ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                      activeTab === tab.id ? 'bg-white text-brand-blue shadow-sm' : 'text-white/75 hover:text-white'
                     }`}
                   >
                     {tab.label}
@@ -267,12 +270,14 @@ export default function LoginPage() {
                       label="E-Mail"
                       icon={Mail}
                       type="email"
+                      placeholder="ihre@email.de"
                       value={loginForm.email}
                       error={errors.email}
                       onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value }))}
                     />
                     <PasswordInput
                       label="Passwort"
+                      placeholder="Ihr Passwort"
                       value={loginForm.password}
                       error={errors.password}
                       onChange={(value) => setLoginForm((current) => ({ ...current, password: value }))}
@@ -288,9 +293,9 @@ export default function LoginPage() {
                         <span className={`relative inline-flex h-7 w-12 flex-shrink-0 rounded-full transition-colors ${loginForm.remember ? 'bg-brand-blue' : 'bg-slate-200'}`}>
                           <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform ${loginForm.remember ? 'translate-x-5' : 'translate-x-0'}`} />
                         </span>
-                        <span className="text-sm font-bold text-slate-600">Angemeldet bleiben</span>
+                        <span className="text-sm font-bold text-white/85">Angemeldet bleiben</span>
                       </button>
-                      <a href="/passwort-zuruecksetzen" className="text-sm font-bold text-brand-blue transition-colors hover:text-brand-blue-hover">
+                      <a href="/passwort-zuruecksetzen" className="text-sm font-bold text-white transition-colors hover:text-white/80">
                         Passwort vergessen?
                       </a>
                     </div>
@@ -300,7 +305,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={loginLoading}
-                      className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-950 px-6 py-4 text-base font-black text-white shadow-xl shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-slate-800 disabled:opacity-60"
+                      className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-base font-black text-brand-blue shadow-xl shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-white/90 disabled:opacity-60"
                     >
                       {loginLoading ? 'Bitte warten...' : 'Einloggen'}
                       <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
@@ -313,6 +318,7 @@ export default function LoginPage() {
                     <TextInput
                       label="Firmenname"
                       icon={Building2}
+                      placeholder="Musterfirma GmbH"
                       value={registerForm.companyName}
                       error={errors.companyName}
                       onChange={(event) => setRegisterForm((current) => ({ ...current, companyName: event.target.value }))}
@@ -321,6 +327,7 @@ export default function LoginPage() {
                       label="Firmen-Website"
                       icon={Globe2}
                       inputMode="url"
+                      placeholder="https://firma.de"
                       value={registerForm.website}
                       error={errors.website}
                       onChange={(event) => setRegisterForm((current) => ({ ...current, website: event.target.value }))}
@@ -329,6 +336,7 @@ export default function LoginPage() {
                       label="Telefonnummer"
                       icon={Phone}
                       inputMode="tel"
+                      placeholder="+49 170 1234567"
                       value={registerForm.phone}
                       error={errors.phone}
                       onChange={(event) => setRegisterForm((current) => ({ ...current, phone: event.target.value }))}
@@ -337,18 +345,21 @@ export default function LoginPage() {
                       label="E-Mail"
                       icon={Mail}
                       type="email"
+                      placeholder="kontakt@firma.de"
                       value={registerForm.email}
                       error={errors.email}
                       onChange={(event) => setRegisterForm((current) => ({ ...current, email: event.target.value }))}
                     />
                     <PasswordInput
                       label="Passwort"
+                      placeholder="Mindestens 8 Zeichen"
                       value={registerForm.password}
                       error={errors.password}
                       onChange={(value) => setRegisterForm((current) => ({ ...current, password: value }))}
                     />
                     <PasswordInput
                       label="Passwort wiederholen"
+                      placeholder="Passwort erneut eingeben"
                       value={registerForm.confirmPassword}
                       error={errors.confirmPassword}
                       onChange={(value) => setRegisterForm((current) => ({ ...current, confirmPassword: value }))}
@@ -369,7 +380,7 @@ export default function LoginPage() {
                       onChange={(event) => setRegisterForm((current) => ({ ...current, acceptedTerms: event.target.checked }))}
                       className="sr-only"
                     />
-                    <span className="whitespace-nowrap text-[11px] font-semibold tracking-tight text-slate-600 sm:text-sm sm:tracking-normal">
+                    <span className="whitespace-nowrap text-[11px] font-semibold tracking-tight text-white/85 sm:text-sm sm:tracking-normal">
                       Ich akzeptiere die{' '}
                       <button
                         type="button"
@@ -377,7 +388,7 @@ export default function LoginPage() {
                           event.preventDefault();
                           setLegalModal('agb');
                         }}
-                        className="font-black text-brand-blue hover:underline"
+                          className="font-black text-white hover:underline"
                       >
                         AGB
                       </button>{' '}
@@ -388,7 +399,7 @@ export default function LoginPage() {
                           event.preventDefault();
                           setLegalModal('datenschutz');
                         }}
-                        className="font-black text-brand-blue hover:underline"
+                        className="font-black text-white hover:underline"
                       >
                         Datenschutzbestimmungen
                       </button>
@@ -407,7 +418,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={registerLoading}
-                    className="group mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-brand-blue px-6 py-4 text-base font-black text-white shadow-xl shadow-brand-blue/20 transition-all hover:-translate-y-0.5 hover:bg-brand-blue-hover disabled:opacity-60"
+                    className="group mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-base font-black text-brand-blue shadow-xl shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-white/90 disabled:opacity-60"
                   >
                     {registerLoading ? 'Bitte warten...' : 'Konto erstellen'}
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
