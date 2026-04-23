@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -66,6 +66,156 @@ const ENTRUEMPEL_ITEMS = [
 const ETAGEN = ['EG', '1. OG', '2. OG', '3. OG', '4. OG+'];
 
 type Step = 'rechner' | 'details' | 'kontakt' | 'success';
+
+type AddressSelection = {
+  label: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  placeId: string;
+};
+
+type AddressFieldProps = {
+  label: string;
+  placeholder: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  onSelect: (selection: AddressSelection | null) => void;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+type NominatimResult = {
+  place_id: number;
+  display_name: string;
+  address?: {
+    road?: string;
+    house_number?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    postcode?: string;
+  };
+};
+
+function resultToAddressSelection(result: NominatimResult): AddressSelection {
+  const street = [result.address?.road, result.address?.house_number].filter(Boolean).join(' ').trim();
+  const city =
+    result.address?.city ||
+    result.address?.town ||
+    result.address?.village ||
+    result.address?.municipality ||
+    '';
+
+  return {
+    label: result.display_name,
+    street,
+    city,
+    postalCode: result.address?.postcode || '',
+    placeId: String(result.place_id),
+  };
+}
+
+function AddressAutocompleteField({
+  label,
+  placeholder,
+  value,
+  onValueChange,
+  onSelect,
+  icon: Icon,
+}: AddressFieldProps) {
+  const inputId = useId();
+  const [results, setResults] = useState<NominatimResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const query = value.trim();
+    if (query.length < 4) {
+      setResults([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          q: query,
+          format: 'jsonv2',
+          addressdetails: '1',
+          countrycodes: 'de',
+          limit: '5',
+        });
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        const payload = (await response.json()) as NominatimResult[];
+        setResults(Array.isArray(payload) ? payload : []);
+        setOpen(true);
+      } catch {
+        if (!controller.signal.aborted) {
+          setResults([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
+  }, [value]);
+
+  return (
+    <div className="relative">
+      <label htmlFor={inputId} className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">
+        {label}
+      </label>
+      <div className="relative">
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+        <input
+          id={inputId}
+          type="text"
+          value={value}
+          autoComplete="off"
+          onChange={(e) => {
+            onValueChange(e.target.value);
+            onSelect(null);
+          }}
+          placeholder={placeholder}
+          className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm"
+        />
+      </div>
+      {open && (loading || results.length > 0) && (
+        <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+          {loading ? (
+            <div className="px-4 py-3 text-xs font-semibold text-slate-400">Adressen werden gesucht ...</div>
+          ) : (
+            results.map((result) => (
+              <button
+                key={result.place_id}
+                type="button"
+                onClick={() => {
+                  const selection = resultToAddressSelection(result);
+                  onSelect(selection);
+                  onValueChange(selection.label);
+                  setOpen(false);
+                }}
+                className="block w-full border-b border-slate-100 px-4 py-3 text-left text-xs font-semibold leading-relaxed text-slate-700 transition-colors last:border-b-0 hover:bg-slate-50"
+              >
+                {result.display_name}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ProgressBar({ step }: { step: Step }) {
   const steps: Step[] = ['rechner', 'details', 'kontakt', 'success'];
@@ -155,6 +305,7 @@ function InputField({ label, icon: Icon, ...props }: any) {
 // ─────────────────────────────────────────────
 export default function KostenrechnerWidget() {
   const { showToast } = useToast();
+  const widgetRef = useRef<HTMLDivElement | null>(null);
   const [step, setStep] = useState<Step>('rechner');
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -167,6 +318,8 @@ export default function KostenrechnerWidget() {
   // STEP 2 – Umzug
   const [von, setVon] = useState('');
   const [nach, setNach] = useState('');
+  const [vonSelection, setVonSelection] = useState<AddressSelection | null>(null);
+  const [nachSelection, setNachSelection] = useState<AddressSelection | null>(null);
   const [datum, setDatum] = useState('');
   const [etageAuszug, setEtageAuszug] = useState('EG');
   const [etageEinzug, setEtageEinzug] = useState('EG');
@@ -266,6 +419,20 @@ export default function KostenrechnerWidget() {
     return () => window.removeEventListener('openRechner', handler);
   }, []);
 
+  useEffect(() => {
+    if (!widgetRef.current) {
+      return;
+    }
+
+    const headerOffset = 96;
+    const targetTop = widgetRef.current.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+    window.scrollTo({
+      top: Math.max(targetTop, 0),
+      behavior: 'smooth',
+    });
+  }, [step]);
+
   const estimatedPrice = wohnflaeche === 0 && entfernung === 0
     ? '0,00'
     : ((wohnflaeche * 4.412) + (entfernung * 2.52962)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -279,6 +446,7 @@ export default function KostenrechnerWidget() {
   const livePrice = isEntruempelung ? entruempelPrice : ((wohnflaeche * 4.412) + (entfernung * 2.52962) + (trageweg ? 80 : 0) + (halteverbot ? 60 : 0) + (sperrgut ? 120 : 0) + (verpackung ? 200 : 0) + (kuechenMontage ? 350 : 0) + (moebelMontage ? 180 : 0));
 
   const kontaktValid = vorname && nachname && email && telefon;
+  const moveAddressesValid = isEntruempelung || (Boolean(vonSelection?.placeId) && Boolean(nachSelection?.placeId));
 
   const resetToPreviewState = () => {
     setSelectedService('privatumzug');
@@ -306,14 +474,14 @@ export default function KostenrechnerWidget() {
           customer_email: email,
         customer_phone: telefon,
         move_date: datum || null,
-        von_city: isEntruempelung ? 'Entrümpelung' : von,
-        von_address: isEntruempelung ? '' : von,
-        von_plz: '',
+        von_city: isEntruempelung ? 'Entrümpelung' : (vonSelection?.city || von),
+        von_address: isEntruempelung ? '' : (vonSelection?.street || von),
+        von_plz: isEntruempelung ? '' : (vonSelection?.postalCode || ''),
         von_floor: isEntruempelung ? etage : etageAuszug,
         von_lift: isEntruempelung ? aufzug === 'ja' : aufzugAuszug === 'ja',
-        nach_city: isEntruempelung ? '' : nach,
-        nach_address: '',
-        nach_plz: '',
+        nach_city: isEntruempelung ? '' : (nachSelection?.city || nach),
+        nach_address: isEntruempelung ? '' : (nachSelection?.street || nach),
+        nach_plz: isEntruempelung ? '' : (nachSelection?.postalCode || ''),
         nach_floor: isEntruempelung ? '' : etageEinzug,
         nach_lift: isEntruempelung ? false : aufzugEinzug === 'ja',
         size_info: isEntruempelung ? 'Entrümpelung' : `${wohnflaeche} m²`,
@@ -356,7 +524,7 @@ export default function KostenrechnerWidget() {
     <>
       <AnimatePresence>{isInfoOpen && <InfoModal onClose={() => setIsInfoOpen(false)} />}</AnimatePresence>
 
-      <div className="bg-slate-50 p-4 sm:p-6 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 shadow-2xl relative overflow-hidden">
+      <div ref={widgetRef} className="bg-slate-50 p-4 sm:p-6 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/5 rounded-full -mr-16 -mt-16" />
 
         <AnimatePresence mode="wait">
@@ -554,22 +722,25 @@ export default function KostenrechnerWidget() {
                   /* ── UMZUG / FIRMENUMZUG ── */
                   <motion.div key="u-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Wo ziehen Sie aus?</label>
-                        <div className="relative">
-                          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                          <input type="text" value={von} onChange={e => setVon(e.target.value)} placeholder="PLZ oder Ort"
-                            className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 block">Wohin ziehen Sie um?</label>
-                        <div className="relative">
-                          <Flag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                          <input type="text" value={nach} onChange={e => setNach(e.target.value)} placeholder="PLZ oder Ort"
-                            className="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:border-brand-blue transition-colors font-medium text-black placeholder:text-slate-300 text-sm" />
-                        </div>
-                      </div>
+                      <AddressAutocompleteField
+                        label="Wo ziehen Sie aus?"
+                        placeholder="Straße und Hausnummer eingeben"
+                        value={von}
+                        onValueChange={setVon}
+                        onSelect={setVonSelection}
+                        icon={MapPin}
+                      />
+                      <AddressAutocompleteField
+                        label="Wohin ziehen Sie um?"
+                        placeholder="Straße und Hausnummer eingeben"
+                        value={nach}
+                        onValueChange={setNach}
+                        onSelect={setNachSelection}
+                        icon={Flag}
+                      />
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
+                      Bitte wählen Sie beide Adressen aus den OpenStreetMap-Vorschlägen aus, damit nur echte Adressen übernommen werden.
                     </div>
 
                     <div>
@@ -678,9 +849,17 @@ export default function KostenrechnerWidget() {
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100% kostenlos & unverbindlich
               </div>
 
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                onClick={() => setStep('kontakt')}
-                className={`w-full mt-4 text-white py-4 rounded-2xl font-extrabold text-base shadow-xl transition-all flex items-center justify-center gap-3 ${accentButtonClass}`}>
+              <motion.button whileHover={{ scale: moveAddressesValid ? 1.02 : 1 }} whileTap={{ scale: moveAddressesValid ? 0.97 : 1 }}
+                onClick={() => {
+                  if (!moveAddressesValid) {
+                    showToast('warning', 'Adresse auswählen', 'Bitte beide Adressen über die OpenStreetMap-Vorschläge auswählen.');
+                    return;
+                  }
+                  setStep('kontakt');
+                }}
+                className={`w-full mt-4 py-4 rounded-2xl font-extrabold text-base shadow-xl transition-all flex items-center justify-center gap-3 ${
+                  moveAddressesValid ? `text-white ${accentButtonClass}` : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                }`}>
                 Weiter zu meinen Kontaktdaten <ChevronRight className="w-5 h-5" />
               </motion.button>
             </motion.div>
