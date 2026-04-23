@@ -343,6 +343,8 @@ export default function KostenrechnerWidget() {
   const [erschwerterZugang, setErschwerterZugang] = useState(false);
   const [parkverbot, setParkverbot] = useState(false);
   const [entruempelNotizen, setEntruempelNotizen] = useState('');
+  const [entruempelAdresse, setEntruempelAdresse] = useState('');
+  const [entruempelAdresseSelection, setEntruempelAdresseSelection] = useState<AddressSelection | null>(null);
 
   // STEP 3 – Kontakt
   const [vorname, setVorname] = useState('');
@@ -480,9 +482,9 @@ export default function KostenrechnerWidget() {
           customer_email: email,
         customer_phone: telefon,
         move_date: datum || null,
-        von_city: isEntruempelung ? 'Entrümpelung' : (vonSelection?.city || von),
-        von_address: isEntruempelung ? '' : (vonSelection?.street || von),
-        von_plz: isEntruempelung ? '' : (vonSelection?.postalCode || ''),
+        von_city: isEntruempelung ? (entruempelAdresseSelection?.city || entruempelAdresse || 'Entrümpelung') : (vonSelection?.city || von),
+        von_address: isEntruempelung ? (entruempelAdresseSelection?.street || entruempelAdresse) : (vonSelection?.street || von),
+        von_plz: isEntruempelung ? (entruempelAdresseSelection?.postalCode || '') : (vonSelection?.postalCode || ''),
         von_floor: isEntruempelung ? etage : etageAuszug,
         von_lift: isEntruempelung ? aufzug === 'ja' : aufzugAuszug === 'ja',
         nach_city: isEntruempelung ? '' : (nachSelection?.city || nach),
@@ -696,6 +698,15 @@ export default function KostenrechnerWidget() {
                         placeholder="z. B. besondere Gegenstände, Zugangssituation..."
                         className="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:border-brand-green transition-colors text-sm text-black placeholder:text-slate-300 resize-none" />
                     </div>
+
+                    <AddressAutocompleteField
+                      label="Adresse der Entrümpelung"
+                      placeholder="Straße und Hausnummer eingeben"
+                      value={entruempelAdresse}
+                      onValueChange={setEntruempelAdresse}
+                      onSelect={setEntruempelAdresseSelection}
+                      icon={MapPin}
+                    />
 
                     {/* Live Preis */}
                     <div className="bg-white border-2 border-slate-100 rounded-2xl p-4">
@@ -919,6 +930,7 @@ export default function KostenrechnerWidget() {
                     <div><span className="font-bold text-slate-400">Service:</span> {selectedService === 'privatumzug' ? 'Privatumzug' : selectedService === 'firmenumzug' ? 'Firmenumzug' : 'Entrümpelung'}</div>
                     {!isEntruempelung && von && <div><span className="font-bold text-slate-400">Von:</span> {von}</div>}
                     {!isEntruempelung && nach && <div><span className="font-bold text-slate-400">Nach:</span> {nach}</div>}
+                    {isEntruempelung && entruempelAdresse && <div><span className="font-bold text-slate-400">Adresse:</span> {entruempelAdresse}</div>}
                     {!isEntruempelung && datum && <div><span className="font-bold text-slate-400">Termin:</span> {new Date(datum).toLocaleDateString('de-DE')}</div>}
                     <div><span className="font-bold text-slate-400">Schätzpreis:</span> ab {livePrice > 0 ? livePrice.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'} €</div>
                   </div>
