@@ -24,12 +24,23 @@ type ServiceAnswer = {
   text: string;
 };
 
-const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
-  { id: 'service', label: 'Wie funktioniert der Service?', message: 'Wie funktioniert euer Service genau?' },
-  { id: 'kosten', label: 'Ist der Service kostenlos?', message: 'Ist der Service für mich kostenlos?' },
-  { id: 'angebote', label: 'Wann erhalte ich Angebote?', message: 'Wie schnell erhalte ich passende Angebote?' },
-  { id: 'partner', label: 'Partner werden', message: 'Wie kann ich Partner bei Umzugsnetz werden?' },
-  { id: 'invite', label: 'Einladungscode', message: 'Wie funktioniert die Registrierung mit Einladungscode?' },
+type SupportCategory = 'KUNDE' | 'PARTNER';
+
+const CUSTOMER_SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
+  { id: 'ablauf', label: 'So funktioniert es', message: 'Wie funktioniert Umzugsnetz für mich als Kunde?' },
+  { id: 'kosten', label: 'Ist es kostenlos?', message: 'Ist der Service für mich wirklich kostenlos?' },
+  { id: 'angebote', label: 'Wann kommen Angebote?', message: 'Wie schnell erhalte ich passende Angebote?' },
+  { id: 'firmen', label: 'Sind die Firmen geprüft?', message: 'Wie stellt ihr sicher, dass die Firmen seriös sind?' },
+  { id: 'datenschutz', label: 'Datenschutz', message: 'Was passiert mit meinen Daten?' },
+  { id: 'support', label: 'Mitarbeiter sprechen', message: 'Ich möchte mit einem Mitarbeiter sprechen.' },
+];
+
+const PARTNER_SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
+  { id: 'registrieren', label: 'Firma anmelden', message: 'Wie kann ich meine Firma bei Umzugsnetz registrieren?' },
+  { id: 'onboarding', label: 'Onboarding', message: 'Wie läuft das Onboarding für Firmen ab?' },
+  { id: 'preise', label: 'Was kostet eine Anfrage?', message: 'Wie viel zahle ich pro Kundenanfrage?' },
+  { id: 'guthaben', label: 'Guthaben aufladen', message: 'Wie kann ich mein Guthaben aufladen?' },
+  { id: 'pause', label: 'Anfragen pausieren', message: 'Kann ich kurzfristig keine neuen Anfragen mehr erhalten?' },
   { id: 'support', label: 'Mitarbeiter sprechen', message: 'Ich möchte mit einem Mitarbeiter sprechen.' },
 ];
 
@@ -43,57 +54,206 @@ function createSessionId() {
   return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-function getServiceAnswer(message: string): ServiceAnswer {
+function getCustomerAnswer(normalized: string): ServiceAnswer | null {
+  if (normalized.includes('kostenlos') || normalized.includes('was kostet') || normalized.includes('kosten') || normalized.includes('gebühr') || normalized.includes('preis')) {
+    return {
+      handled: true,
+      text: 'Für Sie als Kunde ist die Anfrage zu 100 % kostenlos und unverbindlich. Sie erhalten passende Angebote von geprüften Firmen und entscheiden frei, ob Sie eines annehmen. Es gibt keine versteckten Gebühren.',
+    };
+  }
+
+  if (
+    normalized.includes('wie funktioniert')
+    || normalized.includes('ablauf')
+    || normalized.includes('funktionsweise')
+    || normalized.includes('wie läuft')
+    || normalized.includes('was passiert')
+  ) {
+    return {
+      handled: true,
+      text: 'So einfach ist es: 1) Sie geben Wohnfläche, Entfernung und Termin in unserem Kostenrechner ein. 2) Wir leiten Ihre Anfrage an passende, geprüfte Firmen aus Ihrer Region weiter. 3) Sie erhalten unverbindliche Angebote per Telefon oder E-Mail und entscheiden selbst, welches Sie annehmen.',
+    };
+  }
+
+  if (
+    normalized.includes('wie schnell')
+    || normalized.includes('wann')
+    || normalized.includes('angebote')
+    || normalized.includes('rückmeldung')
+    || normalized.includes('antwort')
+  ) {
+    return {
+      handled: true,
+      text: 'Erste Rückmeldungen erhalten Sie in der Regel innerhalb von 1 bis 4 Stunden. Bei kurzfristigen Terminen oder stark nachgefragten Regionen kann es im Einzelfall bis zu 24 Stunden dauern.',
+    };
+  }
+
+  if (
+    normalized.includes('seriös')
+    || normalized.includes('geprüft')
+    || normalized.includes('verifiziert')
+    || normalized.includes('vertrauen')
+    || (normalized.includes('firmen') && (normalized.includes('sicher') || normalized.includes('echt')))
+  ) {
+    return {
+      handled: true,
+      text: 'Jede Firma in unserem Netzwerk durchläuft eine Prüfung von Gewerbeschein, Versicherung und Identität, bevor sie freigeschaltet wird. Zusätzlich bewerten Kunden die Firmen nach jedem Auftrag – Bewertungen und Auftragsstatistik fließen direkt in den Status der Firma ein.',
+    };
+  }
+
+  if (
+    normalized.includes('datenschutz')
+    || normalized.includes('dsgvo')
+    || normalized.includes('daten')
+    || normalized.includes('privat')
+  ) {
+    return {
+      handled: true,
+      text: 'Ihre Daten werden ausschließlich an Firmen weitergegeben, die Ihre Anfrage bearbeiten möchten. Wir geben keine Daten an Dritte weiter und Sie können jederzeit Auskunft, Berichtigung oder Löschung anfordern. Details: umzugsnetz.de/datenschutz.',
+    };
+  }
+
+  if (
+    normalized.includes('annehmen')
+    || normalized.includes('verpflichtet')
+    || normalized.includes('verbindlich')
+  ) {
+    return {
+      handled: true,
+      text: 'Sie sind zu nichts verpflichtet. Sie erhalten die Angebote unverbindlich und entscheiden in Ruhe, ob und welche Sie annehmen möchten. Lehnen Sie alle ab, entstehen Ihnen keine Kosten.',
+    };
+  }
+
+  return null;
+}
+
+function getPartnerAnswer(normalized: string): ServiceAnswer | null {
+  if (
+    normalized.includes('registrier')
+    || normalized.includes('anmelden')
+    || (normalized.includes('firma') && normalized.includes('aufnehmen'))
+    || normalized.includes('aufnahme')
+    || normalized.includes('bewerben')
+    || normalized.includes('partner werden')
+  ) {
+    return {
+      handled: true,
+      text: 'Sie können Ihre Firma direkt unter Anmelden → Tab "Registrieren" mit Firmenname, Ansprechperson, Standort, Website und Telefon eintragen. Sobald die automatische Verifizierung erfolgreich ist, schalten wir Ihren Marktplatz-Zugang frei. Ein Einladungscode ist nicht mehr erforderlich.',
+    };
+  }
+
+  if (
+    normalized.includes('onboarding')
+    || normalized.includes('profil einrichten')
+    || normalized.includes('einrichten')
+    || normalized.includes('erste schritte')
+  ) {
+    return {
+      handled: true,
+      text: 'Nach der Registrierung führt Sie ein 4-Schritt-Wizard durch das Profil: Firma → Einsatzgebiet → Leistungen → Bestätigung. Anschließend sehen Sie passende Anfragen im Marktplatz und können sie mit einem Klick freischalten.',
+    };
+  }
+
+  if (
+    normalized.includes('preis')
+    || normalized.includes('was kostet')
+    || normalized.includes('lead-preis')
+    || normalized.includes('lead preis')
+    || normalized.includes('wie teuer')
+    || normalized.includes('tarif')
+  ) {
+    return {
+      handled: true,
+      text: 'Sie zahlen nur für Anfragen, die Sie selbst kaufen. Standard-Anfragen für Umzüge starten bei 25 €, Priorisierte bei 35 € und Exklusive bei 45 €. Entrümpelungsanfragen liegen 5–10 € darunter. Die genauen Preise sehen Sie pro Anfrage im Marktplatz.',
+    };
+  }
+
+  if (
+    normalized.includes('guthaben')
+    || normalized.includes('aufladen')
+    || normalized.includes('wallet')
+    || normalized.includes('topup')
+    || normalized.includes('einzahlen')
+    || normalized.includes('überweis')
+  ) {
+    return {
+      handled: true,
+      text: 'Im Partner-Dashboard unter "Guthaben" tragen Sie den gewünschten Betrag ein und überweisen ihn auf das angegebene Konto. Sobald die Zahlung eingegangen ist, schaltet unser Team das Guthaben frei – meist innerhalb von 1–3 Werktagen.',
+    };
+  }
+
+  if (
+    normalized.includes('pause')
+    || normalized.includes('pausier')
+    || normalized.includes('verfügbar')
+    || normalized.includes('keine anfragen')
+    || normalized.includes('inaktiv')
+  ) {
+    return {
+      handled: true,
+      text: 'Über das Partner-Dashboard können Sie sich jederzeit pausieren – mit einem Klick auf den Status-Schalter "Verfügbar/Pausiert". Pausierte Konten erhalten keine neuen Anfragen, behalten aber Guthaben und Daten.',
+    };
+  }
+
+  if (
+    normalized.includes('storno')
+    || normalized.includes('zurückgeben')
+    || normalized.includes('falsche daten')
+    || normalized.includes('erstattung')
+    || normalized.includes('refund')
+    || normalized.includes('reklamation')
+  ) {
+    return {
+      handled: true,
+      text: 'Wenn die Kontaktdaten einer gekauften Anfrage nicht korrekt oder nicht erreichbar sind, melden Sie sich bitte bei unserem Support – wir prüfen den Vorgang und erstatten den Kaufpreis bei berechtigter Reklamation.',
+    };
+  }
+
+  if (
+    normalized.includes('bewert')
+    || normalized.includes('rating')
+    || normalized.includes('feedback')
+    || normalized.includes('kundenbewertung')
+  ) {
+    return {
+      handled: true,
+      text: 'Nach jedem Auftrag fragen wir den Kunden nach einer Bewertung. Gute Bewertungen verbessern Ihre Sichtbarkeit im Marktplatz und schalten höhere Tarif-Stufen (Priorisiert, Exklusiv) mit besseren Anfragen frei.',
+    };
+  }
+
+  if (
+    normalized.includes('region')
+    || normalized.includes('einsatzgebiet')
+    || normalized.includes('radius')
+  ) {
+    return {
+      handled: true,
+      text: 'Ihr Einsatzgebiet legen Sie im Onboarding mit Stadt und Radius (5–300 km) fest. Sie können den Radius jederzeit über Ihr Profil im Partner-Dashboard anpassen.',
+    };
+  }
+
+  return null;
+}
+
+function getServiceAnswer(message: string, category: SupportCategory): ServiceAnswer {
   const normalized = message.toLowerCase();
 
-  if (normalized.includes('kostenlos') || normalized.includes('kosten') || normalized.includes('gebühr')) {
-    return {
-      handled: true,
-      text: 'Für Kunden ist die Anfrage kostenlos und unverbindlich. Sie erhalten passende Angebote aus unserem Netzwerk und entscheiden anschließend selbst, ob Sie eines annehmen möchten.',
-    };
-  }
-
-  if (normalized.includes('wie funktioniert') || normalized.includes('ablauf') || normalized.includes('service')) {
-    return {
-      handled: true,
-      text: 'Sie senden Ihre Anfrage über den Rechner oder das Formular. Anschließend gleichen wir die Anfrage mit passenden Umzugs- oder Entrümpelungsfirmen ab. Danach erhalten Sie unverbindliche Rückmeldungen und können Angebote vergleichen.',
-    };
-  }
-
-  if (normalized.includes('wie schnell') || normalized.includes('wann') || normalized.includes('angebote') || normalized.includes('rückmeldung')) {
-    return {
-      handled: true,
-      text: 'In der Regel erhalten Sie erste Rückmeldungen innerhalb weniger Stunden. Je nach Region, Termin und Auslastung kann es im Einzelfall etwas länger dauern.',
-    };
-  }
-
-  if (normalized.includes('partner') && (normalized.includes('werden') || normalized.includes('registrieren') || normalized.includes('bewerben'))) {
-    return {
-      handled: true,
-      text: 'Partner registrieren sich über umzugsnetz.de/partners/register. Für die Registrierung wird in der Regel ein Einladungscode benötigt, der nach einer kurzen Prüfung bereitgestellt wird.',
-    };
-  }
-
-  if (normalized.includes('einladungscode') || normalized.includes('invite') || normalized.includes('registrierungscode')) {
-    return {
-      handled: true,
-      text: 'Wenn Sie einen Einladungscode erhalten haben, können Sie sich unter umzugsnetz.de/partners/register registrieren. Der Code wird dort während des Registrierungsprozesses geprüft.',
-    };
-  }
-
-  if (normalized.includes('kundenanfrage') || normalized.includes('anfragen kaufen') || normalized.includes('guthaben') || normalized.includes('wallet')) {
-    return {
-      handled: true,
-      text: 'Partner sehen verfügbare Kundenanfragen im Partner-Dashboard. Für Freischaltungen wird ausreichend Guthaben benötigt. Guthaben, Transaktionen und Aufladeanfragen können direkt im Finanzbereich verwaltet werden.',
-    };
-  }
-
-  if (normalized.includes('mitarbeiter') || normalized.includes('anrufen') || normalized.includes('rückruf') || normalized.includes('kontakt')) {
+  if (
+    normalized.includes('mitarbeiter')
+    || normalized.includes('anrufen')
+    || normalized.includes('rückruf')
+    || normalized.includes('kontakt')
+    || normalized.includes('mit jemandem sprechen')
+    || normalized.includes('persönlich')
+  ) {
     return {
       handled: false,
-      text: SERVICE_FALLBACK_MESSAGE,
+      text: 'Gerne leiten wir Ihr Anliegen an einen Mitarbeiter weiter. Hinterlegen Sie unten kurz Telefon, E-Mail und ein Zeitfenster für den Rückruf – wir melden uns zeitnah.',
     };
   }
+
+  const direct = category === 'PARTNER' ? getPartnerAnswer(normalized) : getCustomerAnswer(normalized);
+  if (direct) return direct;
 
   return {
     handled: false,
@@ -124,9 +284,23 @@ export default function LiveChatWidget() {
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const notifiedSessionsRef = useRef<Set<string>>(new Set());
 
-  const supportCategory = useMemo<'KUNDE' | 'PARTNER'>(() => {
+  const supportCategory = useMemo<SupportCategory>(() => {
     return pathname?.startsWith('/partner') ? 'PARTNER' : 'KUNDE';
   }, [pathname]);
+
+  const isAuthenticatedSurface = useMemo(() => {
+    if (!pathname) return false;
+    return (
+      pathname.startsWith('/admin')
+      || pathname.startsWith('/crm')
+      || pathname.startsWith('/portal')
+    );
+  }, [pathname]);
+
+  const suggestedQuestions = useMemo(
+    () => (supportCategory === 'PARTNER' ? PARTNER_SUGGESTED_QUESTIONS : CUSTOMER_SUGGESTED_QUESTIONS),
+    [supportCategory],
+  );
 
   async function notifyChatMessage(currentSessionId: string, name: string, text: string) {
     if (notifiedSessionsRef.current.has(currentSessionId)) {
@@ -193,7 +367,7 @@ export default function LiveChatWidget() {
   }, []);
 
   useEffect(() => {
-    if (pathname?.startsWith('/admin')) {
+    if (isAuthenticatedSurface) {
       return;
     }
 
@@ -411,7 +585,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
   }
 
   async function sendServiceReply(nextMessage: string) {
-    const answer = getServiceAnswer(nextMessage);
+    const answer = getServiceAnswer(nextMessage, supportCategory);
 
     try {
       await insertAdminMessage(answer.text);
@@ -546,6 +720,10 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
     }
   }
 
+  if (isAuthenticatedSurface) {
+    return null;
+  }
+
   return (
     <div className="pointer-events-none fixed bottom-24 left-4 right-4 z-[100] font-sans sm:bottom-6 sm:left-auto sm:right-6">
       <AnimatePresence>
@@ -666,7 +844,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
 
                   <div className="border-t border-slate-100 bg-white p-3 sm:p-4">
                     <div className="mb-3 flex flex-wrap gap-2">
-                      {SUGGESTED_QUESTIONS.map((question) => (
+                      {suggestedQuestions.map((question) => (
                         <button
                           key={question.id}
                           type="button"
