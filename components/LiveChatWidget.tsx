@@ -122,10 +122,31 @@ export default function LiveChatWidget() {
   const [lastUserActivityAt, setLastUserActivityAt] = useState<number | null>(null);
   const warningTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const notifiedSessionsRef = useRef<Set<string>>(new Set());
 
   const supportCategory = useMemo<'KUNDE' | 'PARTNER'>(() => {
     return pathname?.startsWith('/partner') ? 'PARTNER' : 'KUNDE';
   }, [pathname]);
+
+  async function notifyChatMessage(currentSessionId: string, name: string, text: string) {
+    if (notifiedSessionsRef.current.has(currentSessionId)) {
+      return;
+    }
+    notifiedSessionsRef.current.add(currentSessionId);
+    try {
+      const preview = text.trim().slice(0, 160);
+      const link = `/admin?tab=tickets&session=${encodeURIComponent(currentSessionId)}`;
+      await supabase.from('notifications').insert([{
+        type: supportCategory === 'PARTNER' ? 'CHAT_PARTNER_MESSAGE' : 'CHAT_USER_MESSAGE',
+        title: supportCategory === 'PARTNER' ? 'Neue Partner-Chatnachricht' : 'Neue Chatnachricht',
+        message: `${name || 'Neue Anfrage'}: ${preview}${text.length > 160 ? '…' : ''}`,
+        link,
+        is_read: false,
+      }]);
+    } catch {
+      notifiedSessionsRef.current.delete(currentSessionId);
+    }
+  }
 
   const resetLocalChatSession = () => {
     localStorage.removeItem('umzugapp_chat_sid');
@@ -144,6 +165,7 @@ export default function LiveChatWidget() {
     setContactBestTime('');
     setLastUnhandledQuestion('');
     setLastUserActivityAt(null);
+    notifiedSessionsRef.current.clear();
     if (warningTimeoutRef.current) {
       clearTimeout(warningTimeoutRef.current);
       warningTimeoutRef.current = null;
@@ -438,6 +460,7 @@ async function insertAdminMessage(text: string, skipLocalEcho = false) {
         throw error;
       }
 
+      void notifyChatMessage(sessionId, displayName, nextMessage);
       await sendServiceReply(nextMessage);
     } catch (error: any) {
       setMessages((currentMessages) => currentMessages.slice(0, -1));
