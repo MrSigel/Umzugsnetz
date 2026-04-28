@@ -3,7 +3,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Bell, LogOut, Menu, PhoneCall, X } from 'lucide-react';
+import {
+  Bell,
+  CalendarDays,
+  CheckCircle2,
+  Mail,
+  MapPin,
+  LogOut,
+  Menu,
+  PhoneCall,
+  RefreshCcw,
+  Trash2,
+  Truck,
+  XCircle,
+  X,
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {
   baseNavigation,
@@ -820,95 +834,329 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
     }
   };
 
+  const remainingCount = Math.max(callableLeads.length - 1, 0);
+
+  const skipLead = () => {
+    if (!currentLead) return;
+    setQueueIds((current) => [...current.filter((id) => id !== currentLead.id), currentLead.id]);
+    setCallStarted(false);
+    setResult('');
+    setNotes('');
+  };
+
+  const startCall = () => {
+    setCallStarted(true);
+    if (!notes) setNotes(String(currentLead?.notes || ''));
+  };
+
+  const appendQuickNote = (snippet: string) => {
+    setNotes((current) => {
+      const trimmed = current.trim();
+      if (!trimmed) return snippet;
+      if (trimmed.includes(snippet)) return current;
+      return `${trimmed}\n${snippet}`;
+    });
+  };
+
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <div className="space-y-6">
       <SectionCard
         title="Arbeiten"
+        description={currentLead
+          ? `Aktueller Kunde · noch ${remainingCount} weitere${remainingCount === 1 ? 'r' : ''} in der Warteschlange`
+          : 'Keine offenen Kundenanfragen.'}
         action={(
-          <button
-            type="button"
-            onClick={() => {
-              setTestActive((value) => !value);
-              setCallStarted(false);
-            }}
-            className={cx(
-              'inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-black transition-colors',
-              testActive ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-amber-200 hover:text-amber-700',
-            )}
-          >
-            <span className={cx('h-2 w-2 rounded-full', testActive ? 'bg-amber-500' : 'bg-slate-400')} />
-            {testActive ? 'Test-Kunde aktiv' : 'Test-Kunde aktivieren'}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setTestActive((value) => !value);
+                setCallStarted(false);
+                setResult('');
+                setNotes('');
+              }}
+              className={cx(
+                'inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-black transition-colors',
+                testActive ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-amber-200 hover:text-amber-700',
+              )}
+            >
+              <span className={cx('h-2 w-2 rounded-full', testActive ? 'bg-amber-500' : 'bg-slate-400')} />
+              {testActive ? 'Test-Kunde aktiv' : 'Test-Kunde aktivieren'}
+            </button>
+            {currentLead && callableLeads.length > 1 ? (
+              <button
+                type="button"
+                onClick={skipLead}
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+              >
+                <RefreshCcw className="h-3.5 w-3.5" />
+                Überspringen
+              </button>
+            ) : null}
+          </div>
         )}
       >
         {currentLead ? (
           <div className={cx(
-            'rounded-[1.8rem] border p-5',
+            'rounded-[1.8rem] border p-6',
             isTestLead
               ? 'border-amber-200 bg-[linear-gradient(180deg,#fffbeb,#ffffff)]'
-              : 'border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)]',
+              : 'border-slate-100 bg-white',
           )}>
             {isTestLead ? (
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-amber-700">
                 Demo-Datensatz · keine Speicherung
               </div>
             ) : null}
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="text-2xl font-black tracking-tight text-slate-950">{currentLead.customer_name || 'Ohne Namen'}</p>
-                <p className="mt-2 text-sm font-semibold text-slate-500">{currentLead.order_number || currentLead.id}</p>
-                <div className="mt-5 grid gap-3 text-sm font-semibold text-slate-600 sm:grid-cols-2">
-                  <p><span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Telefon</span>{currentLead.customer_phone || '-'}</p>
-                  <p><span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">E-Mail</span>{currentLead.customer_email || '-'}</p>
-                  <p><span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Von</span>{currentLead.von_city || '-'} · {currentLead.von_address || '-'}</p>
-                  <p><span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Nach</span>{currentLead.nach_city || '-'} · {currentLead.nach_address || '-'}</p>
-                  <p><span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Leistung</span>{currentLead.service_category || '-'}</p>
-                  <p><span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Termin</span>{formatDate(currentLead.move_date)}</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">{currentLead.order_number || 'Anfrage'}</p>
+                <h3 className="mt-1 text-3xl font-black tracking-tight text-slate-950">{currentLead.customer_name || 'Ohne Namen'}</h3>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <StatusBadge label={leadStatusLabel(currentLead.status)} tone={getLeadStatusTone(currentLead.status)} />
+                  {currentLead.service_category ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-black text-brand-blue">
+                      <Truck className="h-3.5 w-3.5" />
+                      {currentLead.service_category}
+                    </span>
+                  ) : null}
+                  {currentLead.move_date ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-black text-slate-600">
+                      <CalendarDays className="h-3.5 w-3.5" />
+                      {formatDate(currentLead.move_date)}
+                    </span>
+                  ) : null}
                 </div>
               </div>
-              <div className="flex flex-col gap-3 rounded-[1.5rem] border border-slate-100 bg-white p-4 lg:w-[230px]">
-                <StatusBadge label={leadStatusLabel(currentLead.status)} tone={getLeadStatusTone(currentLead.status)} />
-                <button
-                  type="button"
-                  onClick={() => setCallStarted(true)}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20"
+              <div className="flex flex-col gap-2 sm:items-end">
+                <a
+                  href={currentLead.customer_phone ? `tel:${String(currentLead.customer_phone).replace(/\s/g, '')}` : '#'}
+                  onClick={(event) => {
+                    if (!currentLead.customer_phone) {
+                      event.preventDefault();
+                    }
+                    startCall();
+                  }}
+                  className="group inline-flex items-center gap-3 rounded-2xl bg-brand-blue px-5 py-4 text-base font-black text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover"
                 >
-                  <PhoneCall className="h-4 w-4" />
-                  Anrufen
-                </button>
-                <p className="text-center text-xs font-semibold text-slate-500">Telefonie-Platzhalter</p>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
+                    <PhoneCall className="h-5 w-5" />
+                  </span>
+                  <span>
+                    <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-white/75">Jetzt anrufen</span>
+                    <span className="block text-base">{currentLead.customer_phone || 'Keine Nummer hinterlegt'}</span>
+                  </span>
+                </a>
+                {currentLead.customer_email ? (
+                  <a
+                    href={`mailto:${currentLead.customer_email}`}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    {currentLead.customer_email}
+                  </a>
+                ) : null}
               </div>
             </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Von</p>
+                <p className="mt-2 flex items-start gap-2 text-sm font-bold text-slate-900">
+                  <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-blue" />
+                  <span>
+                    {[currentLead.von_address, currentLead.von_city].filter(Boolean).join(', ') || '—'}
+                  </span>
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Nach</p>
+                <p className="mt-2 flex items-start gap-2 text-sm font-bold text-slate-900">
+                  <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+                  <span>
+                    {[currentLead.nach_address, currentLead.nach_city].filter(Boolean).join(', ') || '—'}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {!callStarted ? (
+              <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 p-5 text-center">
+                <p className="text-sm font-bold text-slate-600">Klicke oben auf <span className="font-black text-brand-blue">„Jetzt anrufen"</span>, um den Wizard zu starten.</p>
+                <p className="mt-1 text-xs font-medium text-slate-500">Das Telefon öffnet sich automatisch und du kannst direkt das Ergebnis erfassen.</p>
+                <button
+                  type="button"
+                  onClick={startCall}
+                  className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
+                >
+                  Ergebnis ohne Anruf erfassen
+                </button>
+              </div>
+            ) : (
+              <CallWizard
+                result={result}
+                onResultChange={setResult}
+                notes={notes}
+                onNotesChange={setNotes}
+                onQuickNote={appendQuickNote}
+                onCancel={() => {
+                  setCallStarted(false);
+                  setResult('');
+                }}
+                onFinish={finishLead}
+                saving={saving}
+                isTest={isTestLead}
+              />
+            )}
           </div>
         ) : (
           <EmptyState {...emptyStateBySection.work} />
         )}
       </SectionCard>
+    </div>
+  );
+}
 
-      <SectionCard title="Anruf bearbeiten">
-        {currentLead && callStarted ? (
-          <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status nach dem Auflegen</label>
-              <select value={result} onChange={(event) => setResult(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
-                <option value="">Bitte auswählen</option>
-                {['Gewonnen', 'Verloren', 'Neu Kontaktieren', 'Löschen'].map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notizen</label>
-              <textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={9} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
-            </div>
-            <button type="button" onClick={finishLead} disabled={saving || !result} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
-              {saving ? 'Speichert...' : 'Weiter'}
+const QUICK_NOTES = [
+  'Kunde nicht erreicht - Mailbox',
+  'Termin vereinbart',
+  'Kunde möchte Angebot per E-Mail',
+  'Kunde wünscht Rückruf',
+  'Anfrage bereits vergeben',
+];
+
+const RESULT_OPTIONS: Array<{ value: string; label: string; description: string; icon: typeof PhoneCall; classes: string }> = [
+  {
+    value: 'Gewonnen',
+    label: 'Gewonnen',
+    description: 'Auftrag bestätigt',
+    icon: CheckCircle2,
+    classes: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100',
+  },
+  {
+    value: 'Neu Kontaktieren',
+    label: 'Rückruf',
+    description: 'Später erneut versuchen',
+    icon: RefreshCcw,
+    classes: 'border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-400 hover:bg-amber-100',
+  },
+  {
+    value: 'Verloren',
+    label: 'Verloren',
+    description: 'Kunde hat abgelehnt',
+    icon: XCircle,
+    classes: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-400 hover:bg-slate-100',
+  },
+  {
+    value: 'Löschen',
+    label: 'Löschen',
+    description: 'Anfrage entfernen',
+    icon: Trash2,
+    classes: 'border-red-200 bg-red-50 text-red-700 hover:border-red-400 hover:bg-red-100',
+  },
+];
+
+function CallWizard({
+  result,
+  onResultChange,
+  notes,
+  onNotesChange,
+  onQuickNote,
+  onCancel,
+  onFinish,
+  saving,
+  isTest,
+}: {
+  result: string;
+  onResultChange: (value: string) => void;
+  notes: string;
+  onNotesChange: (value: string) => void;
+  onQuickNote: (snippet: string) => void;
+  onCancel: () => void;
+  onFinish: () => void;
+  saving: boolean;
+  isTest: boolean;
+}) {
+  return (
+    <div className="mt-6 space-y-5 rounded-2xl border border-brand-blue/15 bg-brand-blue/5 p-5">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-blue">Schritt 1</p>
+          <p className="text-base font-black text-slate-950">Wie ist das Gespräch gelaufen?</p>
+        </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 hover:text-slate-900"
+        >
+          Abbrechen
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {RESULT_OPTIONS.map((option) => {
+          const active = result === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onResultChange(option.value)}
+              className={cx(
+                'flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all',
+                active ? 'border-brand-blue bg-white shadow-[0_18px_45px_rgba(2,118,200,0.18)]' : option.classes,
+              )}
+            >
+              <span className={cx('flex h-9 w-9 items-center justify-center rounded-2xl', active ? 'bg-brand-blue text-white' : 'bg-white/80 text-current')}>
+                <option.icon className="h-4 w-4" />
+              </span>
+              <span className="text-sm font-black text-slate-950">{option.label}</span>
+              <span className="text-[11px] font-medium text-slate-500">{option.description}</span>
             </button>
-          </div>
-        ) : (
-          <EmptyState title="Noch kein Anruf gestartet" text="Klicke beim aktuellen Kunden auf das Hörer-Symbol, danach erscheinen Status und Notizfeld." />
-        )}
-      </SectionCard>
+          );
+        })}
+      </div>
+
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-blue">Schritt 2</p>
+          <p className="text-[11px] font-medium text-slate-500">Notiz (optional)</p>
+        </div>
+        <div className="mb-3 flex flex-wrap gap-2">
+          {QUICK_NOTES.map((snippet) => (
+            <button
+              key={snippet}
+              type="button"
+              onClick={() => onQuickNote(snippet)}
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+            >
+              + {snippet}
+            </button>
+          ))}
+        </div>
+        <textarea
+          value={notes}
+          onChange={(event) => onNotesChange(event.target.value)}
+          rows={4}
+          placeholder="z. B. Termin am Mittwoch um 10:00 Uhr vor Ort"
+          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+        />
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[11px] font-medium text-slate-500">
+          {isTest ? 'Demo-Modus: dein Klick speichert nichts.' : 'Mit „Speichern & weiter" wird der Status gesichert und der nächste Kunde geladen.'}
+        </p>
+        <button
+          type="button"
+          onClick={onFinish}
+          disabled={saving || !result}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          {saving ? 'Speichert...' : 'Speichern & weiter'}
+        </button>
+      </div>
     </div>
   );
 }
