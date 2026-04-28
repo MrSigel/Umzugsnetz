@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { type SupabaseClient } from '@supabase/supabase-js';
+import { type SupabaseClient, type User } from '@supabase/supabase-js';
 import { requireStaffUser, type StaffRole } from '@/lib/server/staffAuth';
 import { getSupabaseAdmin } from '@/lib/server/supabaseAdmin';
 
@@ -18,6 +18,7 @@ type TicketRecord = JsonRecord & {
 };
 
 const leadStatuses = ['Neu', 'Kontaktiert', 'Angebot', 'Gebucht', 'Abgelehnt'] as const;
+const workResults = ['Gewonnen', 'Verloren', 'Neu Kontaktieren', 'Löschen'] as const;
 const legacyStatusMap: Record<string, string> = {
   'In Bearbeitung': 'Kontaktiert',
   Abgeschlossen: 'Gebucht',
@@ -31,7 +32,7 @@ function jsonError(message: string, status: number) {
 function mapSupabaseAdminError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error || 'Unbekannter Fehler');
   if (message.toLowerCase().includes('invalid api key')) {
-    return 'SUPABASE_SERVICE_ROLE_KEY ist ungültig. Bitte den Service-Role-Key in der Umgebung korrigieren.';
+    return 'Der Supabase-Schlüssel ist ungültig. Bitte den Dienstschlüssel in der Umgebung korrigieren.';
   }
 
   return message;
@@ -51,6 +52,13 @@ function normalizeLeadStatus(value: unknown) {
   return legacyStatusMap[status] || status;
 }
 
+function normalizeInternalRole(value: unknown): 'ADMIN' | 'EMPLOYEE' | null {
+  const role = String(value || '').trim().toUpperCase();
+  if (role === 'ADMIN' || role === 'ADMINISTRATOR' || role === 'DEVELOPER') return 'ADMIN';
+  if (role === 'EMPLOYEE' || role === 'MITARBEITER') return 'EMPLOYEE';
+  return null;
+}
+
 function sanitizeStatus(value: unknown) {
   const status = String(value || '').trim();
   return leadStatuses.includes(status as (typeof leadStatuses)[number]) ? status : 'Neu';
@@ -66,6 +74,37 @@ function toDatabaseOrderStatus(value: unknown) {
   return 'Neu';
 }
 
+function appendNote(current: unknown, note: unknown, prefix: string) {
+  const text = String(note || '').trim();
+  const existing = String(current || '').trim();
+  const entry = `${prefix}${text ? `\n${text}` : ''}`.trim();
+  return [existing, entry].filter(Boolean).join('\n\n').slice(0, 4000);
+}
+
+function partnerSettings(body: JsonRecord, existing?: JsonRecord | null) {
+  const current = existing && typeof existing === 'object' ? existing : {};
+  return {
+    ...current,
+    address: String(body.address || '').trim().slice(0, 500),
+    contact_person: String(body.contactPerson || '').trim().slice(0, 200),
+    notes: String(body.notes || '').trim().slice(0, 4000),
+  };
+}
+
+function normalizePartnerStatus(value: unknown) {
+  const status = String(value || '').trim().toLowerCase();
+  if (['pending', 'in pruefung', 'in prüfung', 'pruefung', 'prüfung'].includes(status)) return 'PENDING';
+  if (['suspended', 'pausiert', 'gesperrt'].includes(status)) return 'SUSPENDED';
+  return 'ACTIVE';
+}
+
+function normalizePartnerService(value: unknown) {
+  const service = String(value || '').trim().toLowerCase();
+  if (['umzug'].includes(service)) return 'UMZUG';
+  if (['entruempelung', 'entrümpelung'].includes(service)) return 'ENTRÜMPELUNG';
+  return 'BEIDES';
+}
+
 function buildKpis(orders: JsonRecord[], transactions: JsonRecord[]) {
   const booked = orders.filter((order) => normalizeLeadStatus(order.status) === 'Gebucht');
   const revenue = transactions.reduce((sum, transaction) => sum + Math.max(0, toNumber(transaction.amount)), 0);
@@ -79,6 +118,36 @@ function buildKpis(orders: JsonRecord[], transactions: JsonRecord[]) {
   };
 }
 
+function buildWorkStats(logs: JsonRecord[]) {
+  const now = new Date();
+  const today = now.toDateString();
+  const currentHour = now.getHours();
+  const totalCalls = logs.length;
+  const callsToday = logs.filter((log) => log.created_at && new Date(String(log.created_at)).toDateString() === today).length;
+  const callsThisHour = logs.filter((log) => {
+    if (!log.created_at) return false;
+    const date = new Date(String(log.created_at));
+    return date.toDateString() === today && date.getHours() === currentHour;
+  }).length;
+  const countResult = (result: string) => logs.filter((log) => String(log.result || '') === result).length;
+  const won = countResult('Gewonnen');
+  const lost = countResult('Verloren');
+  const recontact = countResult('Neu Kontaktieren');
+  const deleted = countResult('Löschen');
+
+  return {
+    totalCalls,
+    callsToday,
+    callsThisHour,
+    won,
+    lost,
+    recontact,
+    deleted,
+    successRate: totalCalls ? Math.round((won / totalCalls) * 100) : 0,
+    lastCallAt: logs[0]?.created_at || null,
+  };
+}
+
 function normalizeScope(value: unknown): PortalScope {
   const scope = String(value || '').trim().toLowerCase();
   return ['dashboard', 'leads', 'orders', 'tickets', 'finance', 'partners', 'team', 'settings', 'all'].includes(scope)
@@ -86,14 +155,15 @@ function normalizeScope(value: unknown): PortalScope {
     : 'dashboard';
 }
 
-async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope: PortalScope = 'dashboard') {
+async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope: PortalScope = 'dashboard', staffUser?: User) {
   const includeOrders = ['dashboard', 'leads', 'orders', 'finance', 'all'].includes(scope);
   const includeNotifications = ['dashboard', 'all'].includes(scope);
   const includeTransactions = role === 'ADMIN' && ['dashboard', 'finance', 'all'].includes(scope);
-  const includePartners = role === 'ADMIN' && ['partners', 'all'].includes(scope);
+  const includePartners = ['partners', 'all'].includes(scope);
   const includeTeam = role === 'ADMIN' && ['team', 'all'].includes(scope);
   const includeSettings = role === 'ADMIN' && ['settings', 'all'].includes(scope);
   const includeTickets = ['tickets', 'all'].includes(scope);
+  const includeWorkStats = ['dashboard', 'all'].includes(scope);
 
   const [ordersResult, partnersResult, transactionsResult, notificationsResult, teamResult, settingsResult, chatResult] = await Promise.all([
     includeOrders
@@ -104,7 +174,7 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope:
           .limit(scope === 'dashboard' ? 80 : 200)
       : Promise.resolve({ data: [], error: null }),
     includePartners
-      ? supabase.from('partners').select('id, name, email, phone, regions, status, category, service, balance').order('created_at', { ascending: false }).limit(120)
+      ? supabase.from('partners').select('id, name, email, phone, regions, status, category, service, balance, settings').order('created_at', { ascending: false }).limit(120)
       : Promise.resolve({ data: [], error: null }),
     includeTransactions
       ? supabase.from('transactions').select('id, type, amount, description, created_at').order('created_at', { ascending: false }).limit(150)
@@ -159,6 +229,86 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope:
       return map;
     }, new Map<string, TicketRecord>()).values(),
   );
+  let team = (teamResult.data || []) as JsonRecord[];
+  let workLogs: JsonRecord[] = [];
+
+  if (includeWorkStats) {
+    let workLogQuery = supabase
+      .from('work_call_logs')
+      .select('id, staff_user_id, staff_email, order_id, result, notes, created_at')
+      .order('created_at', { ascending: false })
+      .limit(1000);
+
+    if (role === 'EMPLOYEE' && staffUser?.id) {
+      workLogQuery = workLogQuery.eq('staff_user_id', staffUser.id);
+    }
+
+    const { data, error } = await workLogQuery;
+    if (!error) workLogs = (data || []) as JsonRecord[];
+  }
+
+  if (includeTeam) {
+    const readProfiles = async () => {
+      try {
+        return await supabase.from('profiles').select('id, email, primary_role, created_at');
+      } catch {
+        return { data: [], error: null };
+      }
+    };
+    const readUserRoles = async () => {
+      try {
+        return await supabase.from('user_roles').select('user_id, role_code');
+      } catch {
+        return { data: [], error: null };
+      }
+    };
+
+    const [authUsersResult, profilesResult, userRolesResult] = await Promise.all([
+      supabase.auth.admin.listUsers({ page: 1, perPage: 1000 }).catch(() => ({ data: { users: [] }, error: null })),
+      readProfiles(),
+      readUserRoles(),
+    ]);
+
+    const profileById = new Map<string, JsonRecord>();
+    ((profilesResult.data || []) as JsonRecord[]).forEach((profile) => {
+      if (profile.id) profileById.set(String(profile.id), profile);
+    });
+
+    const roleByUserId = new Map<string, 'ADMIN' | 'EMPLOYEE'>();
+    ((userRolesResult.data || []) as JsonRecord[]).forEach((entry) => {
+      const resolvedRole = normalizeInternalRole(entry.role_code);
+      if (entry.user_id && resolvedRole) roleByUserId.set(String(entry.user_id), resolvedRole);
+    });
+
+    const teamByEmail = new Map<string, JsonRecord>();
+    team.forEach((member) => {
+      const email = String(member.email || '').toLowerCase();
+      if (email) teamByEmail.set(email, member);
+    });
+
+    (authUsersResult.data?.users || []).forEach((user: User) => {
+      const email = user.email?.toLowerCase();
+      if (!email || teamByEmail.has(email)) return;
+
+      const profile = profileById.get(user.id);
+      const resolvedRole =
+        normalizeInternalRole(user.app_metadata?.role || user.user_metadata?.role)
+        || roleByUserId.get(user.id)
+        || normalizeInternalRole(profile?.primary_role);
+
+      if (!resolvedRole) return;
+
+      teamByEmail.set(email, {
+        id: `auth:${user.id}`,
+        email,
+        role: resolvedRole,
+        status: user.banned_until ? 'DISABLED' : user.email_confirmed_at ? 'ACTIVE' : 'PENDING',
+        created_at: user.created_at || profile?.created_at || null,
+      });
+    });
+
+    team = Array.from(teamByEmail.values()).sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  }
 
   const response: Record<string, unknown> = { role };
 
@@ -175,8 +325,9 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope:
   if (includeTransactions) response.transactions = transactions;
   if (includeNotifications) response.notifications = notificationsResult.data || [];
   if (includeTickets) response.tickets = tickets;
-  if (includeTeam) response.team = teamResult.data || [];
+  if (includeTeam) response.team = team;
   if (includeSettings) response.settings = settingsResult.data || [];
+  if (includeWorkStats) response.workStats = buildWorkStats(workLogs);
 
   return response;
 }
@@ -191,7 +342,7 @@ export async function GET(request: Request) {
 
   try {
     const scope = normalizeScope(new URL(request.url).searchParams.get('scope'));
-    return NextResponse.json(await fetchPortalData(staff.role, getSupabaseAdmin(), scope));
+    return NextResponse.json(await fetchPortalData(staff.role, getSupabaseAdmin(), scope, staff.user));
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : 'Portal konnte nicht geladen werden.', 500);
   }
@@ -218,7 +369,7 @@ export async function PATCH(request: Request) {
 
   if (action === 'updateLead') {
     const id = String(body.id || '');
-    if (!id) return jsonError('Lead fehlt.', 400);
+    if (!id) return jsonError('Anfrage fehlt.', 400);
 
     const updates: JsonRecord = { updated_at: new Date().toISOString() };
     if (typeof body.status === 'string') updates.status = toDatabaseOrderStatus(sanitizeStatus(body.status) === 'Neu' ? body.status : sanitizeStatus(body.status));
@@ -227,11 +378,55 @@ export async function PATCH(request: Request) {
     const { error } = await adminClient.from('orders').update(updates).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+  }
+
+  if (action === 'processWorkLead') {
+    const id = String(body.id || '');
+    const result = String(body.result || '').trim();
+    if (!id) return jsonError('Kunde fehlt.', 400);
+    if (!workResults.includes(result as (typeof workResults)[number])) return jsonError('Bitte einen Status auswählen.', 400);
+
+    const { data: currentLead, error: readError } = await adminClient.from('orders').select('id, order_number, customer_name, notes').eq('id', id).maybeSingle();
+    if (readError) return jsonError(readError.message, 500);
+
+    const logEntry = {
+      staff_user_id: staff.user.id,
+      staff_email: staff.user.email?.toLowerCase() || null,
+      order_id: id,
+      order_number: String(currentLead?.order_number || ''),
+      customer_name: String(currentLead?.customer_name || ''),
+      result,
+      notes: String(body.notes || '').trim().slice(0, 4000),
+    };
+
+    if (result === 'Löschen') {
+      const { error: logError } = await adminClient.from('work_call_logs').insert([logEntry]);
+      if (logError) return jsonError(logError.message, 500);
+      const { error } = await adminClient.from('orders').delete().eq('id', id);
+      if (error) return jsonError(error.message, 500);
+      return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+    }
+
+    const status = result === 'Gewonnen' ? 'Abgeschlossen' : result === 'Verloren' ? 'Storniert' : 'In Bearbeitung';
+    const prefix = `Arbeiten: ${result} am ${new Date().toLocaleString('de-DE')}`;
+    const notes = appendNote(currentLead?.notes, body.notes, prefix);
+
+    const { error: logError } = await adminClient.from('work_call_logs').insert([logEntry]);
+    if (logError) return jsonError(logError.message, 500);
+
+    const { error } = await adminClient.from('orders').update({
+      status,
+      notes,
+      updated_at: new Date().toISOString(),
+    }).eq('id', id);
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   if (action === 'updatePartner') {
-    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
     const id = String(body.id || '');
     if (!id) return jsonError('Partner fehlt.', 400);
 
@@ -244,49 +439,138 @@ export async function PATCH(request: Request) {
     const { error } = await adminClient.from('partners').update(updates).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+  }
+
+  if (action === 'createCustomerCompany') {
+    const name = String(body.name || '').trim();
+    if (!name) return jsonError('Firmenname fehlt.', 400);
+
+    const { error } = await adminClient.from('partners').insert([{
+      name,
+      email: String(body.email || '').trim().toLowerCase() || null,
+      phone: String(body.phone || '').trim() || null,
+      regions: String(body.regions || '').trim() || null,
+      service: String(body.service || 'BEIDES').trim(),
+      status: String(body.status || 'ACTIVE').trim(),
+      category: String(body.category || 'Standard Anfragen').trim(),
+      settings: partnerSettings(body),
+    }]);
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+  }
+
+  if (action === 'updateCustomerCompany') {
+    const id = String(body.id || '');
+    const name = String(body.name || '').trim();
+    if (!id) return jsonError('Kunde fehlt.', 400);
+    if (!name) return jsonError('Firmenname fehlt.', 400);
+
+    const { data: currentPartner, error: readError } = await adminClient.from('partners').select('settings').eq('id', id).maybeSingle();
+    if (readError) return jsonError(readError.message, 500);
+
+    const { error } = await adminClient.from('partners').update({
+      name,
+      email: String(body.email || '').trim().toLowerCase() || null,
+      phone: String(body.phone || '').trim() || null,
+      regions: String(body.regions || '').trim() || null,
+      service: String(body.service || 'BEIDES').trim(),
+      status: String(body.status || 'ACTIVE').trim(),
+      category: String(body.category || 'Standard Anfragen').trim(),
+      settings: partnerSettings(body, currentPartner?.settings as JsonRecord | null),
+      updated_at: new Date().toISOString(),
+    }).eq('id', id);
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+  }
+
+  if (action === 'importCustomerCompanies') {
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
+    const rows = Array.isArray(body.rows) ? body.rows : [];
+    const payload = rows
+      .map((entry) => entry && typeof entry === 'object' ? entry as JsonRecord : null)
+      .filter((entry): entry is JsonRecord => Boolean(entry))
+      .map((entry) => {
+        const name = String(entry.name || '').trim();
+        if (!name) return null;
+        return {
+          name,
+          email: String(entry.email || '').trim().toLowerCase() || null,
+          phone: String(entry.phone || '').trim() || null,
+          regions: String(entry.regions || '').trim() || null,
+          service: normalizePartnerService(entry.service),
+          status: normalizePartnerStatus(entry.status),
+          category: String(entry.category || 'Standard Anfragen').trim(),
+          settings: partnerSettings(entry),
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+      .slice(0, 500);
+
+    if (!payload.length) return jsonError('Keine gültigen Kundendaten gefunden.', 400);
+
+    const { error } = await adminClient.from('partners').insert(payload);
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   if (action === 'updateTeam') {
-    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
     const id = String(body.id || '');
+    const email = String(body.email || '').trim().toLowerCase();
+    const role = String(body.role || 'EMPLOYEE').trim().toUpperCase() === 'ADMIN' ? 'ADMIN' : 'EMPLOYEE';
     const status = String(body.status || '');
     if (!id || !['PENDING', 'ACTIVE', 'DISABLED'].includes(status)) return jsonError('Team-Daten ungültig.', 400);
 
+    if (id.startsWith('auth:')) {
+      if (!email) return jsonError('Team-E-Mail fehlt.', 400);
+      const { error } = await adminClient.from('team').upsert([{
+        email,
+        role,
+        status,
+        invited_by_email: staff.user.email?.toLowerCase() || null,
+      }], { onConflict: 'email' });
+      if (error) return jsonError(error.message, 500);
+
+      return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+    }
+
     const { data: current } = await adminClient.from('team').select('role').eq('id', id).maybeSingle();
-    if (current?.role === 'ADMIN' && status === 'DISABLED') {
-      return jsonError('Admin-Rolle ist geschützt.', 403);
+    if (normalizeInternalRole(current?.role) === 'ADMIN' && status === 'DISABLED') {
+      return jsonError('Geschäftsführer-Rolle ist geschützt.', 403);
     }
 
     const { error } = await adminClient.from('team').update({ status }).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   if (action === 'createTeamMember') {
-    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
 
     const email = String(body.email || '').trim().toLowerCase();
-    const password = String(body.password || '');
     const role = String(body.role || 'EMPLOYEE').trim().toUpperCase() === 'ADMIN' ? 'ADMIN' : 'EMPLOYEE';
 
-    if (!email || password.length < 8) {
-      return jsonError('E-Mail und Passwort mit mindestens 8 Zeichen erforderlich.', 400);
+    if (!email) {
+      return jsonError('Bitte eine E-Mail-Adresse angeben.', 400);
     }
 
     try {
-      const { data: createdUser, error: createError } = await adminClient.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
+      const appBaseUrl = process.env.APP_BASE_URL || 'https://umzugsnetz.de';
+      const redirectTo = `${appBaseUrl.replace(/\/$/, '')}/admin/einladung`;
+      const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+        redirectTo,
+        data: {
           role: role === 'ADMIN' ? 'admin' : 'employee',
           full_name: email.split('@')[0],
         },
       });
 
-      if (createError) return jsonError(mapSupabaseAdminError(createError), 500);
+      if (inviteError) return jsonError(mapSupabaseAdminError(inviteError), 500);
 
       const now = new Date().toISOString();
       const { error: teamError } = await adminClient
@@ -294,36 +578,44 @@ export async function PATCH(request: Request) {
         .upsert([{
           email,
           role,
-          status: 'ACTIVE',
+          status: 'PENDING',
           invited_by_email: staff.user.email?.toLowerCase() || null,
           invitation_sent_at: now,
         }], { onConflict: 'email' });
 
       if (teamError) return jsonError(teamError.message, 500);
 
-      if (createdUser.user?.id) {
+      if (inviteData.user?.id) {
         await adminClient.from('profiles').upsert([{
-          id: createdUser.user.id,
+          id: inviteData.user.id,
           email,
           full_name: email.split('@')[0],
           primary_role: role,
-          status: 'ACTIVE',
+          status: 'PENDING',
           updated_at: now,
         }]);
       }
+
+      await adminClient.from('notifications').insert([{
+        type: 'TEAM_INVITE_SENT',
+        title: 'Mitarbeiter-Einladung versendet',
+        message: `${email} wurde als ${role === 'ADMIN' ? 'Geschäftsführer' : 'Mitarbeiter'} eingeladen.`,
+        link: '/',
+        is_read: false,
+      }]);
     } catch (error) {
       return jsonError(mapSupabaseAdminError(error), 500);
     }
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   if (action === 'assignLeadPartner') {
-    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
 
     const id = String(body.id || '');
     const partnerId = String(body.partnerId || '').trim();
-    if (!id || !partnerId) return jsonError('Lead oder Partner fehlt.', 400);
+    if (!id || !partnerId) return jsonError('Anfrage oder Partner fehlt.', 400);
 
     const { data: partner, error: partnerError } = await adminClient.from('partners').select('id, name').eq('id', partnerId).maybeSingle();
     if (partnerError) return jsonError(partnerError.message, 500);
@@ -342,11 +634,11 @@ export async function PATCH(request: Request) {
     }).eq('id', id);
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   if (action === 'updateSetting') {
-    if (staff.role !== 'ADMIN') return jsonError('Admin-Rechte erforderlich.', 403);
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
 
     const id = String(body.id || '').trim();
     const key = String(body.key || '').trim();
@@ -367,17 +659,35 @@ export async function PATCH(request: Request) {
 
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   if (action === 'markTicketRead') {
     const sessionId = String(body.sessionId || '').trim();
-    if (!sessionId) return jsonError('Ticket fehlt.', 400);
+    if (!sessionId) return jsonError('Support-Anfrage fehlt.', 400);
 
     const { error } = await adminClient.from('chat_messages').update({ is_read: true }).eq('session_id', sessionId).eq('sender', 'user');
     if (error) return jsonError(error.message, 500);
 
-    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope));
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+  }
+
+  if (action === 'markNotificationsRead') {
+    const notificationIds = Array.isArray(body.notificationIds)
+      ? body.notificationIds.map((id) => String(id || '').trim()).filter(Boolean)
+      : [];
+
+    let query = adminClient.from('notifications').update({ is_read: true });
+    if (notificationIds.length) {
+      query = query.in('id', notificationIds);
+    } else {
+      query = query.eq('is_read', false);
+    }
+
+    const { error } = await query;
+    if (error) return jsonError(error.message, 500);
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
   return jsonError('Aktion nicht gefunden.', 400);

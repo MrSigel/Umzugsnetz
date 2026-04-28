@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   const requesterEmail = adminUser.email?.toLowerCase() || '';
   const supabaseAdmin = getSupabaseAdmin();
   const appBaseUrl = process.env.APP_BASE_URL || 'https://umzugsnetz.de';
-  const redirectTo = `${appBaseUrl.replace(/\/$/, '')}/admin`;
+  const redirectTo = `${appBaseUrl.replace(/\/$/, '')}/admin/einladung`;
   const now = new Date().toISOString();
 
   const { error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {

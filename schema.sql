@@ -224,6 +224,23 @@ ALTER TABLE team
   ADD CONSTRAINT team_status_check
   CHECK (status IN ('PENDING', 'ACTIVE', 'DISABLED'));
 
+CREATE UNIQUE INDEX IF NOT EXISTS team_email_unique_idx ON team (email);
+
+CREATE TABLE IF NOT EXISTS work_call_logs (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  staff_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  staff_email   TEXT,
+  order_id      UUID REFERENCES orders(id) ON DELETE SET NULL,
+  order_number  TEXT,
+  customer_name TEXT,
+  result        TEXT NOT NULL CHECK (result IN ('Gewonnen', 'Verloren', 'Neu Kontaktieren', 'Löschen')),
+  notes         TEXT,
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS work_call_logs_staff_created_idx ON work_call_logs (staff_user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS work_call_logs_result_idx ON work_call_logs (result);
+
 -- ─────────────────────────────────────────────────────────────
 -- 11. RPC: purchase_lead (Atomare Lead-Kauf-Transaktion)
 -- ─────────────────────────────────────────────────────────────
@@ -439,6 +456,7 @@ ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE partner_invite_codes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team ENABLE ROW LEVEL SECURITY;
+ALTER TABLE work_call_logs ENABLE ROW LEVEL SECURITY;
 
 -- Hilfsfunktionen für Admin-/Mitarbeiterrechte
 CREATE OR REPLACE FUNCTION app_is_admin()
@@ -566,6 +584,17 @@ CREATE POLICY "team_update_own_onboarding" ON team FOR UPDATE USING (
   auth.role() = 'authenticated'
   AND lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))
 );
+
+DROP POLICY IF EXISTS "work_call_logs_select_staff" ON work_call_logs;
+DROP POLICY IF EXISTS "work_call_logs_insert_staff" ON work_call_logs;
+DROP POLICY IF EXISTS "work_call_logs_admin_all" ON work_call_logs;
+CREATE POLICY "work_call_logs_select_staff" ON work_call_logs FOR SELECT USING (
+  auth.uid() = staff_user_id OR app_is_admin()
+);
+CREATE POLICY "work_call_logs_insert_staff" ON work_call_logs FOR INSERT WITH CHECK (
+  auth.uid() = staff_user_id OR app_is_admin()
+);
+CREATE POLICY "work_call_logs_admin_all" ON work_call_logs FOR ALL USING (app_is_admin()) WITH CHECK (app_is_admin());
 
 -- TRANSACTIONS: Nur authentifizierte Benutzer
 DROP POLICY IF EXISTS "transactions_all_authenticated" ON transactions;

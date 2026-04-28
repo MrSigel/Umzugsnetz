@@ -1,5 +1,7 @@
 import {
   CircleDollarSign,
+  BriefcaseBusiness,
+  Building2,
   FileText,
   Gauge,
   Handshake,
@@ -16,6 +18,8 @@ import {
 
 export type AdminSectionId =
   | 'dashboard'
+  | 'work'
+  | 'customers'
   | 'requests'
   | 'partners'
   | 'distribution'
@@ -65,6 +69,13 @@ export type PortalPartner = {
   category?: string | null;
   service?: string | null;
   balance?: number | string | null;
+  settings?: {
+    address?: string | null;
+    contact_person?: string | null;
+    notes?: string | null;
+    internal_notes?: string | null;
+    [key: string]: unknown;
+  } | null;
 };
 
 export type PortalTransaction = {
@@ -90,6 +101,13 @@ export type PortalTicket = {
   last_message?: string | null;
   last_at?: string | null;
   unread_count?: number;
+  messages?: Array<{
+    id?: string | null;
+    sender?: string | null;
+    text?: string | null;
+    is_read?: boolean | null;
+    created_at?: string | null;
+  }>;
 };
 
 export type PortalSetting = {
@@ -123,6 +141,17 @@ export type PortalResponse = {
   tickets?: PortalTicket[];
   team?: PortalTeam[];
   settings?: PortalSetting[];
+  workStats?: {
+    totalCalls: number;
+    callsToday: number;
+    callsThisHour: number;
+    won: number;
+    lost: number;
+    recontact: number;
+    deleted: number;
+    successRate: number;
+    lastCallAt?: string | null;
+  };
 };
 
 export type ContentRecord = {
@@ -137,22 +166,23 @@ export type ContentRecord = {
 
 export const baseNavigation: Record<StaffRole, NavItem[]> = {
   ADMIN: [
-    { id: 'dashboard', label: 'Dashboard', icon: Gauge },
+    { id: 'dashboard', label: 'Übersicht', icon: Gauge },
+    { id: 'work', label: 'Arbeiten', icon: BriefcaseBusiness },
+    { id: 'customers', label: 'Kunden', icon: Building2 },
     { id: 'requests', label: 'Anfragen', icon: Mail },
     { id: 'partners', label: 'Partner', icon: Handshake },
-    { id: 'distribution', label: 'Lead-Verteilung', icon: SplitSquareVertical },
+    { id: 'distribution', label: 'Anfragen-Verteilung', icon: SplitSquareVertical },
     { id: 'employees', label: 'Mitarbeiter', icon: UserCog },
-    { id: 'tickets', label: 'Tickets', icon: MessageSquareText },
+    { id: 'tickets', label: 'Support', icon: MessageSquareText },
     { id: 'billing', label: 'Abrechnung', icon: ReceiptText },
     { id: 'content', label: 'Inhalte', icon: LayoutTemplate },
     { id: 'settings', label: 'Einstellungen', icon: Settings2 },
   ],
   EMPLOYEE: [
-    { id: 'dashboard', label: 'Dashboard', icon: Gauge },
-    { id: 'requests', label: 'Anfragen', icon: Mail },
-    { id: 'distribution', label: 'Lead-Verteilung', icon: SplitSquareVertical },
-    { id: 'tickets', label: 'Tickets', icon: MessageSquareText },
-    { id: 'content', label: 'Inhalte', icon: LayoutTemplate },
+    { id: 'dashboard', label: 'Übersicht', icon: Gauge },
+    { id: 'work', label: 'Arbeiten', icon: BriefcaseBusiness },
+    { id: 'customers', label: 'Kunden', icon: Building2 },
+    { id: 'tickets', label: 'Support', icon: MessageSquareText },
   ],
 };
 
@@ -233,28 +263,36 @@ export const liveContentItems: ContentRecord[] = [
 
 export const emptyStateBySection: Record<AdminSectionId, { title: string; text: string }> = {
   dashboard: {
-    title: 'Noch keine Daten im Dashboard',
-    text: 'Sobald Leads, Hinweise oder Transaktionen vorhanden sind, erscheinen sie hier.',
+    title: 'Noch keine Daten in der Übersicht',
+    text: 'Sobald Anfragen, Hinweise oder Transaktionen vorhanden sind, erscheinen sie hier.',
   },
   requests: {
     title: 'Keine Anfragen gefunden',
-    text: 'Aktuell liegen fuer den gewaehlten Filter keine Leads oder Auftraege vor.',
+    text: 'Aktuell liegen für den gewählten Filter keine Anfragen oder Aufträge vor.',
+  },
+  work: {
+    title: 'Keine Kunden zum Bearbeiten',
+    text: 'Sobald offene Anfragen vorhanden sind, erscheint hier der nächste Kunde.',
+  },
+  customers: {
+    title: 'Keine Kunden hinterlegt',
+    text: 'Sobald Partnerfirmen gespeichert sind, erscheinen sie hier.',
   },
   partners: {
-    title: 'Keine Partner verfuegbar',
-    text: 'In der Datenbank sind aktuell keine Partnerdatensaetze fuer diese Ansicht vorhanden.',
+    title: 'Keine Partner verfügbar',
+    text: 'In der Datenbank sind aktuell keine Partnerdatensätze für diese Ansicht vorhanden.',
   },
   distribution: {
-    title: 'Keine offene Lead-Verteilung',
-    text: 'Es gibt aktuell keine offenen oder pruefpflichtigen Leads fuer die Zuweisung.',
+    title: 'Keine offene Anfragen-Verteilung',
+    text: 'Es gibt aktuell keine offenen oder prüfpflichtigen Anfragen für die Zuweisung.',
   },
   employees: {
     title: 'Keine Mitarbeiter vorhanden',
     text: 'Sobald Nutzer in der `team`-Tabelle existieren, erscheinen sie hier.',
   },
   tickets: {
-    title: 'Keine Tickets vorhanden',
-    text: 'Eingehende Live-Chat-Anfragen erscheinen hier automatisch, sobald Nachrichten gespeichert sind.',
+    title: 'Keine Support-Anfragen vorhanden',
+    text: 'Eingehende Chat-Anfragen erscheinen hier automatisch, sobald Nachrichten gespeichert sind.',
   },
   billing: {
     title: 'Keine Abrechnungsdaten vorhanden',
@@ -262,23 +300,25 @@ export const emptyStateBySection: Record<AdminSectionId, { title: string; text: 
   },
   content: {
     title: 'Keine Inhalte gefunden',
-    text: 'Es konnten keine echten Ratgeber- oder FAQ-Eintraege geladen werden.',
+    text: 'Es konnten keine echten Ratgeber- oder FAQ-Einträge geladen werden.',
   },
   settings: {
-    title: 'Keine Systemeinstellungen geladen',
-    text: 'Wenn `system_settings` gefuellt ist, erscheinen die Konfigurationen hier.',
+    title: 'Keine Einstellungen geladen',
+    text: 'Sobald Konfigurationen vorhanden sind, erscheinen sie hier.',
   },
 };
 
 export const sectionDescriptions: Record<AdminSectionId, string> = {
-  dashboard: 'Operative Uebersicht auf Basis der aktuellen Plattformdaten.',
-  requests: 'Lead-Eingang, Statuspflege und echte Anfragen aus dem System.',
+  dashboard: 'Operative Übersicht auf Basis der aktuellen Plattformdaten.',
+  work: 'Telefonischer Bearbeitungsassistent für echte Kundenanfragen.',
+  customers: 'Partnerfirmen mit Kontaktdaten, Adresse und internen Notizen.',
+  requests: 'Anfrageeingang, Statuspflege und echte Anfragen aus dem System.',
   partners: 'Partnernetzwerk mit Regionen, Kontakt und Kontostand aus der Datenbank.',
-  distribution: 'Offene Leads mit tatsaechlichen Partner-Matches nach Regionen.',
-  employees: 'Mitarbeiter direkt anlegen und bestehende Zugänge verwalten.',
-  tickets: 'Alle gespeicherten Live-Chat-Anfragen und Support-Konversationen.',
+  distribution: 'Offene Anfragen mit tatsächlich passenden Partnern nach Regionen.',
+  employees: 'Mitarbeiter per E-Mail einladen und bestehende Zugänge verwalten.',
+  tickets: 'Alle gespeicherten Chat-Anfragen und Support-Konversationen.',
   billing: 'Transaktionen, Umsatz und offene Finanzbewegungen aus dem System.',
-  content: 'Aktive Ratgeber- und FAQ-Inhalte aus der live eingebundenen Website.',
+  content: 'Aktive Ratgeber- und FAQ-Inhalte aus der eingebundenen Website.',
   settings: 'Konfigurationen und Team-Struktur aus den aktuellen Systemdaten.',
 };
 
