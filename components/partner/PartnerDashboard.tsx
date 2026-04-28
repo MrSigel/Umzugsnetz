@@ -846,7 +846,7 @@ function OverviewSection({
             </button>
           }
         >
-          <p className="text-sm font-medium text-slate-500">Mit dem Klick erhalten Sie 1–3 kostenlose Anfragen aus Ihrer Region. Das Angebot ist einmalig pro Konto.</p>
+          <p className="text-sm font-medium text-slate-500">Mit dem Klick erhalten Sie bis zu 5 kostenlose Anfragen aus Ihrer Region. Das Angebot ist einmalig pro Unternehmen.</p>
         </SectionCard>
       ) : null}
 

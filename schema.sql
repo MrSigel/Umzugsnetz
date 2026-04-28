@@ -364,7 +364,7 @@ BEGIN
     RAISE EXCEPTION 'Der Startbonus wurde bereits aktiviert.';
   END IF;
 
-  token_count := 1 + floor(random() * 3)::INTEGER;
+  token_count := 1 + floor(random() * 5)::INTEGER;
 
   UPDATE partners
   SET bonus_tokens = token_count,
