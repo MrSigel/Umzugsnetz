@@ -57,8 +57,11 @@ function isValidUrl(value: string) {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="mt-2 text-xs font-semibold text-red-600">{message}</p>;
+  return <p className="mt-1.5 text-xs font-medium text-red-600">{message}</p>;
 }
+
+const FIELD_LABEL = 'mb-1.5 block text-xs font-semibold text-slate-700';
+const FIELD_INPUT = 'w-full rounded-lg border bg-white text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20';
 
 function TextInput({
   label,
@@ -72,14 +75,12 @@ function TextInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/75">{label}</span>
+      <span className={FIELD_LABEL}>{label}</span>
       <span className="relative block">
-        <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+        <Icon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           {...props}
-          className={`w-full rounded-2xl border-2 bg-white px-12 py-4 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-300 hover:border-slate-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 ${
-            error ? 'border-red-300' : 'border-slate-200'
-          }`}
+          className={`${FIELD_INPUT} pl-10 pr-3 py-2.5 ${error ? 'border-red-300' : 'border-slate-200'}`}
         />
       </span>
       <FieldError message={error} />
@@ -102,20 +103,18 @@ function SelectInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/75">{label}</span>
+      <span className={FIELD_LABEL}>{label}</span>
       <span className="relative block">
         <select
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className={`w-full appearance-none rounded-2xl border-2 bg-white px-4 py-4 pr-12 text-sm font-semibold text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 ${
-            error ? 'border-red-300' : 'border-slate-200'
-          }`}
+          className={`${FIELD_INPUT} appearance-none px-3 pr-10 py-2.5 ${error ? 'border-red-300' : 'border-slate-200'}`}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       </span>
       <FieldError message={error} />
     </label>
@@ -139,25 +138,23 @@ function PasswordInput({
 
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/75">{label}</span>
+      <span className={FIELD_LABEL}>{label}</span>
       <span className="relative block">
-        <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+        <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type={visible ? 'text' : 'password'}
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className={`w-full rounded-2xl border-2 bg-white py-4 pl-12 pr-12 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-300 hover:border-slate-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 ${
-            error ? 'border-red-300' : 'border-slate-200'
-          }`}
+          className={`${FIELD_INPUT} pl-10 pr-10 py-2.5 ${error ? 'border-red-300' : 'border-slate-200'}`}
         />
         <button
           type="button"
           onClick={() => setVisible((current) => !current)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-700"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
           aria-label={visible ? 'Passwort verbergen' : 'Passwort anzeigen'}
         >
-          {visible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
       </span>
       <FieldError message={error} />
@@ -277,21 +274,28 @@ export default function LoginPage() {
     }
   };
 
+  const isLogin = activeTab === 'login';
+  const headline = isLogin ? 'Willkommen zurück' : 'Konto erstellen';
+  const subheading = isLogin
+    ? 'Melden Sie sich an, um Ihre Anfragen, Aufträge und Abrechnungen zu verwalten.'
+    : 'Registrieren Sie Ihre Firma und schalten Sie das Umzugsnetz-Dashboard frei.';
+
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_32%),linear-gradient(135deg,#f8fafc,#eef4f8)] px-4 py-6 text-slate-900 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-white text-slate-900">
       {legalModal ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl sm:p-8">
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <h2 className="text-2xl font-black text-slate-950">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl sm:p-8">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <h2 className="text-xl font-bold text-slate-900">
                 {legalModal === 'agb' ? 'AGB' : 'Datenschutz'}
               </h2>
               <button
                 type="button"
                 onClick={() => setLegalModal(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-800"
+                aria-label="Schließen"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-3 text-sm leading-relaxed text-slate-600">
@@ -305,89 +309,114 @@ export default function LoginPage() {
         </div>
       ) : null}
 
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl items-stretch lg:items-center">
-        <section className="grid w-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_30px_100px_rgba(15,23,42,0.16)] backdrop-blur-xl lg:h-[calc(100vh-3rem)] lg:max-h-[920px] lg:min-h-[640px] lg:grid-cols-[40fr_2px_60fr]">
-          <div className="bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_34%),linear-gradient(135deg,#0276c8,#015a99)] p-6 text-white sm:p-10 lg:overflow-y-auto lg:p-12">
-            <Link href="/" aria-label="Zur Startseite" className="mb-10 flex justify-center">
-              <Image src="/logo_transparent.png" alt="Umzugsnetz" width={190} height={48} className="h-12 w-auto brightness-0 invert" priority />
+      <div className="grid min-h-screen lg:grid-cols-[35%_65%]">
+        {/* LEFT — Form column */}
+        <section className="flex min-h-screen flex-col bg-white">
+          <header className="flex items-center justify-between border-b border-slate-100 px-6 py-5 sm:px-10">
+            <Link href="/" aria-label="Zur Startseite" className="inline-flex items-center">
+              <Image src="/logo_transparent.png" alt="Umzugsnetz" width={150} height={36} className="h-8 w-auto" priority />
             </Link>
-            <h1 className="mx-auto mb-8 max-w-md whitespace-nowrap text-center text-base font-black tracking-tight text-white sm:text-lg">
-              Zugang zum Umzugsnetz Dashboard
-            </h1>
-            <div className="mx-auto max-w-md">
-              <div className="mb-8 grid grid-cols-2 rounded-2xl border border-white/20 bg-white/10 p-1">
+            <Link href="/" className="text-sm font-medium text-slate-500 transition-colors hover:text-brand-blue">
+              Zurück zur Website
+            </Link>
+          </header>
+
+          <div className="flex flex-1 items-center justify-center overflow-y-auto px-6 py-10 sm:px-10">
+            <div className="w-full max-w-md">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-blue">
+                {isLogin ? 'Anmelden' : 'Registrieren'}
+              </p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{headline}</h1>
+              <p className="mt-3 text-sm leading-relaxed text-slate-500">{subheading}</p>
+
+              <div className="mt-8 inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 text-sm">
                 {[
                   { id: 'login', label: 'Anmelden' },
                   { id: 'register', label: 'Registrieren' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveTab(tab.id as 'login' | 'register');
-                      setErrors({});
-                    }}
-                    className={`rounded-xl px-4 py-3 text-sm font-black transition-all ${
-                      activeTab === tab.id ? 'bg-white text-brand-blue shadow-sm' : 'text-white/75 hover:text-white'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                ].map((tab) => {
+                  const tabActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab(tab.id as 'login' | 'register');
+                        setErrors({});
+                      }}
+                      className={`rounded-md px-4 py-1.5 text-sm font-semibold transition-colors ${
+                        tabActive ? 'bg-white text-brand-blue shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
 
-              {activeTab === 'login' ? (
-                <form onSubmit={handleLogin}>
-                  <div className="space-y-5">
-                    <TextInput
-                      label="E-Mail"
-                      icon={Mail}
-                      type="email"
-                      placeholder="ihre@email.de"
-                      value={loginForm.email}
-                      error={errors.email}
-                      onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value }))}
-                    />
-                    <PasswordInput
-                      label="Passwort"
-                      placeholder="Ihr Passwort"
-                      value={loginForm.password}
-                      error={errors.password}
-                      onChange={(value) => setLoginForm((current) => ({ ...current, password: value }))}
-                    />
+              {isLogin ? (
+                <form onSubmit={handleLogin} className="mt-7 space-y-5">
+                  <TextInput
+                    label="E-Mail-Adresse"
+                    icon={Mail}
+                    type="email"
+                    placeholder="ihre@email.de"
+                    value={loginForm.email}
+                    error={errors.email}
+                    onChange={(event) => setLoginForm((current) => ({ ...current, email: event.target.value }))}
+                  />
+                  <PasswordInput
+                    label="Passwort"
+                    placeholder="Ihr Passwort"
+                    value={loginForm.password}
+                    error={errors.password}
+                    onChange={(value) => setLoginForm((current) => ({ ...current, password: value }))}
+                  />
 
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                      <button
-                        type="button"
-                        onClick={() => setLoginForm((current) => ({ ...current, remember: !current.remember }))}
-                        className="flex min-w-0 items-center gap-3"
-                        aria-pressed={loginForm.remember}
-                      >
-                        <span className={`relative inline-flex h-7 w-12 flex-shrink-0 rounded-full transition-colors ${loginForm.remember ? 'bg-brand-blue' : 'bg-slate-200'}`}>
-                          <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform ${loginForm.remember ? 'translate-x-5' : 'translate-x-0'}`} />
-                        </span>
-                        <span className="text-sm font-bold text-white/85">Angemeldet bleiben</span>
-                      </button>
-                      <a href="/passwort-zuruecksetzen" className="text-sm font-bold text-white transition-colors hover:text-white/80">
-                        Passwort vergessen?
-                      </a>
-                    </div>
-
-                    <FieldError message={errors.login} />
-
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <button
-                      type="submit"
-                      disabled={loginLoading}
-                      className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-base font-black text-brand-blue shadow-xl shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-white/90 disabled:opacity-60"
+                      type="button"
+                      onClick={() => setLoginForm((current) => ({ ...current, remember: !current.remember }))}
+                      className="flex min-w-0 items-center gap-2.5"
+                      aria-pressed={loginForm.remember}
                     >
-                      {loginLoading ? 'Bitte warten...' : 'Einloggen'}
-                      <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                      <span className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full transition-colors ${loginForm.remember ? 'bg-brand-blue' : 'bg-slate-200'}`}>
+                        <span className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${loginForm.remember ? 'translate-x-4' : 'translate-x-0'}`} />
+                      </span>
+                      <span className="text-sm font-medium text-slate-600">Angemeldet bleiben</span>
                     </button>
+                    <a href="/passwort-zuruecksetzen" className="text-sm font-medium text-brand-blue transition-colors hover:underline">
+                      Passwort vergessen?
+                    </a>
                   </div>
+
+                  <FieldError message={errors.login} />
+
+                  <button
+                    type="submit"
+                    disabled={loginLoading}
+                    className="group flex w-full items-center justify-center gap-2 rounded-lg bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
+                  >
+                    {loginLoading ? 'Anmeldung läuft…' : 'Anmelden'}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+
+                  <p className="text-center text-sm text-slate-500">
+                    Noch kein Konto?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('register');
+                        setErrors({});
+                      }}
+                      className="font-semibold text-brand-blue hover:underline"
+                    >
+                      Jetzt registrieren
+                    </button>
+                  </p>
                 </form>
               ) : (
-                <form onSubmit={handleRegister}>
-                  <div className="space-y-5">
+                <form onSubmit={handleRegister} className="mt-7 space-y-5">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <TextInput
                       label="Firmenname"
                       icon={Building2}
@@ -418,13 +447,15 @@ export default function LoginPage() {
                       onChange={(value) => setRegisterForm((current) => ({ ...current, radius: value }))}
                       options={REGISTER_RADIUS_OPTIONS.map((option) => ({ value: option, label: option }))}
                     />
-                    <SelectInput
-                      label="Dienstleistung"
-                      value={registerForm.service}
-                      error={errors.service}
-                      onChange={(value) => setRegisterForm((current) => ({ ...current, service: value }))}
-                      options={REGISTER_SERVICE_OPTIONS}
-                    />
+                    <div className="sm:col-span-2">
+                      <SelectInput
+                        label="Dienstleistung"
+                        value={registerForm.service}
+                        error={errors.service}
+                        onChange={(value) => setRegisterForm((current) => ({ ...current, service: value }))}
+                        options={REGISTER_SERVICE_OPTIONS}
+                      />
+                    </div>
                     <TextInput
                       label="Firmen-Website"
                       icon={Globe2}
@@ -435,7 +466,7 @@ export default function LoginPage() {
                       onChange={(event) => setRegisterForm((current) => ({ ...current, website: event.target.value }))}
                     />
                     <TextInput
-                      label="Telefonnummer"
+                      label="Telefon"
                       icon={Phone}
                       inputMode="tel"
                       placeholder="+49 170 1234567"
@@ -443,15 +474,17 @@ export default function LoginPage() {
                       error={errors.phone}
                       onChange={(event) => setRegisterForm((current) => ({ ...current, phone: event.target.value }))}
                     />
-                    <TextInput
-                      label="E-Mail"
-                      icon={Mail}
-                      type="email"
-                      placeholder="kontakt@firma.de"
-                      value={registerForm.email}
-                      error={errors.email}
-                      onChange={(event) => setRegisterForm((current) => ({ ...current, email: event.target.value }))}
-                    />
+                    <div className="sm:col-span-2">
+                      <TextInput
+                        label="E-Mail"
+                        icon={Mail}
+                        type="email"
+                        placeholder="kontakt@firma.de"
+                        value={registerForm.email}
+                        error={errors.email}
+                        onChange={(event) => setRegisterForm((current) => ({ ...current, email: event.target.value }))}
+                      />
+                    </div>
                     <PasswordInput
                       label="Passwort"
                       placeholder="Mindestens 8 Zeichen"
@@ -461,20 +494,20 @@ export default function LoginPage() {
                     />
                     <PasswordInput
                       label="Passwort wiederholen"
-                      placeholder="Passwort erneut eingeben"
+                      placeholder="Erneut eingeben"
                       value={registerForm.confirmPassword}
                       error={errors.confirmPassword}
                       onChange={(value) => setRegisterForm((current) => ({ ...current, confirmPassword: value }))}
                     />
                   </div>
 
-                  <label className="mt-6 flex cursor-pointer items-center gap-3">
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                     <span
-                      className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
-                        registerForm.acceptedTerms ? 'border-brand-green bg-brand-green text-white' : 'border-slate-300 bg-white'
+                      className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border-2 transition-all ${
+                        registerForm.acceptedTerms ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-300 bg-white'
                       }`}
                     >
-                      {registerForm.acceptedTerms ? <Check className="h-3.5 w-3.5" /> : null}
+                      {registerForm.acceptedTerms ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
                     </span>
                     <input
                       type="checkbox"
@@ -482,7 +515,7 @@ export default function LoginPage() {
                       onChange={(event) => setRegisterForm((current) => ({ ...current, acceptedTerms: event.target.checked }))}
                       className="sr-only"
                     />
-                    <span className="whitespace-nowrap text-[11px] font-semibold tracking-tight text-white/85 sm:text-sm sm:tracking-normal">
+                    <span className="text-xs leading-relaxed text-slate-600">
                       Ich akzeptiere die{' '}
                       <button
                         type="button"
@@ -490,7 +523,7 @@ export default function LoginPage() {
                           event.preventDefault();
                           setLegalModal('agb');
                         }}
-                          className="font-black text-white hover:underline"
+                        className="font-semibold text-brand-blue hover:underline"
                       >
                         AGB
                       </button>{' '}
@@ -501,7 +534,7 @@ export default function LoginPage() {
                           event.preventDefault();
                           setLegalModal('datenschutz');
                         }}
-                        className="font-black text-white hover:underline"
+                        className="font-semibold text-brand-blue hover:underline"
                       >
                         Datenschutzbestimmungen
                       </button>
@@ -512,38 +545,97 @@ export default function LoginPage() {
                   <FieldError message={errors.register} />
 
                   {registerSuccess ? (
-                    <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-700">
-                      Konto erstellt.
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                      Konto erstellt. Sie erhalten in Kürze eine Bestätigung per E-Mail.
                     </div>
                   ) : null}
 
                   <button
                     type="submit"
                     disabled={registerLoading}
-                    className="group mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-base font-black text-brand-blue shadow-xl shadow-slate-950/15 transition-all hover:-translate-y-0.5 hover:bg-white/90 disabled:opacity-60"
+                    className="group flex w-full items-center justify-center gap-2 rounded-lg bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
                   >
-                    {registerLoading ? 'Bitte warten...' : 'Konto erstellen'}
-                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                    {registerLoading ? 'Wird erstellt…' : 'Konto erstellen'}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </button>
+
+                  <p className="text-center text-sm text-slate-500">
+                    Bereits registriert?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('login');
+                        setErrors({});
+                      }}
+                      className="font-semibold text-brand-blue hover:underline"
+                    >
+                      Jetzt anmelden
+                    </button>
+                  </p>
                 </form>
               )}
             </div>
           </div>
 
-          <div className="hidden bg-gradient-to-b from-brand-blue via-slate-900 to-brand-green lg:block" />
-
-          <div className="relative hidden overflow-hidden border-t border-slate-200 lg:block lg:border-t-0">
-            <Image
-              src="/login.png"
-              alt=""
-              fill
-              sizes="60vw"
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-slate-950/10" />
-          </div>
+          <footer className="flex flex-col gap-2 border-t border-slate-100 px-6 py-4 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+            <span>© {new Date().getFullYear()} Umzugsnetz</span>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/impressum" className="transition-colors hover:text-slate-600">Impressum</Link>
+              <Link href="/datenschutz" className="transition-colors hover:text-slate-600">Datenschutz</Link>
+              <Link href="/agb" className="transition-colors hover:text-slate-600">AGB</Link>
+            </div>
+          </footer>
         </section>
+
+        {/* RIGHT — Image / branding column */}
+        <aside className="relative hidden overflow-hidden lg:block">
+          <Image
+            src="/login.png"
+            alt=""
+            fill
+            sizes="65vw"
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/85 via-brand-blue/50 to-slate-900/80" />
+
+          <div className="absolute inset-0 flex flex-col justify-between p-12 text-white">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-semibold backdrop-blur">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Live-Marktplatz für Umzüge & Entrümpelungen
+              </span>
+            </div>
+
+            <div className="max-w-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">Umzugsnetz</p>
+              <h2 className="mt-3 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+                Deutschlands wachsende Plattform für geprüfte Umzugs- und Entrümpelungs­firmen.
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-relaxed text-white/85">
+                Verwalten Sie Anfragen, Marktplatz-Käufe und Abrechnung an einem Ort — schlank, sicher und auf Ihre Region zugeschnitten.
+              </p>
+
+              <dl className="mt-10 grid grid-cols-3 gap-6">
+                <div>
+                  <dt className="text-3xl font-bold">500+</dt>
+                  <dd className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">Geprüfte Firmen</dd>
+                </div>
+                <div>
+                  <dt className="text-3xl font-bold">50.000+</dt>
+                  <dd className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">Zufriedene Kunden</dd>
+                </div>
+                <div>
+                  <dt className="text-3xl font-bold">4.9★</dt>
+                  <dd className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">Trustpilot</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </aside>
       </div>
     </main>
   );
