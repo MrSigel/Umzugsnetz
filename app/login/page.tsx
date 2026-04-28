@@ -305,8 +305,8 @@ export default function LoginPage() {
         </div>
       ) : null}
 
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl items-center">
-        <section className="grid w-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_30px_100px_rgba(15,23,42,0.16)] backdrop-blur-xl lg:h-[860px] lg:grid-cols-[40fr_2px_60fr]">
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl items-stretch lg:items-center">
+        <section className="grid w-full overflow-hidden rounded-[2rem] border border-white/70 bg-white/92 shadow-[0_30px_100px_rgba(15,23,42,0.16)] backdrop-blur-xl lg:h-[calc(100vh-3rem)] lg:max-h-[920px] lg:min-h-[640px] lg:grid-cols-[40fr_2px_60fr]">
           <div className="bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_34%),linear-gradient(135deg,#0276c8,#015a99)] p-6 text-white sm:p-10 lg:overflow-y-auto lg:p-12">
             <Link href="/" aria-label="Zur Startseite" className="mb-10 flex justify-center">
               <Image src="/logo_transparent.png" alt="Umzugsnetz" width={190} height={48} className="h-12 w-auto brightness-0 invert" priority />

@@ -273,11 +273,11 @@ function Sidebar({
       <div className={cx('fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-sm lg:hidden', mobileOpen ? 'block' : 'hidden')} onClick={onClose} />
       <aside
         className={cx(
-          'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col border-r border-white/70 bg-white/95 p-5 shadow-[0_25px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none',
+          'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col overflow-y-auto border-r border-white/70 bg-white/95 p-5 shadow-[0_25px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-shrink-0 items-center justify-between">
           <Image src="/logo_transparent.png" alt="Umzugsnetz" width={170} height={44} className="h-10 w-auto" priority />
           <button type="button" onClick={onClose} className="rounded-2xl border border-slate-200 p-2 text-slate-500 lg:hidden">
             <X className="h-5 w-5" />
