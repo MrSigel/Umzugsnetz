@@ -170,7 +170,7 @@ function contentStatusLabel(status?: string | null) {
 
 function StatusBadge({ label, tone }: { label: string; tone?: StatusTone }) {
   const resolvedTone = tone || statusToneMap[label] || 'slate';
-  return <span className={cx('inline-flex rounded-full border px-3 py-1 text-xs font-black', toneClassMap[resolvedTone])}>{label}</span>;
+  return <span className={cx('inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold', toneClassMap[resolvedTone])}>{label}</span>;
 }
 
 function SectionCard({
@@ -433,19 +433,26 @@ function DataTable<T extends { id: string }>({
   renderCell: (row: T, key: string) => React.ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-[1.7rem] border border-slate-100">
-      <div className="hidden grid-cols-[repeat(var(--cols),minmax(0,1fr))] gap-4 bg-slate-50 px-5 py-4 text-xs font-black uppercase tracking-[0.16em] text-slate-400 md:grid" style={{ ['--cols' as string]: columns.length }}>
+    <div className="overflow-hidden rounded-xl border border-slate-200">
+      <div
+        className="hidden grid-cols-[repeat(var(--cols),minmax(0,1fr))] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 md:grid"
+        style={{ ['--cols' as string]: columns.length }}
+      >
         {columns.map((column) => (
           <div key={column.key}>{column.label}</div>
         ))}
       </div>
-      <div className="divide-y divide-slate-100">
+      <div className="divide-y divide-slate-100 bg-white">
         {rows.map((row) => (
-          <div key={row.id} className="grid gap-4 px-5 py-4 md:grid-cols-[repeat(var(--cols),minmax(0,1fr))]" style={{ ['--cols' as string]: columns.length }}>
+          <div
+            key={row.id}
+            className="grid gap-4 px-5 py-3.5 transition-colors hover:bg-slate-50 md:grid-cols-[repeat(var(--cols),minmax(0,1fr))]"
+            style={{ ['--cols' as string]: columns.length }}
+          >
             {columns.map((column) => (
               <div key={column.key} className="min-w-0">
-                <p className="mb-1 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400 md:hidden">{column.label}</p>
-                <div className="text-sm font-semibold text-slate-700">{renderCell(row, column.key)}</div>
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 md:hidden">{column.label}</p>
+                <div className="text-sm font-medium text-slate-700">{renderCell(row, column.key)}</div>
               </div>
             ))}
           </div>
@@ -532,7 +539,7 @@ function DashboardSection({
                 if (key === 'customer') {
                   return (
                     <div>
-                      <p className="font-black text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
+                      <p className="font-semibold text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
                       <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.order_number || row.id} · {formatDateTime(row.created_at)}</p>
                     </div>
                   );
@@ -554,10 +561,10 @@ function DashboardSection({
             {filteredNotifications.length ? (
               <div className="space-y-3">
                 {filteredNotifications.slice(0, 6).map((item) => (
-                  <div key={item.id} className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
+                  <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="font-black text-slate-900">{item.title || 'Hinweis'}</p>
-                      <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{formatDateTime(item.created_at)}</span>
+                      <p className="font-semibold text-slate-900">{item.title || 'Hinweis'}</p>
+                      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{formatDateTime(item.created_at)}</span>
                     </div>
                     <p className="mt-2 text-sm font-medium text-slate-500">{item.message || '-'}</p>
                   </div>
@@ -572,13 +579,13 @@ function DashboardSection({
             {filteredActivities.length ? (
               <div className="space-y-3">
                 {filteredActivities.map((item) => (
-                  <div key={item.id} className="flex items-start gap-3 rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
+                  <div key={item.id} className="flex items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
                     <span className={cx('mt-1 h-3 w-3 rounded-full', item.tone === 'red' ? 'bg-red-500' : item.tone === 'emerald' ? 'bg-emerald-500' : item.tone === 'amber' ? 'bg-amber-500' : item.tone === 'blue' ? 'bg-brand-blue' : 'bg-slate-400')} />
                     <div className="min-w-0 flex-1">
-                      <p className="font-black text-slate-900">{item.title}</p>
+                      <p className="font-semibold text-slate-900">{item.title}</p>
                       <p className="mt-1 text-sm font-medium text-slate-500">{item.meta}</p>
                     </div>
-                    <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{item.time}</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{item.time}</span>
                   </div>
                 ))}
               </div>
@@ -635,9 +642,9 @@ function EmployeeOverviewSection({ stats, leads, tickets }: { stats?: PortalResp
               ['Gelöscht', String(resolvedStats.deleted)],
               ['Letzter Anruf', formatDateTime(resolvedStats.lastCallAt)],
             ].map(([label, value]) => (
-              <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3">
-                <span className="text-sm font-black text-slate-700">{label}</span>
-                <span className="text-sm font-black text-slate-950">{value}</span>
+              <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                <span className="text-sm font-semibold text-slate-700">{label}</span>
+                <span className="text-sm font-semibold text-slate-900">{value}</span>
               </div>
             ))}
           </div>
@@ -645,13 +652,13 @@ function EmployeeOverviewSection({ stats, leads, tickets }: { stats?: PortalResp
 
         <SectionCard title="Aktueller Arbeitsstand">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Nächster Schritt</p>
-              <p className="mt-2 text-lg font-black text-slate-950">Arbeiten öffnen und nächsten Kunden anrufen</p>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Nächster Schritt</p>
+              <p className="mt-2 text-lg font-bold text-slate-950">Arbeiten öffnen und nächsten Kunden anrufen</p>
             </div>
-            <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Kundenservice</p>
-              <p className="mt-2 text-lg font-black text-slate-950">{unreadSupport} ungelesene Support-Nachrichten</p>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Kundenservice</p>
+              <p className="mt-2 text-lg font-bold text-slate-950">{unreadSupport} ungelesene Support-Nachrichten</p>
             </div>
           </div>
         </SectionCard>
@@ -718,19 +725,19 @@ function RequestsSection({ leads, search, onSave }: { leads: PortalLead[]; searc
                 type="button"
                 onClick={() => setSelectedLeadId(row.id)}
                 className={cx(
-                  'w-full rounded-[1.5rem] border p-4 text-left transition-all',
-                  selectedLeadId === row.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50/80 hover:border-slate-200',
+                  'w-full rounded-xl border p-4 text-left transition-all',
+                  selectedLeadId === row.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50 hover:border-slate-200',
                 )}
               >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
-                    <p className="font-black text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
+                    <p className="font-semibold text-slate-900">{row.customer_name || 'Ohne Namen'}</p>
                     <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{row.customer_email || '-'} · {row.customer_phone || '-'}</p>
                     <p className="mt-3 text-sm font-semibold text-slate-500">{row.service_category || '-'} · {row.von_city || '-'} → {row.nach_city || '-'}</p>
                   </div>
                   <div className="flex flex-col items-start gap-2 lg:items-end">
                     <StatusBadge label={leadStatusLabel(row.status)} tone={getLeadStatusTone(row.status)} />
-                    <span className="text-sm font-black text-slate-900">{formatCurrency(row.estimated_price)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(row.estimated_price)}</span>
                   </div>
                 </div>
               </button>
@@ -744,13 +751,13 @@ function RequestsSection({ leads, search, onSave }: { leads: PortalLead[]; searc
       <SectionCard title="Anfrage bearbeiten">
         {selectedLead ? (
           <div className="space-y-4">
-            <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
-              <p className="font-black text-slate-900">{selectedLead.customer_name || 'Ohne Namen'}</p>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p className="font-semibold text-slate-900">{selectedLead.customer_name || 'Ohne Namen'}</p>
               <p className="mt-1 text-sm font-medium text-slate-500">{selectedLead.order_number || selectedLead.id}</p>
               <p className="mt-3 text-sm font-semibold text-slate-600">{selectedLead.service_category || '-'} · {formatDate(selectedLead.move_date)}</p>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status</label>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Status</label>
               <select value={status} onChange={(event) => setStatus(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {['Neu', 'Kontaktiert', 'Angebot', 'Gebucht', 'Abgelehnt'].map((option) => (
                   <option key={option} value={option}>{option}</option>
@@ -758,10 +765,10 @@ function RequestsSection({ leads, search, onSave }: { leads: PortalLead[]; searc
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notizen</label>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Notizen</label>
               <textarea value={notes} onChange={(event) => setNotes(event.target.value)} rows={8} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </div>
-            <button type="button" onClick={saveLead} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+            <button type="button" onClick={saveLead} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
               {saving ? 'Speichert...' : 'Anfrage speichern'}
             </button>
           </div>
@@ -909,7 +916,7 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
                 setNotes('');
               }}
               className={cx(
-                'inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-black transition-colors',
+                'inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition-colors',
                 testActive ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-amber-200 hover:text-amber-700',
               )}
             >
@@ -920,7 +927,7 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
               <button
                 type="button"
                 onClick={skipLead}
-                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
               >
                 <RefreshCcw className="h-3.5 w-3.5" />
                 Überspringen
@@ -931,31 +938,31 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
       >
         {currentLead ? (
           <div className={cx(
-            'rounded-[1.8rem] border p-6',
+            'rounded-xl border p-6',
             isTestLead
               ? 'border-amber-200 bg-[linear-gradient(180deg,#fffbeb,#ffffff)]'
               : 'border-slate-100 bg-white',
           )}>
             {isTestLead ? (
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-amber-700">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700">
                 Demo-Datensatz · keine Speicherung
               </div>
             ) : null}
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">{currentLead.order_number || 'Anfrage'}</p>
-                <h3 className="mt-1 text-3xl font-black tracking-tight text-slate-950">{currentLead.customer_name || 'Ohne Namen'}</h3>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">{currentLead.order_number || 'Anfrage'}</p>
+                <h3 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">{currentLead.customer_name || 'Ohne Namen'}</h3>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <StatusBadge label={leadStatusLabel(currentLead.status)} tone={getLeadStatusTone(currentLead.status)} />
                   {currentLead.service_category ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-black text-brand-blue">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">
                       <Truck className="h-3.5 w-3.5" />
                       {currentLead.service_category}
                     </span>
                   ) : null}
                   {currentLead.move_date ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-black text-slate-600">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
                       <CalendarDays className="h-3.5 w-3.5" />
                       {formatDate(currentLead.move_date)}
                     </span>
@@ -971,20 +978,20 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
                     }
                     startCall();
                   }}
-                  className="group inline-flex items-center gap-3 rounded-2xl bg-brand-blue px-5 py-4 text-base font-black text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover"
+                  className="group inline-flex items-center gap-3 rounded-2xl bg-brand-blue px-5 py-4 text-base font-bold text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover"
                 >
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
                     <PhoneCall className="h-5 w-5" />
                   </span>
                   <span>
-                    <span className="block text-[11px] font-black uppercase tracking-[0.16em] text-white/75">Jetzt anrufen</span>
+                    <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-white/75">Jetzt anrufen</span>
                     <span className="block text-base">{currentLead.customer_phone || 'Keine Nummer hinterlegt'}</span>
                   </span>
                 </a>
                 {currentLead.customer_email ? (
                   <a
                     href={`mailto:${currentLead.customer_email}`}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
                   >
                     <Mail className="h-3.5 w-3.5" />
                     {currentLead.customer_email}
@@ -994,8 +1001,8 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Von</p>
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Von</p>
                 <p className="mt-2 flex items-start gap-2 text-sm font-bold text-slate-900">
                   <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-blue" />
                   <span>
@@ -1003,8 +1010,8 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
                   </span>
                 </p>
               </div>
-              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Nach</p>
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Nach</p>
                 <p className="mt-2 flex items-start gap-2 text-sm font-bold text-slate-900">
                   <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
                   <span>
@@ -1016,12 +1023,12 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
 
             {!callStarted ? (
               <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/40 p-5 text-center">
-                <p className="text-sm font-bold text-slate-600">Klicke oben auf <span className="font-black text-brand-blue">„Jetzt anrufen"</span>, um den Wizard zu starten.</p>
+                <p className="text-sm font-bold text-slate-600">Klicke oben auf <span className="font-semibold text-brand-blue">„Jetzt anrufen"</span>, um den Wizard zu starten.</p>
                 <p className="mt-1 text-xs font-medium text-slate-500">Das Telefon öffnet sich automatisch und du kannst direkt das Ergebnis erfassen.</p>
                 <button
                   type="button"
                   onClick={startCall}
-                  className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
+                  className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
                 >
                   Ergebnis ohne Anruf erfassen
                 </button>
@@ -1115,13 +1122,13 @@ function CallWizard({
     <div className="mt-6 space-y-5 rounded-2xl border border-brand-blue/15 bg-brand-blue/5 p-5">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-blue">Schritt 1</p>
-          <p className="text-base font-black text-slate-950">Wie ist das Gespräch gelaufen?</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-blue">Schritt 1</p>
+          <p className="text-base font-bold text-slate-950">Wie ist das Gespräch gelaufen?</p>
         </div>
         <button
           type="button"
           onClick={onCancel}
-          className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 hover:text-slate-900"
+          className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 hover:text-slate-900"
         >
           Abbrechen
         </button>
@@ -1143,7 +1150,7 @@ function CallWizard({
               <span className={cx('flex h-9 w-9 items-center justify-center rounded-2xl', active ? 'bg-brand-blue text-white' : 'bg-white/80 text-current')}>
                 <option.icon className="h-4 w-4" />
               </span>
-              <span className="text-sm font-black text-slate-950">{option.label}</span>
+              <span className="text-sm font-semibold text-slate-900">{option.label}</span>
               <span className="text-[11px] font-medium text-slate-500">{option.description}</span>
             </button>
           );
@@ -1152,7 +1159,7 @@ function CallWizard({
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-blue">Schritt 2</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-blue">Schritt 2</p>
           <p className="text-[11px] font-medium text-slate-500">Notiz (optional)</p>
         </div>
         <div className="mb-3 flex flex-wrap gap-2">
@@ -1161,7 +1168,7 @@ function CallWizard({
               key={snippet}
               type="button"
               onClick={() => onQuickNote(snippet)}
-              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
             >
               + {snippet}
             </button>
@@ -1184,7 +1191,7 @@ function CallWizard({
           type="button"
           onClick={onFinish}
           disabled={saving || !result}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
         >
           <CheckCircle2 className="h-4 w-4" />
           {saving ? 'Speichert...' : 'Speichern & weiter'}
@@ -1395,7 +1402,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
         action={
           <div className="flex flex-wrap gap-2">
             {role === 'ADMIN' ? (
-              <label className="cursor-pointer rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-700">
+              <label className="cursor-pointer rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
                 {importing ? 'Importiert...' : 'Datei hochladen'}
                 <input
                   type="file"
@@ -1409,11 +1416,11 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
                 />
               </label>
             ) : null}
-            <button type="button" onClick={startNewCustomer} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-700">Neue Firma</button>
+            <button type="button" onClick={startNewCustomer} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">Neue Firma</button>
           </div>
         }
       >
-        {importMessage ? <p className="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700">{importMessage}</p> : null}
+        {importMessage ? <p className="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{importMessage}</p> : null}
         {filtered.length ? (
           <div className="space-y-3">
             {filtered.map((customer) => (
@@ -1422,20 +1429,20 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
                 type="button"
                 onClick={() => setSelectedId(customer.id)}
                 className={cx(
-                  'w-full rounded-[1.5rem] border p-4 text-left transition-all',
-                  selectedId === customer.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50/80 hover:border-slate-200',
+                  'w-full rounded-xl border p-4 text-left transition-all',
+                  selectedId === customer.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50 hover:border-slate-200',
                 )}
               >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
-                    <p className="font-black text-slate-900">{customer.name || 'Ohne Firmenname'}</p>
+                    <p className="font-semibold text-slate-900">{customer.name || 'Ohne Firmenname'}</p>
                     <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{partnerSettingValue(customer, 'contact_person') || 'Kein Ansprechpartner'}</p>
                     <p className="mt-3 text-sm font-semibold text-slate-500">{[customer.phone, customer.email].filter(Boolean).join(' · ') || '-'}</p>
                     <p className="mt-2 text-sm font-semibold text-slate-500">{partnerSettingValue(customer, 'address') || 'Keine Adresse hinterlegt'}</p>
                   </div>
                   <div className="flex flex-col items-start gap-2 lg:items-end">
                     <StatusBadge label={partnerStatusLabel(customer.status)} />
-                    <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">{customer.category || 'Standard Anfragen'}</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{customer.category || 'Standard Anfragen'}</span>
                   </div>
                 </div>
               </button>
@@ -1450,37 +1457,37 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block sm:col-span-2">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Firmenname</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Firmenname</span>
               <input value={draft.name} onChange={(event) => updateDraft('name', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block sm:col-span-2">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Adresse</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Adresse</span>
               <input value={draft.address} onChange={(event) => updateDraft('address', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Ansprechpartner</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Ansprechpartner</span>
               <input value={draft.contactPerson} onChange={(event) => updateDraft('contactPerson', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Telefonnummer</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Telefonnummer</span>
               <input value={draft.phone} onChange={(event) => updateDraft('phone', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">E-Mail</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">E-Mail</span>
               <input type="email" value={draft.email} onChange={(event) => updateDraft('email', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Standort / Regionen</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Standort / Regionen</span>
               <input value={draft.regions} onChange={(event) => updateDraft('regions', event.target.value)} placeholder="z. B. Berlin" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Einzugsradius</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Einzugsradius</span>
               <select value={draft.radius} onChange={(event) => updateDraft('radius', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {ADMIN_RADIUS_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Status</span>
               <select value={draft.status} onChange={(event) => updateDraft('status', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {[
                   ['ACTIVE', 'Aktiv'],
@@ -1490,7 +1497,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Dienstleistung</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Dienstleistung</span>
               <select value={draft.service} onChange={(event) => updateDraft('service', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {[
                   ['UMZUG', 'Umzüge'],
@@ -1500,17 +1507,17 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Kategorie</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Kategorie</span>
               <select value={draft.category} onChange={(event) => updateDraft('category', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {['Standard Anfragen', 'Priorisierte Anfragen', 'Exklusive Anfragen'].map((option) => <option key={option} value={option}>{option}</option>)}
               </select>
             </label>
             <label className="block sm:col-span-2">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notizen</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Notizen</span>
               <textarea value={draft.notes} onChange={(event) => updateDraft('notes', event.target.value)} rows={6} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
           </div>
-          <button type="button" onClick={saveCustomer} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+          <button type="button" onClick={saveCustomer} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
             {saving ? 'Speichert...' : 'Firma speichern'}
           </button>
         </div>
@@ -1580,19 +1587,19 @@ function PartnersSection({ partners, search, onSave }: { partners: PortalPartner
                 type="button"
                 onClick={() => setSelectedPartnerId(row.id)}
                 className={cx(
-                  'w-full rounded-[1.5rem] border p-4 text-left transition-all',
-                  selectedPartnerId === row.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50/80 hover:border-slate-200',
+                  'w-full rounded-xl border p-4 text-left transition-all',
+                  selectedPartnerId === row.id ? 'border-brand-blue bg-brand-blue/5 shadow-[0_12px_30px_rgba(2,118,200,0.12)]' : 'border-slate-100 bg-slate-50 hover:border-slate-200',
                 )}
               >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
-                    <p className="font-black text-slate-900">{row.name || 'Unbenannter Partner'}</p>
+                    <p className="font-semibold text-slate-900">{row.name || 'Unbenannter Partner'}</p>
                     <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{[row.email, row.phone].filter(Boolean).join(' · ') || row.id}</p>
                     <p className="mt-3 text-sm font-semibold text-slate-500">{row.regions || 'Keine Regionen'} · {partnerServiceLabel(row.service)}</p>
                   </div>
                   <div className="flex flex-col items-start gap-2 lg:items-end">
                     <StatusBadge label={partnerStatusLabel(row.status)} />
-                    <span className="text-sm font-black text-slate-900">{formatCurrency(row.balance)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(row.balance)}</span>
                   </div>
                 </div>
               </button>
@@ -1606,12 +1613,12 @@ function PartnersSection({ partners, search, onSave }: { partners: PortalPartner
       <SectionCard title="Partner bearbeiten">
         {selectedPartner ? (
           <div className="space-y-4">
-            <div className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
-              <p className="font-black text-slate-900">{selectedPartner.name || 'Unbenannter Partner'}</p>
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p className="font-semibold text-slate-900">{selectedPartner.name || 'Unbenannter Partner'}</p>
               <p className="mt-1 text-sm font-medium text-slate-500">{selectedPartner.email || '-'} · {selectedPartner.phone || '-'}</p>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status</label>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Status</label>
               <select value={partnerStatus} onChange={(event) => setPartnerStatus(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {[
                   ['ACTIVE', 'Aktiv'],
@@ -1623,7 +1630,7 @@ function PartnersSection({ partners, search, onSave }: { partners: PortalPartner
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Kategorie</label>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Kategorie</label>
               <select value={partnerCategory} onChange={(event) => setPartnerCategory(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {['Standard Anfragen', 'Priorisierte Anfragen', 'Exklusive Anfragen'].map((option) => (
                   <option key={option} value={option}>{option}</option>
@@ -1631,10 +1638,10 @@ function PartnersSection({ partners, search, onSave }: { partners: PortalPartner
               </select>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Regionen</label>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Regionen</label>
               <textarea value={partnerRegions} onChange={(event) => setPartnerRegions(event.target.value)} rows={5} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </div>
-            <button type="button" onClick={savePartner} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+            <button type="button" onClick={savePartner} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
               {saving ? 'Speichert...' : 'Partner speichern'}
             </button>
           </div>
@@ -1674,11 +1681,11 @@ function DistributionSection({ items, search, onSave }: { items: DistributionIte
       {filtered.length ? (
         <div className="space-y-4">
           {filtered.map((item) => (
-            <div key={item.id} className="rounded-[1.7rem] border border-slate-100 bg-slate-50/80 p-5">
+            <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50 p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-lg font-black text-slate-950">{item.customer}</p>
+                    <p className="text-lg font-bold text-slate-950">{item.customer}</p>
                     <StatusBadge label={item.status} tone={item.status === 'Ohne Match' ? 'red' : item.status === 'Offen' ? 'amber' : 'blue'} />
                   </div>
                   <p className="mt-2 text-sm font-semibold text-slate-500">{item.leadId} · {item.area}</p>
@@ -1689,7 +1696,7 @@ function DistributionSection({ items, search, onSave }: { items: DistributionIte
                         type="button"
                         onClick={() => assignPartner(item.id, partner.id)}
                         disabled={savingLeadId === item.id}
-                        className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:border-brand-blue hover:text-brand-blue disabled:opacity-60"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-brand-blue hover:text-brand-blue disabled:opacity-60"
                       >
                         {savingLeadId === item.id ? 'Speichert...' : partner.name}
                       </button>
@@ -1754,9 +1761,9 @@ function BillingSection({ transactions, search }: { transactions: PortalTransact
             ['Transaktionen', String(totals.transactionCount)],
             ['Offene Buchungen', String(totals.openCount)],
           ].map(([label, value]) => (
-            <div key={label} className="rounded-[1.7rem] border border-slate-100 bg-slate-50/80 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
-              <p className="mt-2 text-2xl font-black tracking-tight text-slate-950">{value}</p>
+            <div key={label} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+              <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">{value}</p>
             </div>
           ))}
         </div>
@@ -1788,7 +1795,7 @@ function ContentSection({ search }: { search: string }) {
             if (key === 'title') return row.title;
             if (key === 'category') return row.category;
             if (key === 'owner') return row.owner;
-            if (key === 'route') return <Link href={row.route} className="font-black text-brand-blue hover:underline">{row.route}</Link>;
+            if (key === 'route') return <Link href={row.route} className="font-semibold text-brand-blue hover:underline">{row.route}</Link>;
             if (key === 'status') return <StatusBadge label={contentStatusLabel(row.status)} />;
             return '-';
           }}
@@ -1919,7 +1926,7 @@ function SettingsSection({ settings, team, search, onSave }: { settings: PortalS
     if (key === 'min_topup_amount') {
       return (
         <label className="mt-4 block">
-          <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Betrag in Euro</span>
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Betrag in Euro</span>
           <input
             type="number"
             min="0"
@@ -1943,7 +1950,7 @@ function SettingsSection({ settings, team, search, onSave }: { settings: PortalS
             ['note', 'Hinweistext'],
           ].map(([field, label]) => (
             <label key={field} className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">{label}</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
               <input
                 value={String(value[field] ?? '')}
                 onChange={(event) => setDrafts((current) => ({ ...current, [item.id]: updateDraftObject(draft, field, event.target.value) }))}
@@ -1961,7 +1968,7 @@ function SettingsSection({ settings, team, search, onSave }: { settings: PortalS
         <div className="mt-4 space-y-4">
           {Object.entries(pricing).map(([category, rows]) => (
             <div key={category} className="rounded-2xl border border-slate-100 bg-white p-4">
-              <p className="text-sm font-black text-slate-900">{pricingCategoryLabel(category)}</p>
+              <p className="text-sm font-semibold text-slate-900">{pricingCategoryLabel(category)}</p>
               <div className="mt-3 grid gap-3">
                 {(Array.isArray(rows) ? rows : []).map((row, index) => (
                   <div key={String(row.id || index)} className="grid gap-3 sm:grid-cols-[1fr_130px] sm:items-center">
@@ -2004,11 +2011,11 @@ function SettingsSection({ settings, team, search, onSave }: { settings: PortalS
         {filteredSettings.length ? (
           <div className="space-y-4">
             {filteredSettings.map((item) => (
-              <div key={item.id} className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
-                <p className="text-base font-black text-slate-950">{getSettingTitle(item.key)}</p>
+              <div key={item.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <p className="text-base font-bold text-slate-950">{getSettingTitle(item.key)}</p>
                 <p className="mt-1 text-sm font-medium text-slate-500">{getSettingDescription(item.key)}</p>
                 {renderSettingControl(item)}
-                <button type="button" onClick={() => saveSetting(item)} disabled={savingSettingId === item.id} className="mt-3 rounded-2xl bg-brand-blue px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
+                <button type="button" onClick={() => saveSetting(item)} disabled={savingSettingId === item.id} className="mt-3 rounded-2xl bg-brand-blue px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
                   {savingSettingId === item.id ? 'Speichert...' : 'Speichern'}
                 </button>
               </div>
@@ -2023,10 +2030,10 @@ function SettingsSection({ settings, team, search, onSave }: { settings: PortalS
         {filteredTeam.length ? (
           <div className="space-y-3">
             {filteredTeam.map((member) => (
-              <div key={member.id} className="rounded-[1.5rem] border border-slate-100 bg-slate-50/80 p-4">
+              <div key={member.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="font-black text-slate-900">{member.email || 'Ohne E-Mail'}</p>
+                    <p className="font-semibold text-slate-900">{member.email || 'Ohne E-Mail'}</p>
                     <p className="mt-1 text-sm font-medium text-slate-500">{teamRoleLabel(member.role)} · {formatDateTime(member.created_at)}</p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -2082,21 +2089,21 @@ function TicketsSection({
             const messages = [...(ticket.messages || [])].sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
 
             return (
-              <div key={ticket.session_id} className="rounded-[1.6rem] border border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)] p-5">
+              <div key={ticket.session_id} className="rounded-xl border border-slate-100 bg-white p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <button type="button" onClick={() => setOpenSessionId(isOpen ? '' : ticket.session_id)} className="min-w-0 flex-1 text-left">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-lg font-black text-slate-950">{ticket.user_name || 'Unbekannter Chat'}</p>
+                      <p className="text-lg font-bold text-slate-950">{ticket.user_name || 'Unbekannter Chat'}</p>
                       <StatusBadge label={String(ticket.support_category || 'KUNDE') === 'KUNDE' ? 'Kunde' : String(ticket.support_category || 'Support')} />
                       {ticket.unread_count ? <StatusBadge label={`${ticket.unread_count} neu`} tone="amber" /> : null}
                     </div>
-                    <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">{ticket.session_id}</p>
+                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{ticket.session_id}</p>
                     <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-600">{ticket.last_message || 'Keine Nachricht vorhanden.'}</p>
                   </button>
                   <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-right">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Letzte Aktivität</p>
-                    <p className="mt-2 text-sm font-black text-slate-900">{formatDateTime(ticket.last_at)}</p>
-                    <button type="button" onClick={() => setOpenSessionId(isOpen ? '' : ticket.session_id)} className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Letzte Aktivität</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">{formatDateTime(ticket.last_at)}</p>
+                    <button type="button" onClick={() => setOpenSessionId(isOpen ? '' : ticket.session_id)} className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700">
                       {isOpen ? 'Verlauf schließen' : 'Verlauf öffnen'}
                     </button>
                     {ticket.unread_count ? (
@@ -2104,7 +2111,7 @@ function TicketsSection({
                         type="button"
                         onClick={() => onMarkRead(ticket)}
                         disabled={ticketSavingSessionId === ticket.session_id}
-                        className="mt-2 block w-full rounded-2xl bg-brand-blue px-4 py-2 text-xs font-black text-white disabled:opacity-60"
+                        className="mt-2 block w-full rounded-2xl bg-brand-blue px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
                       >
                         {ticketSavingSessionId === ticket.session_id ? 'Speichert...' : 'Als gelesen markieren'}
                       </button>
@@ -2120,7 +2127,7 @@ function TicketsSection({
                         <div key={message.id || `${ticket.session_id}-${message.created_at}`} className={cx('flex', isUser ? 'justify-start' : 'justify-end')}>
                           <div className={cx('max-w-[85%] rounded-2xl px-4 py-3', isUser ? 'bg-slate-100 text-slate-800' : 'bg-brand-blue text-white')}>
                             <div className="mb-1 flex items-center justify-between gap-4">
-                              <span className="text-xs font-black uppercase tracking-[0.14em] opacity-70">{isUser ? 'Kunde' : 'Team'}</span>
+                              <span className="text-xs font-semibold uppercase tracking-[0.12em] opacity-70">{isUser ? 'Kunde' : 'Team'}</span>
                               <span className="text-[11px] font-bold opacity-70">{formatDateTime(message.created_at)}</span>
                             </div>
                             <p className="whitespace-pre-wrap text-sm font-semibold leading-relaxed">{message.text || '-'}</p>
@@ -2434,7 +2441,7 @@ export function AdminDashboard() {
               <SectionCard title="Mitarbeiter einladen" description="E-Mail-Adresse eingeben. Der Mitarbeiter erhält einen Link und vergibt sein Passwort selbst.">
                 <form onSubmit={createEmployee} className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">E-Mail</label>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">E-Mail</label>
                     <input
                       type="email"
                       required
@@ -2447,7 +2454,7 @@ export function AdminDashboard() {
                   <button
                     type="submit"
                     disabled={employeeSubmitting}
-                    className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+                    className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
                   >
                     {employeeSubmitting ? 'Einladung wird versendet...' : 'Einladung per E-Mail senden'}
                   </button>
@@ -2458,10 +2465,10 @@ export function AdminDashboard() {
                 {filteredTeam.length ? (
                   <div className="space-y-3">
                     {filteredTeam.map((member) => (
-                      <div key={member.id} className="rounded-[1.6rem] border border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)] p-4">
+                      <div key={member.id} className="rounded-xl border border-slate-100 bg-white p-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0">
-                            <p className="truncate text-base font-black text-slate-950">{member.email || 'Ohne E-Mail'}</p>
+                            <p className="truncate text-base font-bold text-slate-950">{member.email || 'Ohne E-Mail'}</p>
                             <p className="mt-2 text-sm font-medium text-slate-500">
                               {teamRoleLabel(member.role)} · {formatDateTime(member.created_at)}
                             </p>
@@ -2707,7 +2714,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
           <button
             type="button"
             onClick={() => setShowCreateChannel((value) => !value)}
-            className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
           >
             {showCreateChannel ? 'Schließen' : 'Neuer Kanal'}
           </button>
@@ -2726,7 +2733,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
             <button
               type="submit"
               disabled={actionInFlight === 'create'}
-              className="rounded-2xl bg-brand-blue px-3 py-2 text-xs font-black text-white disabled:opacity-60"
+              className="rounded-2xl bg-brand-blue px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
             >
               {actionInFlight === 'create' ? '...' : 'Anlegen'}
             </button>
@@ -2747,7 +2754,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
               )}
             >
               <span className="min-w-0">
-                <span className="block truncate text-sm font-black text-slate-900">
+                <span className="block truncate text-sm font-semibold text-slate-900">
                   {channel.is_locked ? '🔒 ' : '#'} {channel.name}
                 </span>
                 <span className="mt-1 block text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
@@ -2768,7 +2775,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
                       void deleteChannel(channel);
                     }
                   }}
-                  className="ml-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-black text-slate-500 hover:border-red-200 hover:text-red-600"
+                  className="ml-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-500 hover:border-red-200 hover:text-red-600"
                 >
                   Löschen
                 </span>
@@ -2790,7 +2797,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
             <div className="flex h-[480px] flex-col">
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
                 {data.messages.length === 0 ? (
-                  <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-12 text-center text-sm font-semibold text-slate-500">
+                  <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-12 text-center text-sm font-semibold text-slate-500">
                     Noch keine Nachrichten. Schreib die erste!
                   </p>
                 ) : (
@@ -2803,7 +2810,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
                           'max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow-sm',
                           isMine ? 'bg-brand-blue text-white' : 'border border-slate-100 bg-white text-slate-800',
                         )}>
-                          <p className={cx('text-[11px] font-black uppercase tracking-[0.14em]', isMine ? 'text-white/80' : 'text-slate-400')}>
+                          <p className={cx('text-[11px] font-semibold uppercase tracking-[0.12em]', isMine ? 'text-white/80' : 'text-slate-400')}>
                             {author}
                           </p>
                           <p className="mt-1 whitespace-pre-line break-words leading-relaxed">{message.text}</p>
@@ -2829,7 +2836,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
                 <button
                   type="submit"
                   disabled={submitting || !draftMessage.trim()}
-                  className="rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+                  className="rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
                 >
                   {submitting ? 'Senden...' : 'Senden'}
                 </button>
@@ -2853,7 +2860,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
                 type="button"
                 onClick={addMember}
                 disabled={actionInFlight === 'add-member' || !memberInput.trim()}
-                className="rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+                className="rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
               >
                 Hinzufügen
               </button>
@@ -2861,7 +2868,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
 
             {data.directory.length > 0 ? (
               <div className="mb-4">
-                <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">Schnell auswählen</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Schnell auswählen</p>
                 <div className="flex flex-wrap gap-2">
                   {data.directory
                     .filter((entry) => !activeChannel.members.some((m) => m.user_id === entry.user_id))
@@ -2871,7 +2878,7 @@ function TeamChatSection({ role }: { role: StaffRole }) {
                         key={entry.user_id}
                         type="button"
                         onClick={() => setMemberInput(entry.email)}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
                       >
                         {entry.full_name || entry.email}
                       </button>
@@ -2889,16 +2896,16 @@ function TeamChatSection({ role }: { role: StaffRole }) {
                 activeChannel.members.map((member) => {
                   const dir = directoryById.get(member.user_id);
                   return (
-                    <div key={member.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
+                    <div key={member.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-slate-900">{dir?.full_name || dir?.email || member.user_id.slice(0, 8)}</p>
+                        <p className="truncate text-sm font-semibold text-slate-900">{dir?.full_name || dir?.email || member.user_id.slice(0, 8)}</p>
                         <p className="truncate text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">{dir?.email || ''}</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => removeMember(member.user_id)}
                         disabled={actionInFlight === `remove:${member.user_id}`}
-                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-black text-slate-600 hover:border-red-200 hover:text-red-600"
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 hover:border-red-200 hover:text-red-600"
                       >
                         Entfernen
                       </button>

@@ -279,7 +279,7 @@ function topupStatusLabel(value?: string | null) {
 }
 
 function StatusBadge({ label, tone }: { label: string; tone?: string }) {
-  return <span className={cx('inline-flex rounded-full border px-3 py-1 text-xs font-black', tone || 'border-slate-200 bg-slate-100 text-slate-700')}>{label}</span>;
+  return <span className={cx('inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold', tone || 'border-slate-200 bg-slate-100 text-slate-700')}>{label}</span>;
 }
 
 function SectionCard({
@@ -966,7 +966,7 @@ function OverviewSection({
               type="button"
               onClick={onClaimBonus}
               disabled={actionInFlight === 'claim_bonus'}
-              className="inline-flex items-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-2xl bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
             >
               <Sparkles className="h-4 w-4" />
               {actionInFlight === 'claim_bonus' ? 'Aktiviert...' : 'Startbonus einlösen'}
@@ -982,7 +982,7 @@ function OverviewSection({
           title="Neue Anfragen im Marktplatz"
           description={`${data.marketplace.length} verfügbare Kundenanfragen`}
           action={
-            <button type="button" onClick={() => onSwitchSection('marketplace')} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue">
+            <button type="button" onClick={() => onSwitchSection('marketplace')} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue">
               Alle ansehen
             </button>
           }
@@ -992,9 +992,9 @@ function OverviewSection({
           ) : (
             <div className="space-y-3">
               {data.marketplace.slice(0, 4).map((entry) => (
-                <div key={entry.id} className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div key={entry.id} className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-sm font-black text-slate-900">{serviceLabel(entry.service_category)} · {entry.von_city_masked} → {entry.nach_city_masked}</p>
+                    <p className="text-sm font-semibold text-slate-900">{serviceLabel(entry.service_category)} · {entry.von_city_masked} → {entry.nach_city_masked}</p>
                     <p className="mt-1 text-xs font-medium text-slate-500">
                       {[entry.size_info, entry.rooms_info ? `${entry.rooms_info} Zi.` : null, entry.move_date ? `Termin ${formatDate(entry.move_date)}` : null]
                         .filter(Boolean)
@@ -1002,7 +1002,7 @@ function OverviewSection({
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-black text-brand-blue">{formatCurrency(entry.price)}</span>
+                    <span className="rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">{formatCurrency(entry.price)}</span>
                   </div>
                 </div>
               ))}
@@ -1014,7 +1014,7 @@ function OverviewSection({
           title="Letzte gekaufte Anfragen"
           description={`${data.myLeads.length} Anfragen insgesamt`}
           action={
-            <button type="button" onClick={() => onSwitchSection('myleads')} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue">
+            <button type="button" onClick={() => onSwitchSection('myleads')} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue">
               Alle ansehen
             </button>
           }
@@ -1024,9 +1024,9 @@ function OverviewSection({
           ) : (
             <div className="space-y-3">
               {data.myLeads.slice(0, 4).map((entry) => (
-                <div key={entry.id} className="flex flex-col gap-2 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <div key={entry.id} className="flex flex-col gap-2 rounded-2xl border border-slate-100 bg-slate-50 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-black text-slate-900">{entry.customer_name || 'Kunde'}</p>
+                    <p className="text-sm font-semibold text-slate-900">{entry.customer_name || 'Kunde'}</p>
                     <StatusBadge label={statusLabel(entry.status)} tone={statusToneClass(entry.status)} />
                   </div>
                   <p className="text-xs font-medium text-slate-500">{serviceLabel(entry.service_category)} · {entry.von_city || '-'} → {entry.nach_city || '-'}</p>
@@ -1040,24 +1040,24 @@ function OverviewSection({
 
       <SectionCard title="Konto-Status" description="Ihre Vertragskategorie und Verifizierung">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Tarif</p>
-            <p className="mt-1 text-base font-black text-slate-900">{partner.category || 'Standard Anfragen'}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Tarif</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{partner.category || 'Standard Anfragen'}</p>
             <p className="mt-1 text-xs font-medium text-slate-500">{data.pricingTier ? formatCurrency(data.pricingTier.price) + ' pro Anfrage' : '-'}</p>
           </div>
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Paket</p>
-            <p className="mt-1 text-base font-black text-slate-900">{partner.package_code || 'FREE'}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Paket</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{partner.package_code || 'FREE'}</p>
             <p className="mt-1 text-xs font-medium text-slate-500">{partner.lead_limit_monthly > 0 ? `${partner.lead_limit_used}/${partner.lead_limit_monthly} genutzt` : 'Kein Monatslimit'}</p>
           </div>
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Verifizierung</p>
-            <p className="mt-1 text-base font-black text-slate-900">{verificationLabel(partner.verification_status)}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Verifizierung</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{verificationLabel(partner.verification_status)}</p>
             <p className="mt-1 text-xs font-medium text-slate-500">Status: {partnerStatusLabel(partner.status)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Region</p>
-            <p className="mt-1 text-base font-black text-slate-900">{data.serviceRegions[0]?.city || partner.regions || '-'}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Region</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{data.serviceRegions[0]?.city || partner.regions || '-'}</p>
             <p className="mt-1 text-xs font-medium text-slate-500">Radius {data.serviceRegions[0]?.radius_km || 50} km</p>
           </div>
         </div>
@@ -1087,7 +1087,7 @@ function MarketplaceSection({
         title="Filter"
         description="Suchen Sie gezielt nach Stadt, Service oder Größe."
         action={
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-black text-brand-blue">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-blue/15 bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">
             <Truck className="h-3 w-3" />
             {data.marketplace.length} verfügbar
           </span>
@@ -1110,36 +1110,36 @@ function MarketplaceSection({
           {filtered.map((entry) => {
             const buying = actionInFlight === `purchase:${entry.id}`;
             return (
-              <article key={entry.id} className="flex flex-col gap-4 rounded-[1.7rem] border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+              <article key={entry.id} className="flex flex-col gap-4 rounded-xl border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-blue">{serviceLabel(entry.service_category)}</p>
-                    <h3 className="mt-1 text-lg font-black text-slate-950">{entry.von_city_masked} → {entry.nach_city_masked}</h3>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-blue">{serviceLabel(entry.service_category)}</p>
+                    <h3 className="mt-1 text-lg font-bold text-slate-950">{entry.von_city_masked} → {entry.nach_city_masked}</h3>
                     <p className="text-xs font-medium text-slate-500">
                       {[entry.von_plz_masked, entry.nach_plz_masked].filter(Boolean).join(' / ') || 'Postleitzahl wird nach Kauf sichtbar'}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-brand-blue/15 bg-brand-blue/10 px-4 py-2 text-right">
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-blue">Preis</p>
-                    <p className="text-lg font-black text-brand-blue">{formatCurrency(entry.price)}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-blue">Preis</p>
+                    <p className="text-lg font-bold text-brand-blue">{formatCurrency(entry.price)}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-xs">
+                <div className="grid grid-cols-2 gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-xs">
                   <div>
-                    <p className="font-black uppercase tracking-[0.16em] text-slate-400">Termin</p>
+                    <p className="font-semibold uppercase tracking-[0.12em] text-slate-400">Termin</p>
                     <p className="mt-1 font-bold text-slate-800">{entry.move_date ? formatDate(entry.move_date) : 'Flexibel'}</p>
                   </div>
                   <div>
-                    <p className="font-black uppercase tracking-[0.16em] text-slate-400">Größe</p>
+                    <p className="font-semibold uppercase tracking-[0.12em] text-slate-400">Größe</p>
                     <p className="mt-1 font-bold text-slate-800">{entry.size_info || entry.sqm || '-'}</p>
                   </div>
                   <div>
-                    <p className="font-black uppercase tracking-[0.16em] text-slate-400">Räume</p>
+                    <p className="font-semibold uppercase tracking-[0.12em] text-slate-400">Räume</p>
                     <p className="mt-1 font-bold text-slate-800">{entry.rooms_info || '-'}</p>
                   </div>
                   <div>
-                    <p className="font-black uppercase tracking-[0.16em] text-slate-400">Erreichbarkeit</p>
+                    <p className="font-semibold uppercase tracking-[0.12em] text-slate-400">Erreichbarkeit</p>
                     <p className="mt-1 font-bold text-slate-800">{entry.erreichbarkeit || 'k. A.'}</p>
                   </div>
                 </div>
@@ -1147,7 +1147,7 @@ function MarketplaceSection({
                 {entry.additional_services && entry.additional_services.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {entry.additional_services.map((service) => (
-                      <span key={service} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black text-slate-600">
+                      <span key={service} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
                         {service}
                       </span>
                     ))}
@@ -1163,7 +1163,7 @@ function MarketplaceSection({
                   type="button"
                   onClick={() => onPurchase(entry.id, entry.price)}
                   disabled={buying}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
                 >
                   <ShoppingBag className="h-4 w-4" />
                   {buying ? 'Wird gekauft...' : `Anfrage für ${formatCurrency(entry.price)} kaufen`}
@@ -1200,11 +1200,11 @@ function MyLeadsSection({
         const draft = statusDraft[entry.id] || { status: '', notes: '' };
         const saving = actionInFlight === `status:${entry.id}`;
         return (
-          <article key={entry.id} className="rounded-[1.7rem] border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+          <article key={entry.id} className="rounded-xl border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
             <header className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-blue">{serviceLabel(entry.service_category)} · {entry.order_number || entry.id.slice(0, 8)}</p>
-                <h3 className="mt-1 text-xl font-black text-slate-950">{entry.customer_name || 'Kunde'}</h3>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-blue">{serviceLabel(entry.service_category)} · {entry.order_number || entry.id.slice(0, 8)}</p>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">{entry.customer_name || 'Kunde'}</h3>
                 <p className="text-xs font-medium text-slate-500">Gekauft am {formatDateTime(entry.purchased_at)} für {formatCurrency(entry.purchase_price)}</p>
               </div>
               <StatusBadge label={statusLabel(entry.status)} tone={statusToneClass(entry.status)} />
@@ -1222,7 +1222,7 @@ function MyLeadsSection({
             {entry.additional_services && entry.additional_services.length > 0 ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {entry.additional_services.map((service) => (
-                  <span key={service} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black text-slate-600">
+                  <span key={service} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
                     {service}
                   </span>
                 ))}
@@ -1230,12 +1230,12 @@ function MyLeadsSection({
             ) : null}
 
             {entry.notes ? (
-              <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-sm text-slate-700 whitespace-pre-line">{entry.notes}</div>
+              <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-700 whitespace-pre-line">{entry.notes}</div>
             ) : null}
 
-            <div className="mt-5 grid gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 sm:grid-cols-[180px_1fr_auto] sm:items-end">
+            <div className="mt-5 grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-[180px_1fr_auto] sm:items-end">
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status aktualisieren</span>
+                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Status aktualisieren</span>
                 <select
                   value={draft.status}
                   onChange={(event) => onDraftChange(entry.id, { status: event.target.value, notes: draft.notes })}
@@ -1249,7 +1249,7 @@ function MyLeadsSection({
                 </select>
               </label>
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notiz (optional)</span>
+                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Notiz (optional)</span>
                 <input
                   value={draft.notes}
                   onChange={(event) => onDraftChange(entry.id, { status: draft.status, notes: event.target.value })}
@@ -1261,7 +1261,7 @@ function MyLeadsSection({
                 type="button"
                 onClick={() => onStatusSave(entry.id)}
                 disabled={saving || !draft.status}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
               >
                 <CheckCircle2 className="h-4 w-4" />
                 {saving ? 'Speichert...' : 'Speichern'}
@@ -1276,12 +1276,12 @@ function MyLeadsSection({
 
 function ContactRow({ icon: Icon, label, value, hint, href }: { icon: React.ComponentType<{ className?: string }>; label: string; value?: string | null; hint?: string; href?: string }) {
   const content = (
-    <div className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+    <div className="flex items-start gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4">
       <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl border border-brand-blue/15 bg-brand-blue/10 text-brand-blue">
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0">
-        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</p>
         <p className="mt-1 break-words text-sm font-bold text-slate-900">{value || '-'}</p>
         {hint ? <p className="mt-0.5 text-xs font-medium text-slate-500">{hint}</p> : null}
       </div>
@@ -1331,7 +1331,7 @@ function WalletSection({
         <SectionCard title="Guthaben aufladen" description="Tragen Sie den gewünschten Betrag ein und schließen Sie die Zahlung über Stripe ab. Das Guthaben wird sofort nach Zahlungseingang gutgeschrieben.">
           <form onSubmit={onSubmit} className="space-y-4">
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Betrag (€)</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Betrag (€)</span>
               <input
                 type="number"
                 inputMode="decimal"
@@ -1351,14 +1351,14 @@ function WalletSection({
                   key={preset}
                   type="button"
                   onClick={() => onAmountChange(String(preset))}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-semibold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
                 >
                   {preset} €
                 </button>
               ))}
             </div>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notiz (optional)</span>
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Notiz (optional)</span>
               <textarea
                 value={topupNote}
                 onChange={(event) => onNoteChange(event.target.value)}
@@ -1370,7 +1370,7 @@ function WalletSection({
             <button
               type="submit"
               disabled={actionInFlight === 'topup'}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
             >
               <CircleDollarSign className="h-4 w-4" />
               {actionInFlight === 'topup' ? 'Weiterleitung zu Stripe...' : 'Mit Stripe aufladen'}
@@ -1389,9 +1389,9 @@ function WalletSection({
           ) : (
             <div className="space-y-3">
               {data.topupRequests.map((entry) => (
-                <div key={entry.id} className="flex flex-col gap-1 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <div key={entry.id} className="flex flex-col gap-1 rounded-2xl border border-slate-100 bg-slate-50 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-black text-slate-900">{formatCurrency(entry.amount)}</p>
+                    <p className="text-sm font-semibold text-slate-900">{formatCurrency(entry.amount)}</p>
                     <StatusBadge label={topupStatusLabel(entry.status)} tone={entry.status === 'COMPLETED' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : entry.status === 'CANCELLED' ? 'border-red-200 bg-red-50 text-red-700' : 'border-amber-200 bg-amber-50 text-amber-700'} />
                   </div>
                   <p className="text-xs font-medium text-slate-500">Ref. {entry.reference} · {formatDateTime(entry.created_at)}</p>
@@ -1410,7 +1410,7 @@ function WalletSection({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+                <tr className="text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
                   <th className="pb-3 pr-4">Datum</th>
                   <th className="pb-3 pr-4">Typ</th>
                   <th className="pb-3 pr-4">Beschreibung</th>
@@ -1424,9 +1424,9 @@ function WalletSection({
                   return (
                     <tr key={entry.id}>
                       <td className="py-3 pr-4 text-xs font-bold text-slate-500">{formatDateTime(entry.created_at)}</td>
-                      <td className="py-3 pr-4 font-black text-slate-800">{transactionLabel(entry.type)}</td>
+                      <td className="py-3 pr-4 font-semibold text-slate-800">{transactionLabel(entry.type)}</td>
                       <td className="py-3 pr-4">{entry.description || '-'}</td>
-                      <td className={cx('py-3 pr-4 text-right font-black', positive ? 'text-emerald-600' : 'text-red-600')}>
+                      <td className={cx('py-3 pr-4 text-right font-semibold', positive ? 'text-emerald-600' : 'text-red-600')}>
                         {positive ? '+' : ''}{formatCurrency(amount)}
                       </td>
                     </tr>
@@ -1532,9 +1532,9 @@ function ProfileSection({
             />
           </div>
 
-          <div className="space-y-4 rounded-[1.7rem] border border-slate-100 bg-slate-50/60 p-5">
+          <div className="space-y-4 rounded-xl border border-slate-100 bg-slate-50 p-5">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Einsatzgebiet</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Einsatzgebiet</p>
               <p className="mt-1 text-sm font-medium text-slate-500">Stadt und Radius bestimmen, welche Anfragen Sie im Marktplatz sehen.</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -1559,8 +1559,8 @@ function ProfileSection({
             <div>
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Einsatzradius</p>
-                  <p className="mt-1 text-2xl font-black text-slate-950">{form.radiusKm} km</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Einsatzradius</p>
+                  <p className="mt-1 text-2xl font-bold text-slate-950">{form.radiusKm} km</p>
                 </div>
               </div>
               <input
@@ -1579,7 +1579,7 @@ function ProfileSection({
                     type="button"
                     onClick={() => onChange({ radiusKm: preset })}
                     className={cx(
-                      'rounded-full border px-4 py-1.5 text-xs font-black transition-colors',
+                      'rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors',
                       form.radiusKm === preset
                         ? 'border-brand-blue bg-brand-blue text-white'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue',
@@ -1594,7 +1594,7 @@ function ProfileSection({
 
           <div className="space-y-3">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Leistungen</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Leistungen</p>
               <p className="mt-1 text-sm font-medium text-slate-500">Welche Anfragen möchten Sie erhalten?</p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
@@ -1606,7 +1606,7 @@ function ProfileSection({
                     type="button"
                     onClick={() => onChange({ serviceMode: option.value })}
                     className={cx(
-                      'flex h-full flex-col items-start gap-3 rounded-[1.5rem] border-2 p-4 text-left transition-all',
+                      'flex h-full flex-col items-start gap-3 rounded-xl border-2 p-4 text-left transition-all',
                       active
                         ? 'border-brand-blue bg-brand-blue/5 shadow-[0_14px_30px_rgba(2,118,200,0.14)]'
                         : 'border-slate-200 bg-white hover:border-brand-blue/40 hover:bg-brand-blue/5',
@@ -1618,7 +1618,7 @@ function ProfileSection({
                     )}>
                       <option.icon className="h-4 w-4" />
                     </span>
-                    <p className="text-sm font-black text-slate-950">{option.label}</p>
+                    <p className="text-sm font-semibold text-slate-900">{option.label}</p>
                     <p className="text-xs font-medium text-slate-500">{option.description}</p>
                   </button>
                 );
@@ -1626,7 +1626,7 @@ function ProfileSection({
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 sm:grid-cols-2">
+          <div className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:grid-cols-2">
             <ToggleRow label="E-Mail-Benachrichtigungen" description="Neue Anfragen, Statusänderungen, Aufladungen" checked={form.emailNotif} onChange={(value) => onChange({ emailNotif: value })} />
             <ToggleRow label="SMS-Benachrichtigungen" description="Sofortige SMS bei dringenden Anfragen" checked={form.smsNotif} onChange={(value) => onChange({ smsNotif: value })} />
           </div>
@@ -1642,9 +1642,9 @@ function ProfileSection({
             />
           ) : null}
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4">
             <div>
-              <p className="text-sm font-black text-slate-900">Verfügbarkeit</p>
+              <p className="text-sm font-semibold text-slate-900">Verfügbarkeit</p>
               <p className="text-xs font-medium text-slate-500">Pausieren Sie eingehende Anfragen, ohne Ihr Konto zu deaktivieren.</p>
             </div>
             <button
@@ -1652,7 +1652,7 @@ function ProfileSection({
               onClick={() => onAvailabilityToggle(!partner.is_available)}
               disabled={actionInFlight === 'availability'}
               className={cx(
-                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black transition-colors',
+                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition-colors',
                 partner.is_available ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-100 text-slate-500',
               )}
             >
@@ -1664,7 +1664,7 @@ function ProfileSection({
           <button
             type="submit"
             disabled={actionInFlight === 'profile'}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60 sm:w-auto"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60 sm:w-auto"
           >
             <CheckCircle2 className="h-4 w-4" />
             {actionInFlight === 'profile' ? 'Speichert...' : 'Profil speichern'}
@@ -1674,17 +1674,17 @@ function ProfileSection({
 
       <SectionCard title="Konto-Status" description="Aktueller Status Ihrer Mitgliedschaft.">
         <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Verifizierung</p>
-            <p className="mt-1 text-base font-black text-slate-900">{verificationLabel(partner.verification_status)}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Verifizierung</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{verificationLabel(partner.verification_status)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Status</p>
-            <p className="mt-1 text-base font-black text-slate-900">{partnerStatusLabel(partner.status)}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Status</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{partnerStatusLabel(partner.status)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Mitglied seit</p>
-            <p className="mt-1 text-base font-black text-slate-900">{formatDate(partner.created_at)}</p>
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Mitglied seit</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{formatDate(partner.created_at)}</p>
           </div>
         </div>
       </SectionCard>
@@ -1699,7 +1699,7 @@ function ReadOnlyRow({ icon: Icon, label, value }: { icon: React.ComponentType<{
         <Icon className="h-4 w-4" />
       </span>
       <div className="min-w-0">
-        <p className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
+        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
           {label}
           <span aria-hidden className="text-slate-300">·</span>
           <span className="text-[10px] font-bold text-slate-400">nicht änderbar</span>
@@ -1733,7 +1733,7 @@ function FieldInput({
 }) {
   return (
     <label className={cx('block', wide ? 'sm:col-span-2' : '')}>
-      <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+      <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
         {label}{required ? ' *' : ''}
       </span>
       <span className="relative block">
@@ -1759,7 +1759,7 @@ function ToggleRow({ label, description, checked, onChange }: { label: string; d
   return (
     <button type="button" onClick={() => onChange(!checked)} className="flex items-start justify-between gap-3 rounded-2xl border border-slate-100 bg-white p-4 text-left transition-colors hover:border-brand-blue/40">
       <div>
-        <p className="text-sm font-black text-slate-900">{label}</p>
+        <p className="text-sm font-semibold text-slate-900">{label}</p>
         <p className="mt-0.5 text-xs font-medium text-slate-500">{description}</p>
       </div>
       <span className={cx('relative mt-1 inline-flex h-6 w-11 flex-shrink-0 rounded-full transition-colors', checked ? 'bg-brand-blue' : 'bg-slate-200')}>
@@ -1848,7 +1848,7 @@ function PackagesSection({
           type="button"
           onClick={onManage}
           disabled={actionInFlight === 'manage_subscription'}
-          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue disabled:opacity-60"
         >
           <ReceiptText className="h-3.5 w-3.5" />
           {actionInFlight === 'manage_subscription' ? 'Öffnet...' : 'Abo verwalten'}
@@ -1864,8 +1864,8 @@ function PackagesSection({
       {subscription ? (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-blue/15 bg-brand-blue/5 px-4 py-3 text-sm">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-blue">Aktuelles Abo</p>
-            <p className="mt-1 font-black text-slate-900">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-blue">Aktuelles Abo</p>
+            <p className="mt-1 font-semibold text-slate-900">
               {subscription.package_code} · {packageStatusLabel(subscriptionStatus)}
               {cancelAtPeriodEnd ? ' · Kündigung zum Periodenende geplant' : ''}
             </p>
@@ -1888,21 +1888,21 @@ function PackagesSection({
             <article
               key={pkg.code}
               className={cx(
-                'flex h-full flex-col gap-4 rounded-[1.7rem] border-2 p-5 transition-all',
+                'flex h-full flex-col gap-4 rounded-xl border-2 p-5 transition-all',
                 isCurrent ? 'border-emerald-400 bg-emerald-50/60 shadow-[0_18px_45px_rgba(16,185,129,0.12)]' : theme.accent,
               )}
             >
               <header className="space-y-2">
-                <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em]', theme.chip)}>
+                <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]', theme.chip)}>
                   {pkg.code === 'FREE' ? 'Basis' : pkg.code === 'PREMIUM' ? 'Pro' : 'Premium'}
                 </span>
-                <h3 className="text-2xl font-black text-slate-950">{pkg.name}</h3>
+                <h3 className="text-2xl font-bold text-slate-950">{pkg.name}</h3>
                 <p className="text-xs font-medium text-slate-500">{theme.tagline}</p>
               </header>
 
               <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Preis</p>
-                <p className="mt-1 text-2xl font-black text-slate-950">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Preis</p>
+                <p className="mt-1 text-2xl font-bold text-slate-950">
                   {isPaid ? `${formatCurrency(pkg.monthly_price)} / Monat` : 'Kostenfrei'}
                 </p>
                 {isPaid ? <p className="mt-1 text-[11px] font-medium text-slate-500">Monatlich kündbar</p> : null}
@@ -1927,12 +1927,12 @@ function PackagesSection({
 
               <div className="mt-auto">
                 {isCurrent ? (
-                  <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-300 bg-white px-4 py-3 text-sm font-black text-emerald-700">
+                  <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-300 bg-white px-4 py-3 text-sm font-semibold text-emerald-700">
                     <CheckCircle2 className="h-4 w-4" />
                     Aktives Paket
                   </span>
                 ) : pkg.code === 'FREE' ? (
-                  <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-500">
+                  <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500">
                     Standard ohne Buchung
                   </span>
                 ) : (
@@ -1940,7 +1940,7 @@ function PackagesSection({
                     type="button"
                     onClick={() => onSubscribe(pkg.code as 'PREMIUM' | 'BUSINESS')}
                     disabled={!data.stripeConfigured || !pkg.purchasable || subscribing}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-4 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
                   >
                     {subscribing ? 'Weiterleitung...' : `Mit Stripe buchen`}
                     <ArrowRight className="h-4 w-4" />
