@@ -475,6 +475,11 @@ type ActionBody = {
   isAvailable?: boolean;
   notificationId?: string;
   packageCode?: string;
+  fullName?: string;
+  city?: string;
+  postalCode?: string;
+  radiusKm?: number | string;
+  serviceMode?: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES';
 };
 
 async function handlePurchaseLead(admin: SupabaseClient, user: User, partnerId: string, body: ActionBody) {
@@ -672,13 +677,20 @@ async function handleClaimBonus(sessionClient: SupabaseClient, partnerId: string
 }
 
 async function handleUpdateProfile(admin: SupabaseClient, user: User, partnerId: string, body: ActionBody) {
-  const updates: JsonRecord = { updated_at: new Date().toISOString() };
+  const nowIso = new Date().toISOString();
+  const updates: JsonRecord = { updated_at: nowIso };
 
   if (typeof body.phone === 'string') {
     const phone = body.phone.trim();
     if (phone.length < 5) return jsonError('Bitte eine gültige Telefonnummer angeben.', 400);
     updates.phone = phone;
-    await admin.from('profiles').update({ phone, updated_at: new Date().toISOString() }).eq('id', user.id);
+    await admin.from('profiles').update({ phone, updated_at: nowIso }).eq('id', user.id);
+  }
+
+  if (typeof body.fullName === 'string') {
+    const fullName = body.fullName.trim();
+    if (fullName.length < 2) return jsonError('Bitte einen Ansprechpartner angeben.', 400);
+    await admin.from('profiles').update({ full_name: fullName, updated_at: nowIso }).eq('id', user.id);
   }
 
   if (typeof body.websiteUrl === 'string') {
@@ -688,21 +700,87 @@ async function handleUpdateProfile(admin: SupabaseClient, user: User, partnerId:
       : null;
   }
 
+  let mergedSettings: JsonRecord | null = null;
+  const radiusKmInput = Number(body.radiusKm ?? NaN);
+  const hasRadius = Number.isFinite(radiusKmInput) && radiusKmInput > 0;
   if (body.settings && typeof body.settings === 'object') {
     const { data: current } = await admin.from('partners').select('settings').eq('id', partnerId).maybeSingle();
-    const merged = {
+    mergedSettings = {
       ...(current?.settings && typeof current.settings === 'object' ? current.settings as JsonRecord : {}),
       ...body.settings,
     };
-    updates.settings = merged;
+  }
+  if (hasRadius) {
+    if (!mergedSettings) {
+      const { data: current } = await admin.from('partners').select('settings').eq('id', partnerId).maybeSingle();
+      mergedSettings = current?.settings && typeof current.settings === 'object' ? { ...(current.settings as JsonRecord) } : {};
+    }
+    mergedSettings.radius_km = radiusKmInput;
+    mergedSettings.radius_label = `${radiusKmInput} km`;
+  }
+  if (mergedSettings) {
+    updates.settings = mergedSettings;
   }
 
   if (typeof body.isAvailable === 'boolean') {
     updates.is_available = body.isAvailable;
   }
 
+  const cityInput = typeof body.city === 'string' ? body.city.trim() : null;
+  if (cityInput !== null) {
+    if (cityInput.length < 2) return jsonError('Bitte eine Stadt angeben.', 400);
+    updates.regions = cityInput;
+  }
+
+  let serviceMode: 'UMZUG' | 'ENTRÜMPELUNG' | 'BEIDES' | null = null;
+  if (body.serviceMode) {
+    const raw = String(body.serviceMode).toUpperCase();
+    if (raw === 'BEIDES') serviceMode = 'BEIDES';
+    else if (raw === 'ENTRUEMPELUNG' || raw === 'ENTRÜMPELUNG') serviceMode = 'ENTRÜMPELUNG';
+    else if (raw === 'UMZUG') serviceMode = 'UMZUG';
+    if (serviceMode) updates.service = serviceMode;
+  }
+
   const { error } = await admin.from('partners').update(updates).eq('id', partnerId);
   if (error) return jsonError(error.message || 'Profil konnte nicht aktualisiert werden.', 500);
+
+  if (cityInput !== null || hasRadius || typeof body.postalCode === 'string') {
+    const { data: existingRegion } = await admin
+      .from('service_regions')
+      .select('id,city,postal_code,radius_km')
+      .eq('partner_id', partnerId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    const postalInput = typeof body.postalCode === 'string' ? body.postalCode.trim() : null;
+    const regionPayload = {
+      partner_id: partnerId,
+      city: cityInput ?? existingRegion?.city ?? '',
+      postal_code: postalInput !== null ? (postalInput || null) : (existingRegion?.postal_code ?? null),
+      radius_km: hasRadius ? radiusKmInput : (existingRegion?.radius_km ?? 50),
+    };
+
+    if (existingRegion?.id) {
+      await admin.from('service_regions').update(regionPayload).eq('id', existingRegion.id);
+    } else if (regionPayload.city) {
+      await admin.from('service_regions').insert([regionPayload]);
+    }
+  }
+
+  if (serviceMode) {
+    const services = serviceMode === 'BEIDES'
+      ? ['UMZUG', 'ENTRUEMPELUNG']
+      : serviceMode === 'ENTRÜMPELUNG'
+        ? ['ENTRUEMPELUNG']
+        : ['UMZUG'];
+    await admin.from('partner_services').delete().eq('partner_id', partnerId);
+    await admin.from('partner_services').insert(services.map((code) => ({
+      partner_id: partnerId,
+      service_code: code,
+      is_active: true,
+    })));
+  }
 
   return NextResponse.json({ success: true });
 }

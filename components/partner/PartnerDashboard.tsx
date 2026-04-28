@@ -389,7 +389,18 @@ export function PartnerDashboard() {
   const [marketplaceSearch, setMarketplaceSearch] = useState('');
   const [topupAmount, setTopupAmount] = useState('');
   const [topupNote, setTopupNote] = useState('');
-  const [profileForm, setProfileForm] = useState({ phone: '', websiteUrl: '', emailNotif: true, smsNotif: false, smsNumber: '' });
+  const [profileForm, setProfileForm] = useState({
+    phone: '',
+    websiteUrl: '',
+    emailNotif: true,
+    smsNotif: false,
+    smsNumber: '',
+    fullName: '',
+    city: '',
+    postalCode: '',
+    radiusKm: 50,
+    serviceMode: 'UMZUG' as 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES',
+  });
   const [statusDraft, setStatusDraft] = useState<Record<string, { status: string; notes: string }>>({});
 
   const loadDashboard = useCallback(
@@ -410,12 +421,34 @@ export function PartnerDashboard() {
         }
         setData(payload as DashboardData);
         setErrorState(null);
+        const region = payload.serviceRegions?.[0];
+        const settingsRadius = Number(payload.partner?.settings?.radius_km);
+        const partnerService = String(payload.partner?.service || '').toUpperCase();
+        const partnerServices = (payload.partnerServices || []).map((entry: string) => String(entry || '').toUpperCase());
+        const derivedMode: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES' = partnerService === 'BEIDES'
+          ? 'BEIDES'
+          : partnerService === 'ENTRÜMPELUNG' || partnerService === 'ENTRUEMPELUNG'
+            ? 'ENTRUEMPELUNG'
+            : partnerService === 'UMZUG'
+              ? 'UMZUG'
+              : (partnerServices.includes('UMZUG') && partnerServices.includes('ENTRUEMPELUNG'))
+                ? 'BEIDES'
+                : partnerServices.includes('ENTRUEMPELUNG')
+                  ? 'ENTRUEMPELUNG'
+                  : 'UMZUG';
         setProfileForm({
           phone: payload.partner?.phone || payload.profile?.phone || '',
           websiteUrl: payload.partner?.website_url || '',
           emailNotif: Boolean(payload.partner?.settings?.emailNotif ?? true),
           smsNotif: Boolean(payload.partner?.settings?.smsNotif ?? false),
           smsNumber: String(payload.partner?.settings?.smsNumber || payload.partner?.phone || ''),
+          fullName: payload.profile?.full_name || '',
+          city: region?.city || payload.partner?.regions || '',
+          postalCode: region?.postal_code || '',
+          radiusKm: Number.isFinite(settingsRadius) && settingsRadius > 0
+            ? settingsRadius
+            : Number(region?.radius_km) || 50,
+          serviceMode: derivedMode,
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Daten konnten nicht geladen werden.';
@@ -589,11 +622,24 @@ export function PartnerDashboard() {
   const handleProfileSave = useCallback(
     async (event: React.FormEvent) => {
       event.preventDefault();
+      if (!profileForm.fullName.trim()) {
+        showToast('warning', 'Ansprechperson fehlt', 'Bitte einen Ansprechpartner angeben.');
+        return;
+      }
+      if (!profileForm.city.trim()) {
+        showToast('warning', 'Stadt fehlt', 'Bitte eine Stadt für Ihr Einsatzgebiet angeben.');
+        return;
+      }
       const result = await performAction(
         'update_profile',
         {
           phone: profileForm.phone.trim(),
+          fullName: profileForm.fullName.trim(),
           websiteUrl: profileForm.websiteUrl.trim(),
+          city: profileForm.city.trim(),
+          postalCode: profileForm.postalCode.trim(),
+          radiusKm: profileForm.radiusKm,
+          serviceMode: profileForm.serviceMode,
           settings: {
             emailNotif: profileForm.emailNotif,
             smsNotif: profileForm.smsNotif,
@@ -1387,6 +1433,14 @@ function WalletSection({
   );
 }
 
+const SERVICE_MODE_OPTIONS: Array<{ value: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES'; label: string; description: string; icon: React.ComponentType<{ className?: string }> }> = [
+  { value: 'UMZUG', label: 'Umzüge', description: 'Privatumzüge, Firmenumzüge, Auslandsumzüge.', icon: Truck },
+  { value: 'ENTRUEMPELUNG', label: 'Entrümpelungen', description: 'Wohnungs-, Haus- und Gewerbeentrümpelungen.', icon: Package },
+  { value: 'BEIDES', label: 'Umzüge & Entrümpelungen', description: 'Beide Leistungen aus einer Hand anbieten.', icon: Building2 },
+];
+
+const RADIUS_PRESETS = [10, 25, 50, 75, 100, 150];
+
 function ProfileSection({
   data,
   form,
@@ -1396,72 +1450,191 @@ function ProfileSection({
   onAvailabilityToggle,
 }: {
   data: DashboardData;
-  form: { phone: string; websiteUrl: string; emailNotif: boolean; smsNotif: boolean; smsNumber: string };
-  onChange: (changes: Partial<{ phone: string; websiteUrl: string; emailNotif: boolean; smsNotif: boolean; smsNumber: string }>) => void;
+  form: {
+    phone: string;
+    websiteUrl: string;
+    emailNotif: boolean;
+    smsNotif: boolean;
+    smsNumber: string;
+    fullName: string;
+    city: string;
+    postalCode: string;
+    radiusKm: number;
+    serviceMode: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES';
+  };
+  onChange: (changes: Partial<{
+    phone: string;
+    websiteUrl: string;
+    emailNotif: boolean;
+    smsNotif: boolean;
+    smsNumber: string;
+    fullName: string;
+    city: string;
+    postalCode: string;
+    radiusKm: number;
+    serviceMode: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES';
+  }>) => void;
   onSubmit: (event: React.FormEvent) => Promise<void>;
   actionInFlight: string | null;
   onAvailabilityToggle: (next: boolean) => Promise<void>;
 }) {
   const partner = data.partner;
   const profile = data.profile;
-  const region = data.serviceRegions[0];
 
   return (
     <div className="space-y-6">
-      <SectionCard title="Firmenprofil" description="Diese Daten haben Sie beim Onboarding gespeichert.">
+      <SectionCard
+        title="Firmen-Stammdaten"
+        description="Firma und E-Mail-Adresse können nur unser Support-Team ändern. Bitte schreiben Sie uns, falls hier etwas korrigiert werden muss."
+      >
         <div className="grid gap-4 sm:grid-cols-2">
-          <ContactRow icon={Building2} label="Firma" value={partner.name} />
-          <ContactRow icon={User2} label="Ansprechperson" value={profile.full_name} />
-          <ContactRow icon={Mail} label="E-Mail" value={profile.email || partner.email} />
-          <ContactRow icon={Globe2} label="Website" value={partner.website_url} />
-          <ContactRow icon={MapPin} label="Region" value={region?.city || partner.regions} hint={region ? `Radius ${region.radius_km || 50} km${region.postal_code ? ` · PLZ ${region.postal_code}` : ''}` : undefined} />
-          <ContactRow icon={Truck} label="Leistungen" value={data.partnerServices.length ? data.partnerServices.map(serviceLabel).join(', ') : 'Alle'} />
+          <ReadOnlyRow icon={Building2} label="Firma" value={partner.name} />
+          <ReadOnlyRow icon={Mail} label="E-Mail" value={profile.email || partner.email} />
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Kontaktdaten & Benachrichtigungen"
-        description="Aktualisieren Sie Telefonnummer, Website und Benachrichtigungspräferenzen."
+        title="Profil bearbeiten"
+        description="Aktualisieren Sie Ansprechperson, Website, Region und Leistungen jederzeit selbst."
       >
-        <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Telefon</span>
-            <input
-              value={form.phone}
-              onChange={(event) => onChange({ phone: event.target.value })}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
-              placeholder="+49 ..."
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FieldInput
+              label="Ansprechperson"
+              icon={User2}
+              value={form.fullName}
+              onChange={(value) => onChange({ fullName: value })}
+              placeholder="Max Mustermann"
               required
             />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Website</span>
-            <input
+            <FieldInput
+              label="Website"
+              icon={Globe2}
               value={form.websiteUrl}
-              onChange={(event) => onChange({ websiteUrl: event.target.value })}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+              onChange={(value) => onChange({ websiteUrl: value })}
               placeholder="https://..."
             />
-          </label>
+            <FieldInput
+              label="Telefon"
+              icon={Phone}
+              value={form.phone}
+              onChange={(value) => onChange({ phone: value })}
+              placeholder="+49 170 1234567"
+              required
+            />
+          </div>
 
-          <div className="sm:col-span-2 grid gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 sm:grid-cols-2">
+          <div className="space-y-4 rounded-[1.7rem] border border-slate-100 bg-slate-50/60 p-5">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Einsatzgebiet</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">Stadt und Radius bestimmen, welche Anfragen Sie im Marktplatz sehen.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <FieldInput
+                label="Stadt"
+                icon={MapPin}
+                value={form.city}
+                onChange={(value) => onChange({ city: value })}
+                placeholder="z. B. Berlin"
+                required
+                wide
+              />
+              <FieldInput
+                label="Postleitzahl"
+                value={form.postalCode}
+                onChange={(value) => onChange({ postalCode: value.replace(/\D/g, '').slice(0, 5) })}
+                placeholder="10115"
+                inputMode="numeric"
+                maxLength={5}
+              />
+            </div>
+            <div>
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Einsatzradius</p>
+                  <p className="mt-1 text-2xl font-black text-slate-950">{form.radiusKm} km</p>
+                </div>
+              </div>
+              <input
+                type="range"
+                min={5}
+                max={300}
+                step={5}
+                value={form.radiusKm}
+                onChange={(event) => onChange({ radiusKm: Number(event.target.value) })}
+                className="brand-range mt-3 w-full cursor-pointer"
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {RADIUS_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => onChange({ radiusKm: preset })}
+                    className={cx(
+                      'rounded-full border px-4 py-1.5 text-xs font-black transition-colors',
+                      form.radiusKm === preset
+                        ? 'border-brand-blue bg-brand-blue text-white'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue',
+                    )}
+                  >
+                    {preset} km
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Leistungen</p>
+              <p className="mt-1 text-sm font-medium text-slate-500">Welche Anfragen möchten Sie erhalten?</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {SERVICE_MODE_OPTIONS.map((option) => {
+                const active = form.serviceMode === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onChange({ serviceMode: option.value })}
+                    className={cx(
+                      'flex h-full flex-col items-start gap-3 rounded-[1.5rem] border-2 p-4 text-left transition-all',
+                      active
+                        ? 'border-brand-blue bg-brand-blue/5 shadow-[0_14px_30px_rgba(2,118,200,0.14)]'
+                        : 'border-slate-200 bg-white hover:border-brand-blue/40 hover:bg-brand-blue/5',
+                    )}
+                  >
+                    <span className={cx(
+                      'flex h-10 w-10 items-center justify-center rounded-2xl border transition-colors',
+                      active ? 'border-brand-blue bg-brand-blue text-white' : 'border-slate-200 bg-slate-50 text-brand-blue',
+                    )}>
+                      <option.icon className="h-4 w-4" />
+                    </span>
+                    <p className="text-sm font-black text-slate-950">{option.label}</p>
+                    <p className="text-xs font-medium text-slate-500">{option.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 sm:grid-cols-2">
             <ToggleRow label="E-Mail-Benachrichtigungen" description="Neue Anfragen, Statusänderungen, Aufladungen" checked={form.emailNotif} onChange={(value) => onChange({ emailNotif: value })} />
             <ToggleRow label="SMS-Benachrichtigungen" description="Sofortige SMS bei dringenden Anfragen" checked={form.smsNotif} onChange={(value) => onChange({ smsNotif: value })} />
           </div>
 
           {form.smsNotif ? (
-            <label className="block sm:col-span-2">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">SMS-Nummer</span>
-              <input
-                value={form.smsNumber}
-                onChange={(event) => onChange({ smsNumber: event.target.value })}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
-                placeholder="+49 ..."
-              />
-            </label>
+            <FieldInput
+              label="SMS-Nummer"
+              icon={Phone}
+              value={form.smsNumber}
+              onChange={(value) => onChange({ smsNumber: value })}
+              placeholder="+49 ..."
+              wide
+            />
           ) : null}
 
-          <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
             <div>
               <p className="text-sm font-black text-slate-900">Verfügbarkeit</p>
               <p className="text-xs font-medium text-slate-500">Pausieren Sie eingehende Anfragen, ohne Ihr Konto zu deaktivieren.</p>
@@ -1480,20 +1653,18 @@ function ProfileSection({
             </button>
           </div>
 
-          <div className="sm:col-span-2">
-            <button
-              type="submit"
-              disabled={actionInFlight === 'profile'}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              {actionInFlight === 'profile' ? 'Speichert...' : 'Profil speichern'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={actionInFlight === 'profile'}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60 sm:w-auto"
+          >
+            <CheckCircle2 className="h-4 w-4" />
+            {actionInFlight === 'profile' ? 'Speichert...' : 'Profil speichern'}
+          </button>
         </form>
       </SectionCard>
 
-      <SectionCard title="Onboarding & Verifizierung" description="Bei Änderungen an Region oder Leistungen wenden Sie sich an unseren Support.">
+      <SectionCard title="Konto-Status" description="Aktueller Status Ihrer Mitgliedschaft.">
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
             <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Verifizierung</p>
@@ -1508,12 +1679,71 @@ function ProfileSection({
             <p className="mt-1 text-base font-black text-slate-900">{formatDate(partner.created_at)}</p>
           </div>
         </div>
-        <Link href="/portal/onboarding/partner" className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue">
-          <ReceiptText className="h-4 w-4" />
-          Onboarding-Daten überprüfen
-        </Link>
       </SectionCard>
     </div>
+  );
+}
+
+function ReadOnlyRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string | null | undefined }) {
+  return (
+    <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-100/60 p-4">
+      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-500">
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
+          {label}
+          <span aria-hidden className="text-slate-300">·</span>
+          <span className="text-[10px] font-bold text-slate-400">nicht änderbar</span>
+        </p>
+        <p className="mt-1 break-words text-sm font-bold text-slate-900">{value || '-'}</p>
+      </div>
+    </div>
+  );
+}
+
+function FieldInput({
+  label,
+  icon: Icon,
+  value,
+  onChange,
+  placeholder,
+  required,
+  wide,
+  inputMode,
+  maxLength,
+}: {
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  wide?: boolean;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  maxLength?: number;
+}) {
+  return (
+    <label className={cx('block', wide ? 'sm:col-span-2' : '')}>
+      <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+        {label}{required ? ' *' : ''}
+      </span>
+      <span className="relative block">
+        {Icon ? <Icon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-300" /> : null}
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          required={required}
+          inputMode={inputMode}
+          maxLength={maxLength}
+          className={cx(
+            'w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue focus:bg-white',
+            Icon ? 'pl-12 pr-4' : 'px-4',
+          )}
+        />
+      </span>
+    </label>
   );
 }
 
