@@ -1,5 +1,5 @@
 import {
-  CircleDollarSign,
+  Euro,
   BriefcaseBusiness,
   Building2,
   FileText,
@@ -358,6 +358,6 @@ export const kpiIcons = {
   openLeads: FileText,
   activePartners: Handshake,
   conversion: Users,
-  revenue: CircleDollarSign,
+  revenue: Euro,
   complaints: TriangleAlert,
 };
