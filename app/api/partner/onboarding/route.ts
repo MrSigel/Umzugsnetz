@@ -14,7 +14,24 @@ type OnboardingBody = {
   postalCode?: string;
   radiusKm?: number;
   services?: string[];
+  serviceMode?: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES';
 };
+
+function deriveServiceMode(services: string[]): 'UMZUG' | 'ENTRÜMPELUNG' | 'BEIDES' {
+  const codes = new Set(services.map((value) => String(value || '').toUpperCase()));
+  if (codes.has('BEIDES')) return 'BEIDES';
+  const hasUmzug = codes.has('UMZUG');
+  const hasEntr = codes.has('ENTRUEMPELUNG') || codes.has('ENTRÜMPELUNG');
+  if (hasUmzug && hasEntr) return 'BEIDES';
+  if (hasEntr) return 'ENTRÜMPELUNG';
+  return 'UMZUG';
+}
+
+function expandServiceMode(mode: 'UMZUG' | 'ENTRÜMPELUNG' | 'BEIDES'): string[] {
+  if (mode === 'BEIDES') return ['UMZUG', 'ENTRUEMPELUNG'];
+  if (mode === 'ENTRÜMPELUNG') return ['ENTRUEMPELUNG'];
+  return ['UMZUG'];
+}
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -62,29 +79,51 @@ export async function GET(request: Request) {
   const supabaseAdmin = getSupabaseAdmin();
   const userId = session.user.id;
 
-  const [{ data: partner }, { data: profile }, { data: regionRows }, { data: serviceRows }] = await Promise.all([
-    supabaseAdmin
-      .from('partners')
-      .select('id,name,phone,email,website_url,verification_status,onboarding_completed_at')
-      .eq('user_id', userId)
-      .maybeSingle(),
+  const { data: partner } = await supabaseAdmin
+    .from('partners')
+    .select('id,name,phone,email,website_url,verification_status,onboarding_completed_at,service,settings')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  const partnerId = partner?.id || null;
+
+  const [{ data: profile }, regionResult, serviceResult] = await Promise.all([
     supabaseAdmin
       .from('profiles')
       .select('full_name,phone')
       .eq('id', userId)
       .maybeSingle(),
-    supabaseAdmin
-      .from('service_regions')
-      .select('city,postal_code,radius_km')
-      .eq('partner_id', userId)
-      .limit(1),
-    supabaseAdmin
-      .from('partner_services')
-      .select('service_code')
-      .eq('partner_id', userId),
+    partnerId
+      ? supabaseAdmin
+          .from('service_regions')
+          .select('city,postal_code,radius_km')
+          .eq('partner_id', partnerId)
+          .order('created_at', { ascending: true })
+          .limit(1)
+      : Promise.resolve({ data: [] as Array<{ city?: string; postal_code?: string; radius_km?: number }> }),
+    partnerId
+      ? supabaseAdmin
+          .from('partner_services')
+          .select('service_code')
+          .eq('partner_id', partnerId)
+      : Promise.resolve({ data: [] as Array<{ service_code: string }> }),
   ]);
 
-  const region = regionRows?.[0];
+  const regionRows = (regionResult as { data?: Array<{ city?: string; postal_code?: string; radius_km?: number }> }).data || [];
+  const serviceRows = (serviceResult as { data?: Array<{ service_code: string }> }).data || [];
+  const region = regionRows[0];
+  const settings = (partner?.settings && typeof partner.settings === 'object'
+    ? partner.settings as Record<string, unknown>
+    : {});
+  const settingsRadius = Number(settings.radius_km);
+  const services = serviceRows.map((entry) => entry.service_code);
+  const serviceMode = (() => {
+    const stored = String(partner?.service || '').toUpperCase();
+    if (stored === 'BEIDES' || stored === 'UMZUG' || stored === 'ENTRÜMPELUNG' || stored === 'ENTRUEMPELUNG') {
+      return stored === 'ENTRÜMPELUNG' || stored === 'ENTRUEMPELUNG' ? 'ENTRUEMPELUNG' : stored;
+    }
+    return deriveServiceMode(services) === 'ENTRÜMPELUNG' ? 'ENTRUEMPELUNG' : deriveServiceMode(services);
+  })();
 
   return NextResponse.json({
     companyName: partner?.name || '',
@@ -93,9 +132,11 @@ export async function GET(request: Request) {
     websiteUrl: partner?.website_url || '',
     city: region?.city || '',
     postalCode: region?.postal_code || '',
-    radiusKm: region?.radius_km || 50,
-    services: serviceRows?.map((entry) => entry.service_code) || [],
+    radiusKm: Number.isFinite(settingsRadius) && settingsRadius > 0 ? settingsRadius : (region?.radius_km || 50),
+    services,
+    serviceMode,
     verificationStatus: partner?.verification_status || 'PENDING',
+    onboardingCompletedAt: partner?.onboarding_completed_at || null,
   });
 }
 
@@ -118,8 +159,14 @@ export async function POST(request: Request) {
   const websiteUrl = body.websiteUrl?.trim() || null;
   const city = body.city?.trim();
   const postalCode = body.postalCode?.trim() || null;
-  const radiusKm = Number(body.radiusKm || 0);
-  const services = Array.isArray(body.services) ? body.services.filter(Boolean) : [];
+  const radiusKmInput = Number(body.radiusKm || 0);
+  const radiusKm = Number.isFinite(radiusKmInput) && radiusKmInput > 0 ? radiusKmInput : 50;
+  const incomingServices = Array.isArray(body.services) ? body.services.filter(Boolean) : [];
+  const requestedMode = body.serviceMode
+    ? (String(body.serviceMode).toUpperCase() === 'ENTRUEMPELUNG' ? 'ENTRÜMPELUNG' : (String(body.serviceMode).toUpperCase() as 'UMZUG' | 'ENTRÜMPELUNG' | 'BEIDES'))
+    : null;
+  const serviceMode = requestedMode || deriveServiceMode(incomingServices);
+  const services = expandServiceMode(serviceMode);
 
   if (!companyName || !fullName || !phone || !city || services.length === 0) {
     return jsonError('Bitte alle Pflichtfelder ausfüllen.', 400);
@@ -145,13 +192,22 @@ export async function POST(request: Request) {
 
   const { data: partner, error: partnerError } = await supabaseAdmin
     .from('partners')
-    .select('id')
+    .select('id,settings')
     .eq('user_id', user.id)
     .single();
 
   if (partnerError || !partner) {
     return jsonError('Partnerprofil wurde nicht gefunden.', 404);
   }
+
+  const existingSettings = (partner.settings && typeof partner.settings === 'object'
+    ? partner.settings as Record<string, unknown>
+    : {});
+  const mergedSettings = {
+    ...existingSettings,
+    radius_km: radiusKm,
+    radius_label: `${radiusKm} km`,
+  };
 
   await supabaseAdmin.from('profiles').upsert([{
     id: user.id,
@@ -170,11 +226,14 @@ export async function POST(request: Request) {
       name: companyName,
       email,
       phone,
+      regions: city,
+      service: serviceMode,
       website_url: websiteUrl ?? verification.websiteUrl,
       verification_status: verificationStatus,
       status: partnerStatus,
       onboarding_completed_at: now,
       verified_at: verificationStatus === 'VERIFIED' ? now : null,
+      settings: mergedSettings,
       updated_at: now,
     })
     .eq('id', partner.id);
