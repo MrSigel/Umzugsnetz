@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, LogOut, Menu, PhoneCall, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {
@@ -1044,7 +1044,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
   return (
     <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
       <SectionCard
-        title="Kunden"
+        title="Firmen"
         action={
           <div className="flex flex-wrap gap-2">
             {role === 'ADMIN' ? (
@@ -1062,7 +1062,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
                 />
               </label>
             ) : null}
-            <button type="button" onClick={startNewCustomer} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-700">Neuer Kunde</button>
+            <button type="button" onClick={startNewCustomer} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-700">Neue Firma</button>
           </div>
         }
       >
@@ -1099,7 +1099,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
         )}
       </SectionCard>
 
-      <SectionCard title={selectedCustomer ? 'Kunde bearbeiten' : 'Kunde anlegen'}>
+      <SectionCard title={selectedCustomer ? 'Firma bearbeiten' : 'Firma anlegen'}>
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block sm:col-span-2">
@@ -1164,7 +1164,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
             </label>
           </div>
           <button type="button" onClick={saveCustomer} disabled={saving} className="w-full rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60">
-            {saving ? 'Speichert...' : 'Kunde speichern'}
+            {saving ? 'Speichert...' : 'Firma speichern'}
           </button>
         </div>
       </SectionCard>
@@ -2127,11 +2127,438 @@ export function AdminDashboard() {
             </div>
           ) : null}
           {activeSection === 'tickets' ? <TicketsSection tickets={tickets} ticketSavingSessionId={ticketSavingSessionId} search={search} onMarkRead={markTicketRead} /> : null}
+          {activeSection === 'team-chat' ? <TeamChatSection role={role} /> : null}
           {activeSection === 'billing' && role === 'ADMIN' ? <BillingSection transactions={transactions} search={search} /> : null}
           {activeSection === 'content' ? <ContentSection search={search} /> : null}
           {activeSection === 'settings' && role === 'ADMIN' ? <SettingsSection settings={settings} team={team} search={search} onSave={handlePortalSave} /> : null}
         </div>
       </div>
     </main>
+  );
+}
+
+type TeamChatChannel = {
+  id: string;
+  slug: string;
+  name: string;
+  is_default: boolean;
+  is_locked: boolean;
+  created_at: string;
+  members: Array<{ id: string; channel_id: string; user_id: string; added_by: string | null; added_at: string }>;
+};
+
+type TeamChatMessage = {
+  id: string;
+  channel_id: string;
+  author_user_id: string | null;
+  author_email: string | null;
+  author_name: string | null;
+  text: string;
+  created_at: string;
+};
+
+type TeamChatDirectoryEntry = {
+  user_id: string;
+  email: string;
+  full_name: string | null;
+  role: 'ADMIN' | 'EMPLOYEE' | null;
+  status: string;
+};
+
+type TeamChatPayload = {
+  role: StaffRole;
+  currentUser: { id: string; email: string };
+  channels: TeamChatChannel[];
+  activeChannelId: string | null;
+  messages: TeamChatMessage[];
+  directory: TeamChatDirectoryEntry[];
+};
+
+function TeamChatSection({ role }: { role: StaffRole }) {
+  const [data, setData] = useState<TeamChatPayload | null>(null);
+  const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
+  const [loadingChat, setLoadingChat] = useState(true);
+  const [errorChat, setErrorChat] = useState('');
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [draftMessage, setDraftMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [newChannelName, setNewChannelName] = useState('');
+  const [memberInput, setMemberInput] = useState('');
+  const [actionInFlight, setActionInFlight] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const ensureToken = useCallback(async () => {
+    if (accessToken) return accessToken;
+    const { data: session } = await supabase.auth.getSession();
+    const token = session.session?.access_token || null;
+    if (token) setAccessToken(token);
+    return token;
+  }, [accessToken]);
+
+  const loadChat = useCallback(async (channelId: string | null = null) => {
+    try {
+      const token = await ensureToken();
+      if (!token) {
+        setErrorChat('Bitte erneut anmelden.');
+        setLoadingChat(false);
+        return;
+      }
+      const url = channelId ? `/api/admin/team-chat?channelId=${encodeURIComponent(channelId)}` : '/api/admin/team-chat';
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload?.error || 'Team Chat konnte nicht geladen werden.');
+      setData(payload as TeamChatPayload);
+      setActiveChannelId((current) => current || (payload as TeamChatPayload).activeChannelId);
+      setErrorChat('');
+    } catch (loadError) {
+      setErrorChat(loadError instanceof Error ? loadError.message : 'Team Chat konnte nicht geladen werden.');
+    } finally {
+      setLoadingChat(false);
+    }
+  }, [ensureToken]);
+
+  useEffect(() => {
+    void loadChat();
+  }, [loadChat]);
+
+  useEffect(() => {
+    if (!activeChannelId) return;
+    const channel = supabase
+      .channel(`team-chat-${activeChannelId}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'team_chat_messages', filter: `channel_id=eq.${activeChannelId}` }, () => {
+        void loadChat(activeChannelId);
+      })
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [activeChannelId, loadChat]);
+
+  useEffect(() => {
+    if (!activeChannelId) return;
+    void loadChat(activeChannelId);
+  }, [activeChannelId, loadChat]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [data?.messages?.length, activeChannelId]);
+
+  const performTeamChatAction = useCallback(async (action: string, body: Record<string, unknown>, key: string) => {
+    const token = await ensureToken();
+    if (!token) {
+      setErrorChat('Bitte erneut anmelden.');
+      return null;
+    }
+    setActionInFlight(key);
+    try {
+      const response = await fetch('/api/admin/team-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action, ...body }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload?.error || 'Aktion fehlgeschlagen.');
+      return payload;
+    } catch (actionError) {
+      window.alert(actionError instanceof Error ? actionError.message : 'Aktion fehlgeschlagen.');
+      return null;
+    } finally {
+      setActionInFlight('');
+    }
+  }, [ensureToken]);
+
+  const sendMessage = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!activeChannelId) return;
+    const text = draftMessage.trim();
+    if (!text) return;
+    setSubmitting(true);
+    try {
+      const result = await performTeamChatAction('send_message', { channelId: activeChannelId, text }, 'send');
+      if (result) {
+        setDraftMessage('');
+        await loadChat(activeChannelId);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }, [activeChannelId, draftMessage, loadChat, performTeamChatAction]);
+
+  const createChannel = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
+    const name = newChannelName.trim();
+    if (!name) return;
+    const result = await performTeamChatAction('create_channel', { name }, 'create');
+    if (result) {
+      setNewChannelName('');
+      setShowCreateChannel(false);
+      const newId = (result as { channelId?: string }).channelId;
+      if (newId) setActiveChannelId(newId);
+      await loadChat(newId || null);
+    }
+  }, [loadChat, newChannelName, performTeamChatAction]);
+
+  const deleteChannel = useCallback(async (channel: TeamChatChannel) => {
+    if (channel.is_locked) return;
+    if (!window.confirm(`Kanal "${channel.name}" wirklich löschen?`)) return;
+    const result = await performTeamChatAction('delete_channel', { channelId: channel.id }, `delete:${channel.id}`);
+    if (result) {
+      setActiveChannelId(null);
+      await loadChat(null);
+    }
+  }, [loadChat, performTeamChatAction]);
+
+  const addMember = useCallback(async () => {
+    if (!activeChannelId) return;
+    const value = memberInput.trim();
+    if (!value) return;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+    const payload: Record<string, unknown> = isUuid ? { userId: value } : { email: value };
+    const result = await performTeamChatAction('add_member', { channelId: activeChannelId, ...payload }, 'add-member');
+    if (result) {
+      setMemberInput('');
+      await loadChat(activeChannelId);
+    }
+  }, [activeChannelId, loadChat, memberInput, performTeamChatAction]);
+
+  const removeMember = useCallback(async (userId: string) => {
+    if (!activeChannelId) return;
+    const result = await performTeamChatAction('remove_member', { channelId: activeChannelId, userId }, `remove:${userId}`);
+    if (result) {
+      await loadChat(activeChannelId);
+    }
+  }, [activeChannelId, loadChat, performTeamChatAction]);
+
+  if (loadingChat) {
+    return <SectionCard title="Team Chat"><EmptyState title="Lädt Team Chat..." text="Einen Moment bitte." /></SectionCard>;
+  }
+
+  if (errorChat || !data) {
+    return <SectionCard title="Team Chat"><EmptyState title="Team Chat nicht verfügbar" text={errorChat || 'Bitte erneut versuchen.'} /></SectionCard>;
+  }
+
+  const activeChannel = data.channels.find((c) => c.id === activeChannelId) || data.channels[0] || null;
+  const directoryById = new Map<string, TeamChatDirectoryEntry>();
+  for (const entry of data.directory) directoryById.set(entry.user_id, entry);
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[280px_1fr]">
+      <SectionCard
+        title="Kanäle"
+        action={role === 'ADMIN' ? (
+          <button
+            type="button"
+            onClick={() => setShowCreateChannel((value) => !value)}
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue"
+          >
+            {showCreateChannel ? 'Schließen' : 'Neuer Kanal'}
+          </button>
+        ) : null}
+      >
+        {showCreateChannel ? (
+          <form onSubmit={createChannel} className="mb-4 flex gap-2">
+            <input
+              value={newChannelName}
+              onChange={(event) => setNewChannelName(event.target.value)}
+              placeholder="Name des Kanals"
+              className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+              required
+              maxLength={80}
+            />
+            <button
+              type="submit"
+              disabled={actionInFlight === 'create'}
+              className="rounded-2xl bg-brand-blue px-3 py-2 text-xs font-black text-white disabled:opacity-60"
+            >
+              {actionInFlight === 'create' ? '...' : 'Anlegen'}
+            </button>
+          </form>
+        ) : null}
+
+        <div className="space-y-2">
+          {data.channels.map((channel) => (
+            <button
+              key={channel.id}
+              type="button"
+              onClick={() => setActiveChannelId(channel.id)}
+              className={cx(
+                'flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition-colors',
+                activeChannel?.id === channel.id
+                  ? 'border-brand-blue bg-brand-blue/5'
+                  : 'border-slate-100 bg-slate-50 hover:border-slate-200',
+              )}
+            >
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-black text-slate-900">
+                  {channel.is_locked ? '🔒 ' : '#'} {channel.name}
+                </span>
+                <span className="mt-1 block text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  {channel.is_default ? 'Alle Mitarbeiter' : `${channel.members.length} Mitglied${channel.members.length === 1 ? '' : 'er'}`}
+                </span>
+              </span>
+              {role === 'ADMIN' && !channel.is_locked ? (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    void deleteChannel(channel);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      void deleteChannel(channel);
+                    }
+                  }}
+                  className="ml-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-black text-slate-500 hover:border-red-200 hover:text-red-600"
+                >
+                  Löschen
+                </span>
+              ) : null}
+            </button>
+          ))}
+          {data.channels.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-semibold text-slate-500">Keine Kanäle vorhanden.</p>
+          ) : null}
+        </div>
+      </SectionCard>
+
+      <div className="space-y-6">
+        <SectionCard
+          title={activeChannel ? activeChannel.name : 'Kein Kanal'}
+          description={activeChannel?.is_default ? 'Standard-Kanal für alle Mitarbeiter und Geschäftsführer.' : activeChannel ? `${activeChannel.members.length} Mitglied${activeChannel.members.length === 1 ? '' : 'er'}` : 'Wähle einen Kanal aus der Liste.'}
+        >
+          {activeChannel ? (
+            <div className="flex h-[480px] flex-col">
+              <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+                {data.messages.length === 0 ? (
+                  <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-12 text-center text-sm font-semibold text-slate-500">
+                    Noch keine Nachrichten. Schreib die erste!
+                  </p>
+                ) : (
+                  data.messages.map((message) => {
+                    const isMine = message.author_user_id === data.currentUser.id;
+                    const author = message.author_name || message.author_email || 'Unbekannt';
+                    return (
+                      <div key={message.id} className={cx('flex', isMine ? 'justify-end' : 'justify-start')}>
+                        <div className={cx(
+                          'max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow-sm',
+                          isMine ? 'bg-brand-blue text-white' : 'border border-slate-100 bg-white text-slate-800',
+                        )}>
+                          <p className={cx('text-[11px] font-black uppercase tracking-[0.14em]', isMine ? 'text-white/80' : 'text-slate-400')}>
+                            {author}
+                          </p>
+                          <p className="mt-1 whitespace-pre-line break-words leading-relaxed">{message.text}</p>
+                          <p className={cx('mt-1 text-[10px] font-medium', isMine ? 'text-white/70' : 'text-slate-400')}>
+                            {formatDateTime(message.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <form onSubmit={sendMessage} className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
+                <input
+                  value={draftMessage}
+                  onChange={(event) => setDraftMessage(event.target.value)}
+                  placeholder="Nachricht schreiben..."
+                  maxLength={4000}
+                  className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting || !draftMessage.trim()}
+                  className="rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+                >
+                  {submitting ? 'Senden...' : 'Senden'}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <EmptyState title="Kein Kanal ausgewählt" text="Wähle links einen Kanal, um Nachrichten zu sehen." />
+          )}
+        </SectionCard>
+
+        {role === 'ADMIN' && activeChannel && !activeChannel.is_default ? (
+          <SectionCard title="Mitglieder" description="Mitarbeiter zum Kanal hinzufügen oder entfernen.">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+              <input
+                value={memberInput}
+                onChange={(event) => setMemberInput(event.target.value)}
+                placeholder="E-Mail des Mitarbeiters"
+                className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
+              />
+              <button
+                type="button"
+                onClick={addMember}
+                disabled={actionInFlight === 'add-member' || !memberInput.trim()}
+                className="rounded-2xl bg-brand-blue px-5 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
+              >
+                Hinzufügen
+              </button>
+            </div>
+
+            {data.directory.length > 0 ? (
+              <div className="mb-4">
+                <p className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-slate-400">Schnell auswählen</p>
+                <div className="flex flex-wrap gap-2">
+                  {data.directory
+                    .filter((entry) => !activeChannel.members.some((m) => m.user_id === entry.user_id))
+                    .slice(0, 15)
+                    .map((entry) => (
+                      <button
+                        key={entry.user_id}
+                        type="button"
+                        onClick={() => setMemberInput(entry.email)}
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+                      >
+                        {entry.full_name || entry.email}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div className="space-y-2">
+              {activeChannel.members.length === 0 ? (
+                <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-semibold text-slate-500">
+                  Noch keine Mitglieder.
+                </p>
+              ) : (
+                activeChannel.members.map((member) => {
+                  const dir = directoryById.get(member.user_id);
+                  return (
+                    <div key={member.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-slate-900">{dir?.full_name || dir?.email || member.user_id.slice(0, 8)}</p>
+                        <p className="truncate text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">{dir?.email || ''}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeMember(member.user_id)}
+                        disabled={actionInFlight === `remove:${member.user_id}`}
+                        className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-black text-slate-600 hover:border-red-200 hover:text-red-600"
+                      >
+                        Entfernen
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </SectionCard>
+        ) : null}
+      </div>
+    </div>
   );
 }

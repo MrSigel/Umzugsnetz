@@ -27,6 +27,7 @@ export type AdminSectionId =
   | 'tickets'
   | 'billing'
   | 'content'
+  | 'team-chat'
   | 'settings';
 
 export type StaffRole = 'ADMIN' | 'EMPLOYEE';
@@ -168,12 +169,13 @@ export const baseNavigation: Record<StaffRole, NavItem[]> = {
   ADMIN: [
     { id: 'dashboard', label: 'Übersicht', icon: Gauge },
     { id: 'work', label: 'Arbeiten', icon: BriefcaseBusiness },
-    { id: 'customers', label: 'Kunden', icon: Building2 },
+    { id: 'customers', label: 'Firmen', icon: Building2 },
     { id: 'requests', label: 'Anfragen', icon: Mail },
     { id: 'partners', label: 'Partner', icon: Handshake },
     { id: 'distribution', label: 'Anfragen-Verteilung', icon: SplitSquareVertical },
     { id: 'employees', label: 'Mitarbeiter', icon: UserCog },
     { id: 'tickets', label: 'Support', icon: MessageSquareText },
+    { id: 'team-chat', label: 'Team Chat', icon: MessageSquareText },
     { id: 'billing', label: 'Abrechnung', icon: ReceiptText },
     { id: 'content', label: 'Inhalte', icon: LayoutTemplate },
     { id: 'settings', label: 'Einstellungen', icon: Settings2 },
@@ -181,8 +183,9 @@ export const baseNavigation: Record<StaffRole, NavItem[]> = {
   EMPLOYEE: [
     { id: 'dashboard', label: 'Übersicht', icon: Gauge },
     { id: 'work', label: 'Arbeiten', icon: BriefcaseBusiness },
-    { id: 'customers', label: 'Kunden', icon: Building2 },
+    { id: 'customers', label: 'Firmen', icon: Building2 },
     { id: 'tickets', label: 'Support', icon: MessageSquareText },
+    { id: 'team-chat', label: 'Team Chat', icon: MessageSquareText },
   ],
 };
 
@@ -275,8 +278,12 @@ export const emptyStateBySection: Record<AdminSectionId, { title: string; text: 
     text: 'Sobald offene Anfragen vorhanden sind, erscheint hier der nächste Kunde.',
   },
   customers: {
-    title: 'Keine Kunden hinterlegt',
+    title: 'Keine Firmen hinterlegt',
     text: 'Sobald Partnerfirmen gespeichert sind, erscheinen sie hier.',
+  },
+  'team-chat': {
+    title: 'Kein aktiver Kanal',
+    text: 'Sobald Sie einen Kanal auswählen, erscheinen die Nachrichten hier.',
   },
   partners: {
     title: 'Keine Partner verfügbar',
@@ -311,7 +318,8 @@ export const emptyStateBySection: Record<AdminSectionId, { title: string; text: 
 export const sectionDescriptions: Record<AdminSectionId, string> = {
   dashboard: 'Operative Übersicht auf Basis der aktuellen Plattformdaten.',
   work: 'Telefonischer Bearbeitungsassistent für echte Kundenanfragen.',
-  customers: 'Partnerfirmen mit Kontaktdaten, Adresse und internen Notizen.',
+  customers: 'Firmen mit Kontaktdaten, Adresse und internen Notizen.',
+  'team-chat': 'Interner Team Chat für Geschäftsführer und Mitarbeiter.',
   requests: 'Anfrageeingang, Statuspflege und echte Anfragen aus dem System.',
   partners: 'Partnernetzwerk mit Regionen, Kontakt und Kontostand aus der Datenbank.',
   distribution: 'Offene Anfragen mit tatsächlich passenden Partnern nach Regionen.',

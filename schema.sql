@@ -1104,6 +1104,87 @@ CREATE TABLE IF NOT EXISTS chat_conversations (
 ALTER TABLE chat_messages
   ADD COLUMN IF NOT EXISTS conversation_id UUID REFERENCES chat_conversations(id) ON DELETE CASCADE;
 
+-- ─────────────────────────────────────────────────────────────
+-- TEAM CHAT (interner Chat für Geschäftsführer und Mitarbeiter)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS team_channels (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug        TEXT UNIQUE NOT NULL,
+  name        TEXT NOT NULL,
+  is_default  BOOLEAN NOT NULL DEFAULT FALSE,
+  is_locked   BOOLEAN NOT NULL DEFAULT FALSE,
+  created_by  UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS team_channel_members (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  channel_id  UUID NOT NULL REFERENCES team_channels(id) ON DELETE CASCADE,
+  user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  added_by    UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  added_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (channel_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS team_channel_members_channel_idx ON team_channel_members (channel_id);
+CREATE INDEX IF NOT EXISTS team_channel_members_user_idx ON team_channel_members (user_id);
+
+CREATE TABLE IF NOT EXISTS team_chat_messages (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  channel_id      UUID NOT NULL REFERENCES team_channels(id) ON DELETE CASCADE,
+  author_user_id  UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  author_email    TEXT,
+  author_name     TEXT,
+  text            TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS team_chat_messages_channel_idx ON team_chat_messages (channel_id, created_at DESC);
+
+INSERT INTO team_channels (slug, name, is_default, is_locked)
+  VALUES ('umzugsnetz-team-chat', 'Umzugsnetz Team Chat', TRUE, TRUE)
+ON CONFLICT (slug) DO UPDATE
+  SET name = EXCLUDED.name,
+      is_default = TRUE,
+      is_locked = TRUE,
+      updated_at = NOW();
+
+ALTER TABLE team_channels ENABLE ROW LEVEL SECURITY;
+ALTER TABLE team_channel_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE team_chat_messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "team_channels_select_staff" ON team_channels;
+CREATE POLICY "team_channels_select_staff" ON team_channels FOR SELECT USING (
+  app_is_admin() OR app_is_employee()
+);
+DROP POLICY IF EXISTS "team_channels_write_admin" ON team_channels;
+CREATE POLICY "team_channels_write_admin" ON team_channels FOR ALL USING (app_is_admin()) WITH CHECK (app_is_admin());
+
+DROP POLICY IF EXISTS "team_channel_members_select_staff" ON team_channel_members;
+CREATE POLICY "team_channel_members_select_staff" ON team_channel_members FOR SELECT USING (
+  app_is_admin() OR app_is_employee()
+);
+DROP POLICY IF EXISTS "team_channel_members_write_admin" ON team_channel_members;
+CREATE POLICY "team_channel_members_write_admin" ON team_channel_members FOR ALL USING (app_is_admin()) WITH CHECK (app_is_admin());
+
+DROP POLICY IF EXISTS "team_chat_messages_select_staff" ON team_chat_messages;
+CREATE POLICY "team_chat_messages_select_staff" ON team_chat_messages FOR SELECT USING (
+  app_is_admin() OR app_is_employee()
+);
+DROP POLICY IF EXISTS "team_chat_messages_insert_staff" ON team_chat_messages;
+CREATE POLICY "team_chat_messages_insert_staff" ON team_chat_messages FOR INSERT WITH CHECK (
+  app_is_admin() OR app_is_employee()
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'team_chat_messages') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE team_chat_messages;
+  END IF;
+END
+$$;
+
 CREATE TABLE IF NOT EXISTS audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   actor_user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
