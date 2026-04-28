@@ -272,7 +272,7 @@ setTimeout(() => setCopyStatus('idle'), 2000);
                     animate="rest"
                     whileHover="hover"
                     whileTap="tap"
-                    onClick={(e) => openCalculatorForService(e as any, 'privatumzug')}
+                    onClick={(e) => scrollTo(e as any, 'rechner')}
                     className="group relative overflow-hidden rounded-[1.35rem] border border-brand-blue/35 bg-brand-blue-soft/80 px-3 py-3 sm:rounded-[1.5rem] sm:px-4 text-left shadow-[0_10px_24px_rgba(15,23,42,0.10)] transition-all hover:-translate-y-0.5 hover:bg-brand-blue-soft hover:shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                   >
                     <motion.span

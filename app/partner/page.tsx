@@ -35,10 +35,9 @@ const BENEFITS = [
 
 const SERVICES = [
   { value: '', label: 'Bitte Dienstleistung auswählen' },
-  { value: 'privatumzug', label: 'Privatumzug' },
-  { value: 'firmenumzug', label: 'Firmenumzug' },
+  { value: 'umzug', label: 'Umzüge' },
   { value: 'entruempelung', label: 'Entrümpelung' },
-  { value: 'umzug_entruempelung', label: 'Umzug & Entrümpelung' },
+  { value: 'umzug_entruempelung', label: 'Umzüge und Entrümpelung' },
 ];
 
 const RADIUS_OPTIONS = ['10 km', '25 km', '50 km', '75 km', '100 km', '150 km+'];
@@ -88,7 +87,7 @@ export default function PartnerPage() {
               <BadgeCheck className="w-4 h-4 text-[#00ff9d]" /> Gemeinsam wachsen
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-black leading-tight mb-6 break-words">
-              Partner werden &<br />
+              Für Firmen &<br />
               <span className="text-[#00ff9d]">mehr Aufträge erhalten</span>
             </h1>
             <p className="text-white/80 text-base sm:text-xl max-w-2xl mx-auto mb-10">
@@ -114,7 +113,7 @@ export default function PartnerPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz-Partner</span> werden?</h2>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#1e293b] mb-4">Warum <span className="text-brand-blue">Umzugsnetz nutzen?</span></h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">Profitieren Sie von unserem deutschlandweiten Netzwerk und erhalten Sie regelmäßig neue Aufträge.</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -201,7 +200,7 @@ export default function PartnerPage() {
                         <BadgeCheck className="w-7 h-7 text-brand-blue" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-black text-[#1e293b]">Partner werden</h3>
+                        <h3 className="text-2xl font-black text-[#1e293b]">Für Firmen</h3>
                         <p className="text-slate-400 text-sm">Registrieren Sie Ihr Unternehmen</p>
                       </div>
                     </div>
@@ -336,7 +335,7 @@ export default function PartnerPage() {
                             : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         }`}
                       >
-                        {submitting ? 'Wird gesendet...' : 'Jetzt Partner werden'} <Send className="w-5 h-5" />
+                        {submitting ? 'Wird gesendet...' : 'Jetzt registrieren'} <Send className="w-5 h-5" />
                       </motion.button>
 
                       <p className="text-slate-400 text-xs text-center leading-relaxed">

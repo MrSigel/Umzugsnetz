@@ -39,7 +39,7 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
     { href: '/', label: 'Startseite', key: 'startseite' },
     { href: '/#rechner', label: 'Kostenrechner', key: 'rechner' },
     { href: '/#ratgeber', label: 'Ratgeber', key: 'ratgeber' },
-    { href: '/partner', label: 'Für Partner', key: 'partner' },
+    { href: '/partner', label: 'Für Firmen', key: 'partner' },
   ];
 
   const socialLinks = [
