@@ -9,6 +9,7 @@ import {
   type PricingConfig,
 } from '@/lib/pricing';
 import { DEFAULT_BILLING_SETTINGS, normalizeBillingSettings, type BillingSettings } from '@/lib/settings';
+import { appBaseUrl, getStripeClient, isStripeConfigured, priceIdForPackage, type PartnerPackageCode } from '@/lib/server/stripe';
 
 export const dynamic = 'force-dynamic';
 
@@ -241,6 +242,21 @@ async function buildDashboardPayload(admin: SupabaseClient, user: User) {
     loadMinTopupAmount(admin),
   ]);
 
+  const [{ data: packageRows }, { data: subscriptionRow }] = await Promise.all([
+    admin
+      .from('packages')
+      .select('code,name,monthly_price,lead_limit_monthly,priority,release_delay_seconds,is_active')
+      .eq('is_active', true)
+      .order('priority', { ascending: false }),
+    admin
+      .from('subscriptions')
+      .select('id,package_code,provider,external_reference,status,current_period_start,current_period_end,cancel_at_period_end')
+      .eq('partner_id', partnerId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
   const orders = (orderRows || []) as JsonRecord[];
   const purchases = (purchaseRows || []) as Array<{ order_id: string; price: number | string; created_at: string; id: string }>;
   const purchasedIds = new Set(purchases.map((row) => String(row.order_id)));
@@ -385,6 +401,26 @@ async function buildDashboardPayload(admin: SupabaseClient, user: User) {
       walletTransactions: walletRows || [],
       topupRequests: topupRows || [],
       notifications: notificationRows || [],
+      packages: (packageRows || []).map((row) => ({
+        code: row.code,
+        name: row.name,
+        monthly_price: toNumber(row.monthly_price),
+        lead_limit_monthly: Number(row.lead_limit_monthly || 0),
+        priority: Number(row.priority || 0),
+        release_delay_seconds: Number(row.release_delay_seconds || 0),
+        purchasable: row.code !== 'FREE' && Boolean(priceIdForPackage(row.code as PartnerPackageCode)),
+      })),
+      subscription: subscriptionRow ? {
+        id: subscriptionRow.id,
+        package_code: subscriptionRow.package_code,
+        provider: subscriptionRow.provider,
+        external_reference: subscriptionRow.external_reference,
+        status: subscriptionRow.status,
+        current_period_start: subscriptionRow.current_period_start,
+        current_period_end: subscriptionRow.current_period_end,
+        cancel_at_period_end: subscriptionRow.cancel_at_period_end,
+      } : null,
+      stripeConfigured: isStripeConfigured(),
     },
   };
 }
@@ -422,6 +458,7 @@ type ActionBody = {
   settings?: JsonRecord;
   isAvailable?: boolean;
   notificationId?: string;
+  packageCode?: string;
 };
 
 async function handlePurchaseLead(admin: SupabaseClient, user: User, partnerId: string, body: ActionBody) {
@@ -607,6 +644,137 @@ async function handleMarkNotificationRead(admin: SupabaseClient, body: ActionBod
   return NextResponse.json({ success: true });
 }
 
+async function ensureStripeCustomer(admin: SupabaseClient, partner: { id: string; settings: unknown; email?: string | null; name?: string | null }) {
+  const stripe = getStripeClient();
+  const settings = (partner.settings && typeof partner.settings === 'object' ? partner.settings as Record<string, unknown> : {});
+  const existingId = typeof settings.stripe_customer_id === 'string' ? settings.stripe_customer_id : null;
+
+  if (existingId) {
+    try {
+      const customer = await stripe.customers.retrieve(existingId);
+      if (customer && !(customer as { deleted?: boolean }).deleted) {
+        return existingId;
+      }
+    } catch {
+      // fall through and create a new one
+    }
+  }
+
+  const customer = await stripe.customers.create({
+    email: partner.email || undefined,
+    name: partner.name || undefined,
+    metadata: {
+      partner_id: partner.id,
+    },
+  });
+
+  await admin
+    .from('partners')
+    .update({
+      settings: { ...settings, stripe_customer_id: customer.id },
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', partner.id);
+
+  return customer.id;
+}
+
+async function handleSubscribePackage(admin: SupabaseClient, partnerId: string, body: ActionBody) {
+  const code = String(body.packageCode || '').toUpperCase() as PartnerPackageCode;
+  if (code !== 'PREMIUM' && code !== 'BUSINESS') {
+    return jsonError('Ungültiges Paket.', 400);
+  }
+
+  if (!isStripeConfigured()) {
+    return jsonError('Stripe ist noch nicht konfiguriert. Bitte den Support kontaktieren.', 503);
+  }
+
+  const priceId = priceIdForPackage(code);
+  if (!priceId) {
+    return jsonError(`Für das Paket ${code} ist keine Stripe-Preis-ID hinterlegt.`, 503);
+  }
+
+  const { data: partnerRow } = await admin
+    .from('partners')
+    .select('id,name,email,settings')
+    .eq('id', partnerId)
+    .maybeSingle();
+
+  if (!partnerRow) return jsonError('Partnerprofil nicht gefunden.', 404);
+
+  let customerId: string;
+  try {
+    customerId = await ensureStripeCustomer(admin, partnerRow);
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Stripe-Kundenkonto konnte nicht angelegt werden.', 500);
+  }
+
+  const stripe = getStripeClient();
+  const baseUrl = appBaseUrl();
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${baseUrl}/crm/partner?package=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/crm/partner?package=cancel`,
+      allow_promotion_codes: true,
+      metadata: {
+        partner_id: partnerId,
+        package_code: code,
+      },
+      subscription_data: {
+        metadata: {
+          partner_id: partnerId,
+          package_code: code,
+        },
+      },
+    });
+
+    if (!session.url) {
+      return jsonError('Stripe-Checkout konnte nicht gestartet werden.', 500);
+    }
+
+    return NextResponse.json({ success: true, checkoutUrl: session.url });
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Stripe-Checkout fehlgeschlagen.', 500);
+  }
+}
+
+async function handleManageSubscription(admin: SupabaseClient, partnerId: string) {
+  if (!isStripeConfigured()) {
+    return jsonError('Stripe ist noch nicht konfiguriert.', 503);
+  }
+
+  const { data: partnerRow } = await admin
+    .from('partners')
+    .select('id,name,email,settings')
+    .eq('id', partnerId)
+    .maybeSingle();
+
+  if (!partnerRow) return jsonError('Partnerprofil nicht gefunden.', 404);
+
+  const settings = (partnerRow.settings && typeof partnerRow.settings === 'object'
+    ? partnerRow.settings as Record<string, unknown>
+    : {});
+  const customerId = typeof settings.stripe_customer_id === 'string' ? settings.stripe_customer_id : null;
+  if (!customerId) {
+    return jsonError('Es ist keine aktive Stripe-Subscription hinterlegt.', 404);
+  }
+
+  const stripe = getStripeClient();
+  try {
+    const portal = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${appBaseUrl()}/crm/partner`,
+    });
+    return NextResponse.json({ success: true, portalUrl: portal.url });
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Stripe-Portal konnte nicht geöffnet werden.', 500);
+  }
+}
+
 export async function POST(request: Request) {
   const authHeader = request.headers.get('authorization') || '';
   if (!authHeader.toLowerCase().startsWith('bearer ')) {
@@ -649,6 +817,10 @@ export async function POST(request: Request) {
         return await handleUpdateProfile(admin, user, partnerId, body);
       case 'mark_notification_read':
         return await handleMarkNotificationRead(admin, body);
+      case 'subscribe_package':
+        return await handleSubscribePackage(admin, partnerId, body);
+      case 'manage_subscription':
+        return await handleManageSubscription(admin, partnerId);
       default:
         return jsonError('Unbekannte Aktion.', 400);
     }

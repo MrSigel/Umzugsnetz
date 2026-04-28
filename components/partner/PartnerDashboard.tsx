@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  ArrowRight,
   Bell,
   Building2,
   CheckCircle2,
@@ -129,6 +130,26 @@ type DashboardData = {
   walletTransactions: Array<{ id: string; type: string | null; amount: number | string | null; description: string | null; created_at: string | null }>;
   topupRequests: Array<{ id: string; reference: string; amount: number | string; payment_method: string | null; note: string | null; status: string; created_at: string | null; processed_at: string | null }>;
   notifications: Array<{ id: string; title: string | null; message: string | null; link: string | null; is_read: boolean | null; created_at: string | null }>;
+  packages: Array<{
+    code: 'FREE' | 'PREMIUM' | 'BUSINESS';
+    name: string;
+    monthly_price: number;
+    lead_limit_monthly: number;
+    priority: number;
+    release_delay_seconds: number;
+    purchasable: boolean;
+  }>;
+  subscription: {
+    id: string;
+    package_code: string;
+    provider: string | null;
+    external_reference: string | null;
+    status: string;
+    current_period_start: string | null;
+    current_period_end: string | null;
+    cancel_at_period_end: boolean;
+  } | null;
+  stripeConfigured: boolean;
 };
 
 const NAV_ITEMS: Array<{ id: PartnerSectionId; label: string; icon: typeof Gauge }> = [
@@ -577,6 +598,23 @@ export function PartnerDashboard() {
     [accessToken, loadDashboard, performAction],
   );
 
+  const handleSubscribePackage = useCallback(
+    async (code: 'PREMIUM' | 'BUSINESS') => {
+      const result = await performAction('subscribe_package', { packageCode: code }, `subscribe:${code}`);
+      if (result?.checkoutUrl && typeof result.checkoutUrl === 'string') {
+        window.location.href = result.checkoutUrl;
+      }
+    },
+    [performAction],
+  );
+
+  const handleManageSubscription = useCallback(async () => {
+    const result = await performAction('manage_subscription', {}, 'manage_subscription');
+    if (result?.portalUrl && typeof result.portalUrl === 'string') {
+      window.location.href = result.portalUrl;
+    }
+  }, [performAction]);
+
   const filteredMarketplace = useMemo(() => {
     if (!data) return [];
     const query = marketplaceSearch.trim().toLowerCase();
@@ -788,6 +826,8 @@ export function PartnerDashboard() {
                 onNoteChange={setTopupNote}
                 onSubmit={handleTopup}
                 actionInFlight={actionInFlight}
+                onSubscribe={handleSubscribePackage}
+                onManage={handleManageSubscription}
               />
             ) : null}
             {section === 'profile' ? (
@@ -1174,6 +1214,8 @@ function WalletSection({
   onNoteChange,
   onSubmit,
   actionInFlight,
+  onSubscribe,
+  onManage,
 }: {
   data: DashboardData;
   topupAmount: string;
@@ -1182,6 +1224,8 @@ function WalletSection({
   onNoteChange: (value: string) => void;
   onSubmit: (event: React.FormEvent) => Promise<void>;
   actionInFlight: string | null;
+  onSubscribe: (code: 'PREMIUM' | 'BUSINESS') => Promise<void>;
+  onManage: () => Promise<void>;
 }) {
   const partner = data.partner;
   const transactions = data.walletTransactions;
@@ -1193,6 +1237,8 @@ function WalletSection({
         <KpiCard label="Bonus-Token" value={String(partner.bonus_tokens)} hint={partner.bonus_tokens > 0 ? 'Wird beim nächsten Kauf eingesetzt' : 'Kein Bonus aktiv'} icon={Sparkles} tone="emerald" />
         <KpiCard label="Käufe gesamt" value={String(data.kpis.purchases_total)} hint={`${data.kpis.purchases_this_month} diesen Monat`} icon={ShoppingBag} tone="amber" />
       </div>
+
+      <PackagesSection data={data} actionInFlight={actionInFlight} onSubscribe={onSubscribe} onManage={onManage} />
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr]">
         <SectionCard title="Guthaben aufladen" description="Erstellen Sie eine Aufladungsanfrage. Unsere Buchhaltung schaltet das Guthaben nach Zahlungseingang frei.">
@@ -1439,5 +1485,194 @@ function ToggleRow({ label, description, checked, onChange }: { label: string; d
         <span className={cx('absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-md transition-transform', checked ? 'translate-x-5' : 'translate-x-0')} />
       </span>
     </button>
+  );
+}
+
+const PACKAGE_THEME: Record<'FREE' | 'PREMIUM' | 'BUSINESS', { tagline: string; perks: string[]; accent: string; chip: string }> = {
+  FREE: {
+    tagline: 'Für den Einstieg in den Marktplatz.',
+    perks: [
+      'Standard-Zugriff auf neue Anfragen',
+      'Volle Marktplatz-Nutzung',
+      'Bezahlung nur pro gekaufter Anfrage',
+    ],
+    accent: 'border-slate-200 bg-white',
+    chip: 'border-slate-200 bg-slate-100 text-slate-600',
+  },
+  PREMIUM: {
+    tagline: 'Mehr Sichtbarkeit und früherer Zugriff.',
+    perks: [
+      'Bevorzugte Reihenfolge im Marktplatz',
+      'Schnellerer Zugriff auf neue Anfragen',
+      'Bis zu 150 Anfragen pro Monat',
+    ],
+    accent: 'border-brand-blue/40 bg-brand-blue/5',
+    chip: 'border-brand-blue/15 bg-brand-blue/10 text-brand-blue',
+  },
+  BUSINESS: {
+    tagline: 'Maximale Priorität für skalierende Firmen.',
+    perks: [
+      'Höchste Priorität bei Exklusiv-Anfragen',
+      'Sofort-Zugriff ohne Wartezeit',
+      'Bis zu 500 Anfragen pro Monat',
+    ],
+    accent: 'border-emerald-300 bg-emerald-50',
+    chip: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  },
+};
+
+function packageStatusLabel(status?: string | null) {
+  const value = String(status || '').toUpperCase();
+  if (value === 'ACTIVE') return 'Aktiv';
+  if (value === 'PAST_DUE') return 'Zahlung offen';
+  if (value === 'PAUSED') return 'Pausiert';
+  if (value === 'CANCELED') return 'Gekündigt';
+  if (value === 'INCOMPLETE') return 'In Bearbeitung';
+  if (value === 'EXPIRED') return 'Abgelaufen';
+  return value || 'Aktiv';
+}
+
+function PackagesSection({
+  data,
+  actionInFlight,
+  onSubscribe,
+  onManage,
+}: {
+  data: DashboardData;
+  actionInFlight: string | null;
+  onSubscribe: (code: 'PREMIUM' | 'BUSINESS') => Promise<void>;
+  onManage: () => Promise<void>;
+}) {
+  const currentCode = (data.partner.package_code || 'FREE') as 'FREE' | 'PREMIUM' | 'BUSINESS';
+  const subscription = data.subscription;
+  const subscriptionStatus = subscription?.status || null;
+  const subscriptionEnd = subscription?.current_period_end || null;
+  const cancelAtPeriodEnd = Boolean(subscription?.cancel_at_period_end);
+
+  const sortedPackages = [...data.packages].sort((a, b) => a.monthly_price - b.monthly_price);
+  const orderedPackages = sortedPackages.length
+    ? sortedPackages
+    : ([
+        { code: 'FREE', name: 'Free', monthly_price: 0, lead_limit_monthly: 25, priority: 3, release_delay_seconds: 1800, purchasable: false },
+        { code: 'PREMIUM', name: 'Premium', monthly_price: 99, lead_limit_monthly: 150, priority: 2, release_delay_seconds: 300, purchasable: data.stripeConfigured },
+        { code: 'BUSINESS', name: 'Business', monthly_price: 249, lead_limit_monthly: 500, priority: 1, release_delay_seconds: 0, purchasable: data.stripeConfigured },
+      ] as DashboardData['packages']);
+
+  return (
+    <SectionCard
+      title="Pakete & Mitgliedschaft"
+      description="Schalten Sie schnellere Anfragen, höhere Limits und Premium-Sichtbarkeit per Stripe-Subscription frei."
+      action={subscription ? (
+        <button
+          type="button"
+          onClick={onManage}
+          disabled={actionInFlight === 'manage_subscription'}
+          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-brand-blue/40 hover:text-brand-blue disabled:opacity-60"
+        >
+          <ReceiptText className="h-3.5 w-3.5" />
+          {actionInFlight === 'manage_subscription' ? 'Öffnet...' : 'Abo verwalten'}
+        </button>
+      ) : null}
+    >
+      {!data.stripeConfigured ? (
+        <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-700">
+          Hinweis: Stripe ist auf dieser Umgebung noch nicht aktiviert. Sie können die Pakete einsehen, der Buchungs-Button öffnet erst nach Konfiguration.
+        </p>
+      ) : null}
+
+      {subscription ? (
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-blue/15 bg-brand-blue/5 px-4 py-3 text-sm">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-blue">Aktuelles Abo</p>
+            <p className="mt-1 font-black text-slate-900">
+              {subscription.package_code} · {packageStatusLabel(subscriptionStatus)}
+              {cancelAtPeriodEnd ? ' · Kündigung zum Periodenende geplant' : ''}
+            </p>
+          </div>
+          {subscriptionEnd ? (
+            <p className="text-xs font-medium text-slate-500">
+              {cancelAtPeriodEnd ? 'Endet am ' : 'Verlängert sich am '}{formatDate(subscriptionEnd)}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        {orderedPackages.map((pkg) => {
+          const theme = PACKAGE_THEME[pkg.code];
+          const isCurrent = pkg.code === currentCode && (pkg.code === 'FREE' || subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'PAST_DUE');
+          const subscribing = actionInFlight === `subscribe:${pkg.code}`;
+          const isPaid = pkg.code !== 'FREE';
+          return (
+            <article
+              key={pkg.code}
+              className={cx(
+                'flex h-full flex-col gap-4 rounded-[1.7rem] border-2 p-5 transition-all',
+                isCurrent ? 'border-emerald-400 bg-emerald-50/60 shadow-[0_18px_45px_rgba(16,185,129,0.12)]' : theme.accent,
+              )}
+            >
+              <header className="space-y-2">
+                <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em]', theme.chip)}>
+                  {pkg.code === 'FREE' ? 'Basis' : pkg.code === 'PREMIUM' ? 'Pro' : 'Premium'}
+                </span>
+                <h3 className="text-2xl font-black text-slate-950">{pkg.name}</h3>
+                <p className="text-xs font-medium text-slate-500">{theme.tagline}</p>
+              </header>
+
+              <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Preis</p>
+                <p className="mt-1 text-2xl font-black text-slate-950">
+                  {isPaid ? `${formatCurrency(pkg.monthly_price)} / Monat` : 'Kostenfrei'}
+                </p>
+                {isPaid ? <p className="mt-1 text-[11px] font-medium text-slate-500">Monatlich kündbar</p> : null}
+              </div>
+
+              <ul className="space-y-2 text-sm font-medium text-slate-700">
+                {theme.perks.map((perk) => (
+                  <li key={perk} className="flex items-start gap-2">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-blue" />
+                    <span>{perk}</span>
+                  </li>
+                ))}
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-blue" />
+                  <span>{pkg.lead_limit_monthly > 0 ? `${pkg.lead_limit_monthly} Anfragen pro Monat` : 'Unlimitierter Marktplatz-Zugriff'}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-blue" />
+                  <span>{pkg.release_delay_seconds === 0 ? 'Sofortiger Zugriff auf neue Anfragen' : `Vorlauf von ${Math.round(pkg.release_delay_seconds / 60)} Minuten`}</span>
+                </li>
+              </ul>
+
+              <div className="mt-auto">
+                {isCurrent ? (
+                  <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-300 bg-white px-4 py-3 text-sm font-black text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Aktives Paket
+                  </span>
+                ) : pkg.code === 'FREE' ? (
+                  <span className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-500">
+                    Standard ohne Buchung
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onSubscribe(pkg.code as 'PREMIUM' | 'BUSINESS')}
+                    disabled={!data.stripeConfigured || !pkg.purchasable || subscribing}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-4 py-3 text-sm font-black text-white shadow-lg shadow-brand-blue/20 transition-colors hover:bg-brand-blue-hover disabled:opacity-60"
+                  >
+                    {subscribing ? 'Weiterleitung...' : `Mit Stripe buchen`}
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
+                {isPaid && !pkg.purchasable ? (
+                  <p className="mt-2 text-[11px] font-bold text-amber-700">Stripe-Preis-ID fehlt – bitte STRIPE_PRICE_{pkg.code} hinterlegen.</p>
+                ) : null}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </SectionCard>
   );
 }
