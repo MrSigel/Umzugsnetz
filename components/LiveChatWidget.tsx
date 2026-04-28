@@ -55,6 +55,22 @@ function createSessionId() {
 }
 
 function getCustomerAnswer(normalized: string): ServiceAnswer | null {
+  if (
+    normalized.includes('datenschutz')
+    || normalized.includes('dsgvo')
+    || normalized.includes('was passiert mit')
+    || normalized.includes('meinen daten')
+    || normalized.includes('meine daten')
+    || normalized.includes('daten weitergegeben')
+    || normalized.includes('daten gespeichert')
+    || normalized.includes('privatsphäre')
+  ) {
+    return {
+      handled: true,
+      text: 'Ihre Daten werden ausschließlich an Firmen weitergegeben, die Ihre Anfrage bearbeiten möchten. Wir geben keine Daten an Dritte weiter und Sie können jederzeit Auskunft, Berichtigung oder Löschung anfordern. Details: umzugsnetz.de/datenschutz.',
+    };
+  }
+
   if (normalized.includes('kostenlos') || normalized.includes('was kostet') || normalized.includes('kosten') || normalized.includes('gebühr') || normalized.includes('preis')) {
     return {
       handled: true,
@@ -67,7 +83,6 @@ function getCustomerAnswer(normalized: string): ServiceAnswer | null {
     || normalized.includes('ablauf')
     || normalized.includes('funktionsweise')
     || normalized.includes('wie läuft')
-    || normalized.includes('was passiert')
   ) {
     return {
       handled: true,
@@ -77,7 +92,10 @@ function getCustomerAnswer(normalized: string): ServiceAnswer | null {
 
   if (
     normalized.includes('wie schnell')
-    || normalized.includes('wann')
+    || normalized.includes('wann erhalte')
+    || normalized.includes('wann bekomme')
+    || normalized.includes('wann kommen')
+    || normalized.includes('wann kommt')
     || normalized.includes('angebote')
     || normalized.includes('rückmeldung')
     || normalized.includes('antwort')
@@ -98,18 +116,6 @@ function getCustomerAnswer(normalized: string): ServiceAnswer | null {
     return {
       handled: true,
       text: 'Jede Firma in unserem Netzwerk durchläuft eine Prüfung von Gewerbeschein, Versicherung und Identität, bevor sie freigeschaltet wird. Zusätzlich bewerten Kunden die Firmen nach jedem Auftrag – Bewertungen und Auftragsstatistik fließen direkt in den Status der Firma ein.',
-    };
-  }
-
-  if (
-    normalized.includes('datenschutz')
-    || normalized.includes('dsgvo')
-    || normalized.includes('daten')
-    || normalized.includes('privat')
-  ) {
-    return {
-      handled: true,
-      text: 'Ihre Daten werden ausschließlich an Firmen weitergegeben, die Ihre Anfrage bearbeiten möchten. Wir geben keine Daten an Dritte weiter und Sie können jederzeit Auskunft, Berichtigung oder Löschung anfordern. Details: umzugsnetz.de/datenschutz.',
     };
   }
 
@@ -161,6 +167,11 @@ function getPartnerAnswer(normalized: string): ServiceAnswer | null {
     || normalized.includes('lead preis')
     || normalized.includes('wie teuer')
     || normalized.includes('tarif')
+    || normalized.includes('wie viel')
+    || normalized.includes('zahle')
+    || normalized.includes('kundenanfrage')
+    || normalized.includes('anfrage kosten')
+    || normalized.includes('pro anfrage')
   ) {
     return {
       handled: true,
@@ -178,7 +189,7 @@ function getPartnerAnswer(normalized: string): ServiceAnswer | null {
   ) {
     return {
       handled: true,
-      text: 'Im Partner-Dashboard unter "Guthaben" tragen Sie den gewünschten Betrag ein und überweisen ihn auf das angegebene Konto. Sobald die Zahlung eingegangen ist, schaltet unser Team das Guthaben frei – meist innerhalb von 1–3 Werktagen.',
+      text: 'Im Partner-Dashboard unter „Guthaben" tragen Sie den gewünschten Betrag (mindestens 10 €) ein und schließen die Zahlung sicher per Stripe ab – per Kreditkarte, Apple Pay, Google Pay oder SEPA. Das Guthaben wird sofort gutgeschrieben.',
     };
   }
 
