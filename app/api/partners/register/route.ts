@@ -8,6 +8,8 @@ type RegisterBody = {
   fullName?: string;
   companyName?: string;
   location?: string;
+  radius?: string;
+  service?: string;
   email?: string;
   phone?: string;
   website?: string;
@@ -23,6 +25,22 @@ function normalizeWebsite(value?: string) {
   const trimmed = value.trim();
   if (!trimmed) return null;
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function normalizeServiceCode(value?: string): 'UMZUG' | 'ENTRÜMPELUNG' | 'BEIDES' {
+  const code = String(value || '').trim().toLowerCase();
+  if (code === 'entruempelung' || code === 'entrümpelung') return 'ENTRÜMPELUNG';
+  if (code === 'umzug' || code === 'privatumzug' || code === 'firmenumzug') return 'UMZUG';
+  if (code === 'umzug_entruempelung' || code === 'umzug-entruempelung' || code === 'beides') return 'BEIDES';
+  return 'BEIDES';
+}
+
+function parseRadiusKm(value?: string) {
+  if (!value) return null;
+  const match = String(value).match(/(\d+)/);
+  if (!match) return null;
+  const km = Number(match[1]);
+  return Number.isFinite(km) && km > 0 ? km : null;
 }
 
 export async function POST(request: Request) {
@@ -54,6 +72,9 @@ export async function POST(request: Request) {
   const fullName = body.fullName?.trim() || companyName;
   const location = body.location?.trim() || 'Nicht angegeben';
   const website = normalizeWebsite(body.website);
+  const serviceCode = normalizeServiceCode(body.service);
+  const radiusKm = parseRadiusKm(body.radius);
+  const radiusLabel = body.radius?.trim() || (radiusKm ? `${radiusKm} km` : null);
   const now = new Date().toISOString();
 
   const verification = await verifyCompanyProfile({
@@ -76,7 +97,8 @@ export async function POST(request: Request) {
       email,
       phone: body.phone!.trim(),
       location,
-      service: 'UMZUG',
+      radius: radiusLabel,
+      service: serviceCode,
       source_page: 'login_register',
       status: 'NEW',
       verification_status: 'REVIEW',
@@ -154,6 +176,7 @@ export async function POST(request: Request) {
     email,
     phone: body.phone!.trim(),
     regions: location,
+    service: serviceCode,
     status: 'ACTIVE',
     verification_status: 'VERIFIED',
     package_code: 'FREE',
@@ -165,6 +188,8 @@ export async function POST(request: Request) {
       emailNotif: true,
       smsNotif: true,
       smsNumber: body.phone!.trim(),
+      radius_km: radiusKm,
+      radius_label: radiusLabel,
     },
     updated_at: now,
   };

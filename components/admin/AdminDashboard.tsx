@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Bell, LogOut, Menu, PhoneCall, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {
@@ -853,6 +853,16 @@ function partnerSettingValue(partner: PortalPartner, key: 'address' | 'contact_p
   return String(settings[key] || '');
 }
 
+function partnerRadiusLabel(partner: PortalPartner) {
+  const settings = (partner.settings || {}) as Record<string, unknown>;
+  const label = settings.radius_label;
+  if (typeof label === 'string' && label.trim()) return label.trim();
+  const km = Number(settings.radius_km);
+  return Number.isFinite(km) && km > 0 ? `${km} km` : '50 km';
+}
+
+const ADMIN_RADIUS_OPTIONS = ['10 km', '25 km', '50 km', '75 km', '100 km', '150 km+'];
+
 function splitDelimitedLine(line: string, delimiter: string) {
   const values: string[] = [];
   let current = '';
@@ -935,6 +945,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
     phone: '',
     email: '',
     regions: '',
+    radius: '50 km',
     service: 'BEIDES',
     status: 'ACTIVE',
     category: 'Standard Anfragen',
@@ -955,6 +966,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
       phone: String(selectedCustomer.phone || ''),
       email: String(selectedCustomer.email || ''),
       regions: String(selectedCustomer.regions || ''),
+      radius: partnerRadiusLabel(selectedCustomer),
       service: String(selectedCustomer.service || 'BEIDES'),
       status: String(selectedCustomer.status || 'ACTIVE'),
       category: String(selectedCustomer.category || 'Standard Anfragen'),
@@ -975,6 +987,7 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
       phone: '',
       email: '',
       regions: '',
+      radius: '50 km',
       service: 'BEIDES',
       status: 'ACTIVE',
       category: 'Standard Anfragen',
@@ -1110,8 +1123,14 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
               <input type="email" value={draft.email} onChange={(event) => updateDraft('email', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Regionen</span>
-              <input value={draft.regions} onChange={(event) => updateDraft('regions', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
+              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Standort / Regionen</span>
+              <input value={draft.regions} onChange={(event) => updateDraft('regions', event.target.value)} placeholder="z. B. Berlin" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue" />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Einzugsradius</span>
+              <select value={draft.radius} onChange={(event) => updateDraft('radius', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
+                {ADMIN_RADIUS_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+              </select>
             </label>
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Status</span>
@@ -1124,12 +1143,12 @@ function CustomersSection({ customers, search, role, onSave }: { customers: Port
               </select>
             </label>
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Leistung</span>
+              <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Dienstleistung</span>
               <select value={draft.service} onChange={(event) => updateDraft('service', event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue">
                 {[
-                  ['UMZUG', 'Umzug'],
+                  ['UMZUG', 'Umzüge'],
                   ['ENTRÜMPELUNG', 'Entrümpelung'],
-                  ['BEIDES', 'Umzug und Entrümpelung'],
+                  ['BEIDES', 'Umzüge und Entrümpelung'],
                 ].map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </label>
@@ -1794,38 +1813,67 @@ export function AdminDashboard() {
     window.location.href = '/login';
   };
 
-  useEffect(() => {
-    const loadPortal = async () => {
+  const refreshPortal = useCallback(async (options: { silent?: boolean } = {}) => {
+    if (!options.silent) {
       setLoading(true);
       setError('');
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData.session?.access_token;
-        setCurrentUserEmail(sessionData.session?.user?.email || '');
-        if (!token) {
-          setError('Bitte einloggen.');
-          return;
-        }
-
-        const response = await fetch('/api/admin/portal?scope=all', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          setError(payload?.error || 'Übersicht konnte nicht geladen werden.');
-          return;
-        }
-
-        setPortal(payload);
-      } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : 'Übersicht konnte nicht geladen werden.');
-      } finally {
-        setLoading(false);
+    }
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      setCurrentUserEmail(sessionData.session?.user?.email || '');
+      if (!token) {
+        if (!options.silent) setError('Bitte einloggen.');
+        return;
       }
+
+      const response = await fetch('/api/admin/portal?scope=all', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (!options.silent) setError(payload?.error || 'Übersicht konnte nicht geladen werden.');
+        return;
+      }
+
+      setPortal(payload);
+    } catch (loadError) {
+      if (!options.silent) {
+        setError(loadError instanceof Error ? loadError.message : 'Übersicht konnte nicht geladen werden.');
+      }
+    } finally {
+      if (!options.silent) setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshPortal();
+  }, [refreshPortal]);
+
+  useEffect(() => {
+    let active = true;
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleRefresh = () => {
+      if (refreshTimer) return;
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null;
+        if (active) void refreshPortal({ silent: true });
+      }, 600);
     };
 
-    loadPortal();
-  }, []);
+    const channel = supabase
+      .channel('admin-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, scheduleRefresh)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, scheduleRefresh)
+      .subscribe();
+
+    return () => {
+      active = false;
+      if (refreshTimer) clearTimeout(refreshTimer);
+      void supabase.removeChannel(channel);
+    };
+  }, [refreshPortal]);
 
   const role = portal?.role || 'EMPLOYEE';
   const leads = portal?.leads ?? EMPTY_LEADS;

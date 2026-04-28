@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Building2, Check, Eye, EyeOff, Globe2, Lock, Mail, Phone, X } from 'lucide-react';
+import { ArrowRight, Building2, Check, ChevronDown, Eye, EyeOff, Globe2, Lock, Mail, MapPin, Phone, User2, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 type LoginForm = {
@@ -15,6 +15,10 @@ type LoginForm = {
 
 type RegisterForm = {
   companyName: string;
+  fullName: string;
+  location: string;
+  radius: string;
+  service: string;
   website: string;
   phone: string;
   email: string;
@@ -24,6 +28,15 @@ type RegisterForm = {
 };
 
 type FieldErrors = Partial<Record<keyof LoginForm | keyof RegisterForm | 'login' | 'register', string>>;
+
+const REGISTER_RADIUS_OPTIONS = ['10 km', '25 km', '50 km', '75 km', '100 km', '150 km+'];
+
+const REGISTER_SERVICE_OPTIONS = [
+  { value: '', label: 'Bitte Dienstleistung auswählen' },
+  { value: 'umzug', label: 'Umzüge' },
+  { value: 'entruempelung', label: 'Entrümpelung' },
+  { value: 'umzug_entruempelung', label: 'Umzüge und Entrümpelung' },
+];
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[+]?[\d\s()/.-]{7,20}$/;
@@ -68,6 +81,41 @@ function TextInput({
             error ? 'border-red-300' : 'border-slate-200'
           }`}
         />
+      </span>
+      <FieldError message={error} />
+    </label>
+  );
+}
+
+function SelectInput({
+  label,
+  value,
+  onChange,
+  options,
+  error,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ value: string; label: string }>;
+  error?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-white/75">{label}</span>
+      <span className="relative block">
+        <select
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className={`w-full appearance-none rounded-2xl border-2 bg-white px-4 py-4 pr-12 text-sm font-semibold text-slate-900 outline-none transition-all hover:border-slate-300 focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 ${
+            error ? 'border-red-300' : 'border-slate-200'
+          }`}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       </span>
       <FieldError message={error} />
     </label>
@@ -124,6 +172,10 @@ export default function LoginPage() {
   const [loginForm, setLoginForm] = useState<LoginForm>({ email: '', password: '', remember: true });
   const [registerForm, setRegisterForm] = useState<RegisterForm>({
     companyName: '',
+    fullName: '',
+    location: '',
+    radius: '50 km',
+    service: '',
     website: '',
     phone: '',
     email: '',
@@ -146,6 +198,9 @@ export default function LoginPage() {
   const validateRegister = () => {
     const nextErrors: FieldErrors = {};
     if (!registerForm.companyName.trim()) nextErrors.companyName = 'Firmenname eingeben.';
+    if (!registerForm.fullName.trim()) nextErrors.fullName = 'Ansprechperson eingeben.';
+    if (!registerForm.location.trim()) nextErrors.location = 'Standort eingeben.';
+    if (!registerForm.service) nextErrors.service = 'Dienstleistung auswählen.';
     if (!isValidUrl(registerForm.website)) nextErrors.website = 'Gültige Website eingeben.';
     if (!phonePattern.test(registerForm.phone.trim())) nextErrors.phone = 'Gültige Telefonnummer eingeben.';
     if (!emailPattern.test(registerForm.email.trim())) nextErrors.email = 'Gültige E-Mail eingeben.';
@@ -201,6 +256,10 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           companyName: registerForm.companyName.trim(),
+          fullName: registerForm.fullName.trim(),
+          location: registerForm.location.trim(),
+          radius: registerForm.radius,
+          service: registerForm.service,
           website: normalizeWebsite(registerForm.website),
           phone: registerForm.phone.trim(),
           email: registerForm.email.trim().toLowerCase(),
@@ -336,6 +395,35 @@ export default function LoginPage() {
                       value={registerForm.companyName}
                       error={errors.companyName}
                       onChange={(event) => setRegisterForm((current) => ({ ...current, companyName: event.target.value }))}
+                    />
+                    <TextInput
+                      label="Ihr Name"
+                      icon={User2}
+                      placeholder="Max Mustermann"
+                      value={registerForm.fullName}
+                      error={errors.fullName}
+                      onChange={(event) => setRegisterForm((current) => ({ ...current, fullName: event.target.value }))}
+                    />
+                    <TextInput
+                      label="Standort"
+                      icon={MapPin}
+                      placeholder="z. B. Berlin"
+                      value={registerForm.location}
+                      error={errors.location}
+                      onChange={(event) => setRegisterForm((current) => ({ ...current, location: event.target.value }))}
+                    />
+                    <SelectInput
+                      label="Einzugsradius"
+                      value={registerForm.radius}
+                      onChange={(value) => setRegisterForm((current) => ({ ...current, radius: value }))}
+                      options={REGISTER_RADIUS_OPTIONS.map((option) => ({ value: option, label: option }))}
+                    />
+                    <SelectInput
+                      label="Dienstleistung"
+                      value={registerForm.service}
+                      error={errors.service}
+                      onChange={(value) => setRegisterForm((current) => ({ ...current, service: value }))}
+                      options={REGISTER_SERVICE_OPTIONS}
                     />
                     <TextInput
                       label="Firmen-Website"

@@ -81,13 +81,28 @@ function appendNote(current: unknown, note: unknown, prefix: string) {
   return [existing, entry].filter(Boolean).join('\n\n').slice(0, 4000);
 }
 
+function parseRadiusValue(value: unknown) {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  if (!text) return null;
+  const match = text.match(/(\d+)/);
+  if (!match) return null;
+  const km = Number(match[1]);
+  if (!Number.isFinite(km) || km <= 0) return null;
+  return { km, label: text };
+}
+
 function partnerSettings(body: JsonRecord, existing?: JsonRecord | null) {
   const current = existing && typeof existing === 'object' ? existing : {};
+  const radius = parseRadiusValue(body.radius);
   return {
     ...current,
     address: String(body.address || '').trim().slice(0, 500),
     contact_person: String(body.contactPerson || '').trim().slice(0, 200),
     notes: String(body.notes || '').trim().slice(0, 4000),
+    ...(radius
+      ? { radius_km: radius.km, radius_label: radius.label }
+      : {}),
   };
 }
 
