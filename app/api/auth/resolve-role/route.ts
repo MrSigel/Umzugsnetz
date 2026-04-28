@@ -65,8 +65,20 @@ export async function GET(request: Request) {
   const teamRole = team.data?.status === 'DISABLED' ? null : normalizeRole(team.data?.role);
   const resolvedRole = teamRole || explicitRole || profileRole || metadataRole || 'PARTNER';
 
+  let redirectTo = '/';
+  if (resolvedRole === 'ADMIN' || resolvedRole === 'EMPLOYEE') {
+    redirectTo = '/admin';
+  } else if (resolvedRole === 'PARTNER') {
+    const { data: partner } = await admin
+      .from('partners')
+      .select('onboarding_completed_at')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    redirectTo = partner?.onboarding_completed_at ? '/crm/partner' : '/portal/onboarding/partner';
+  }
+
   return NextResponse.json({
     role: resolvedRole,
-    redirectTo: resolvedRole === 'ADMIN' || resolvedRole === 'EMPLOYEE' ? '/admin' : '/',
+    redirectTo,
   });
 }
