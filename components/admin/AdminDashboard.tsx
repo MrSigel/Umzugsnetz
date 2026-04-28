@@ -726,10 +726,33 @@ function RequestsSection({ leads, search, onSave }: { leads: PortalLead[]; searc
   );
 }
 
+const TEST_CUSTOMER_ID = '__test_customer__';
+
+const TEST_CUSTOMER: PortalLead = {
+  id: TEST_CUSTOMER_ID,
+  order_number: 'DEMO-0001',
+  service_category: 'PRIVATUMZUG',
+  customer_name: 'Test Kunde',
+  customer_email: 'test@umzugsnetz.de',
+  customer_phone: '+49 170 0000000',
+  move_date: null,
+  von_city: 'Berlin',
+  von_address: 'Musterstraße 1',
+  nach_city: 'Hamburg',
+  nach_address: 'Demogasse 7',
+  estimated_price: 1490,
+  status: 'Neu',
+  notes: 'Demo-Datensatz zum Üben des Bearbeitungs-Flows. Es werden keine echten Daten verändert.',
+  created_at: null,
+  city: 'Berlin',
+};
+
 function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload: PortalResponse) => void }) {
+  const [testActive, setTestActive] = useState(true);
   const callableLeads = useMemo(() => {
-    return leads.filter((lead) => !['Gebucht', 'Abgelehnt'].includes(String(lead.status || '')));
-  }, [leads]);
+    const real = leads.filter((lead) => !['Gebucht', 'Abgelehnt'].includes(String(lead.status || '')));
+    return testActive ? [TEST_CUSTOMER, ...real] : real;
+  }, [leads, testActive]);
   const [queueIds, setQueueIds] = useState<string[]>([]);
   const [callStarted, setCallStarted] = useState(false);
   const [result, setResult] = useState('');
@@ -746,6 +769,7 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
   }, [callableLeads]);
 
   const currentLead = callableLeads.find((lead) => lead.id === queueIds[0]) || callableLeads[0];
+  const isTestLead = currentLead?.id === TEST_CUSTOMER_ID;
 
   useEffect(() => {
     setCallStarted(false);
@@ -757,6 +781,20 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
     if (!currentLead) return;
     if (!result) {
       window.alert('Bitte zuerst einen Status auswählen.');
+      return;
+    }
+
+    if (currentLead.id === TEST_CUSTOMER_ID) {
+      window.alert(`Demo abgeschlossen mit Status "${result}". Es wurden keine echten Daten verändert.`);
+      if (result === 'Neu Kontaktieren') {
+        setQueueIds((current) => [...current.filter((id) => id !== TEST_CUSTOMER_ID), TEST_CUSTOMER_ID]);
+      } else {
+        setTestActive(false);
+        setQueueIds((current) => current.filter((id) => id !== TEST_CUSTOMER_ID));
+      }
+      setCallStarted(false);
+      setResult('');
+      setNotes('');
       return;
     }
 
@@ -784,9 +822,37 @@ function WorkSection({ leads, onSave }: { leads: PortalLead[]; onSave: (payload:
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-      <SectionCard title="Arbeiten">
+      <SectionCard
+        title="Arbeiten"
+        action={(
+          <button
+            type="button"
+            onClick={() => {
+              setTestActive((value) => !value);
+              setCallStarted(false);
+            }}
+            className={cx(
+              'inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-black transition-colors',
+              testActive ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-amber-200 hover:text-amber-700',
+            )}
+          >
+            <span className={cx('h-2 w-2 rounded-full', testActive ? 'bg-amber-500' : 'bg-slate-400')} />
+            {testActive ? 'Test-Kunde aktiv' : 'Test-Kunde aktivieren'}
+          </button>
+        )}
+      >
         {currentLead ? (
-          <div className="rounded-[1.8rem] border border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)] p-5">
+          <div className={cx(
+            'rounded-[1.8rem] border p-5',
+            isTestLead
+              ? 'border-amber-200 bg-[linear-gradient(180deg,#fffbeb,#ffffff)]'
+              : 'border-slate-100 bg-[linear-gradient(180deg,#ffffff,#f8fafc)]',
+          )}>
+            {isTestLead ? (
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-100/70 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-amber-700">
+                Demo-Datensatz · keine Speicherung
+              </div>
+            ) : null}
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
                 <p className="text-2xl font-black tracking-tight text-slate-950">{currentLead.customer_name || 'Ohne Namen'}</p>
