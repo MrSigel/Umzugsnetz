@@ -294,10 +294,10 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[2rem] border border-white/80 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-black tracking-tight text-slate-950 sm:text-xl">{title}</h2>
+          <h2 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">{title}</h2>
           {description ? <p className="mt-1 text-sm font-medium text-slate-500">{description}</p> : null}
         </div>
         {action}
@@ -328,22 +328,23 @@ function KpiCard({
   } as const;
 
   return (
-    <div className="relative overflow-hidden rounded-[1.7rem] border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-brand-blue/8 blur-3xl" />
-      <div className={cx('relative flex h-12 w-12 items-center justify-center rounded-2xl border', toneMap[tone])}>
-        <Icon className="h-5 w-5" />
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_4px_12px_rgba(15,23,42,0.06)]">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">{label}</p>
+        <div className={cx('flex h-9 w-9 items-center justify-center rounded-lg border', toneMap[tone])}>
+          <Icon className="h-4 w-4" />
+        </div>
       </div>
-      <p className="relative mt-5 text-xs font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-      <p className="relative mt-2 text-3xl font-black tracking-tight text-slate-950">{value}</p>
-      {hint ? <p className="relative mt-2 text-sm font-semibold text-slate-500">{hint}</p> : null}
+      <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
+      {hint ? <p className="mt-1 text-sm font-medium text-slate-500">{hint}</p> : null}
     </div>
   );
 }
 
 function EmptyState({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-[1.7rem] border border-dashed border-slate-200 bg-slate-50/80 px-6 py-10 text-center">
-      <p className="text-base font-black text-slate-800">{title}</p>
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
+      <p className="text-sm font-bold text-slate-700">{title}</p>
       <p className="mx-auto mt-2 max-w-lg text-sm font-medium text-slate-500">{text}</p>
     </div>
   );
@@ -351,10 +352,10 @@ function EmptyState({ title, text }: { title: string; text: string }) {
 
 function LoadingState() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_28%),linear-gradient(180deg,#f6f9fc,#eef4f8)] p-6">
-      <div className="rounded-[2rem] border border-white/80 bg-white p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-11 w-auto" priority />
-        <p className="mt-5 font-black text-slate-950">Lädt Partner-Dashboard...</p>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-10 w-auto" priority />
+        <p className="mt-5 text-sm font-semibold text-slate-600">Partner-Dashboard wird geladen…</p>
       </div>
     </main>
   );
@@ -362,12 +363,12 @@ function LoadingState() {
 
 function ErrorState({ message, redirectTo }: { message: string; redirectTo?: string }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_28%),linear-gradient(180deg,#f6f9fc,#eef4f8)] p-6">
-      <div className="w-full max-w-md rounded-[2rem] border border-red-100 bg-white p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-11 w-auto" priority />
-        <p className="mt-5 font-black text-slate-950">{message}</p>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-10 w-auto" priority />
+        <p className="mt-5 text-sm font-semibold text-slate-700">{message}</p>
         {redirectTo ? (
-          <Link href={redirectTo} className="mt-6 inline-flex rounded-2xl bg-brand-blue px-6 py-3 text-sm font-black text-white">
+          <Link href={redirectTo} className="mt-6 inline-flex rounded-lg bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white">
             Weiter
           </Link>
         ) : null}
@@ -725,40 +726,41 @@ export function PartnerDashboard() {
   const sectionMeta = SECTION_DESCRIPTIONS[section];
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_32%),linear-gradient(180deg,#f6f9fc,#eef4f8)]">
+    <main className="min-h-screen bg-slate-50">
       <div className="relative flex min-h-screen w-full">
-        <div className={cx('fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-sm lg:hidden', mobileNavOpen ? 'block' : 'hidden')} onClick={() => setMobileNavOpen(false)} />
+        <div className={cx('fixed inset-0 z-30 bg-slate-900/40 lg:hidden', mobileNavOpen ? 'block' : 'hidden')} onClick={() => setMobileNavOpen(false)} />
 
         <aside
           className={cx(
-            'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col overflow-y-auto border-r border-white/70 bg-white/95 p-5 shadow-[0_25px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none',
+            'fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col overflow-y-auto border-r border-slate-200 bg-white transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
             mobileNavOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >
-          <div className="mb-6 flex flex-shrink-0 items-center justify-between">
-            <Image src="/logo_transparent.png" alt="Umzugsnetz" width={170} height={44} className="h-10 w-auto" priority />
-            <button type="button" onClick={() => setMobileNavOpen(false)} className="rounded-2xl border border-slate-200 p-2 text-slate-500 lg:hidden">
-              <X className="h-5 w-5" />
+          <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 bg-brand-blue px-5 py-5">
+            <Image src="/logo_transparent.png" alt="Umzugsnetz" width={150} height={36} className="h-8 w-auto brightness-0 invert" priority />
+            <button type="button" onClick={() => setMobileNavOpen(false)} className="rounded-lg border border-white/30 p-1.5 text-white lg:hidden">
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="mb-6 flex-shrink-0 rounded-[1.5rem] border border-slate-100 bg-gradient-to-br from-brand-blue/10 to-emerald-50 p-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Verfügbares Guthaben</p>
-            <p className="mt-1 text-2xl font-black text-slate-950">{formatCurrency(partner.balance)}</p>
+          <div className="flex-shrink-0 border-b border-slate-200 px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Verfügbares Guthaben</p>
+            <p className="mt-1 text-2xl font-bold text-slate-900">{formatCurrency(partner.balance)}</p>
             {partner.bonus_tokens > 0 ? (
-              <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-3 py-1 text-[11px] font-black text-emerald-700">
+              <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
                 <Sparkles className="h-3 w-3" />
-                {partner.bonus_tokens} Bonus-Anfragen
+                {partner.bonus_tokens} Bonus
               </p>
             ) : null}
           </div>
 
-          <nav className="flex-1 space-y-2">
+          <nav className="flex-1 space-y-1 px-3 py-4">
             {NAV_ITEMS.map((item) => {
               const counter =
                 item.id === 'marketplace' ? data.marketplace.length
                 : item.id === 'myleads' ? data.myLeads.length
                 : null;
+              const isActive = section === item.id;
               return (
                 <button
                   key={item.id}
@@ -768,16 +770,21 @@ export function PartnerDashboard() {
                     setMobileNavOpen(false);
                   }}
                   className={cx(
-                    'flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition-all',
-                    section === item.id ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950',
+                    'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors',
+                    isActive
+                      ? 'bg-brand-blue/10 font-semibold text-brand-blue'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                   )}
                 >
                   <span className="flex items-center gap-3">
-                    <item.icon className="h-5 w-5" />
-                    <span className="text-sm font-black">{item.label}</span>
+                    <item.icon className={cx('h-4 w-4', isActive ? 'text-brand-blue' : 'text-slate-400')} />
+                    <span className="text-sm">{item.label}</span>
                   </span>
                   {counter !== null && counter > 0 ? (
-                    <span className={cx('rounded-full px-2.5 py-1 text-[11px] font-black', section === item.id ? 'bg-white/15 text-white' : 'bg-white text-slate-500')}>
+                    <span className={cx(
+                      'rounded-full px-2 py-0.5 text-[10px] font-bold',
+                      isActive ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-500',
+                    )}>
                       {counter}
                     </span>
                   ) : null}
@@ -786,12 +793,12 @@ export function PartnerDashboard() {
             })}
           </nav>
 
-          <div className="mt-5 space-y-3 border-t border-slate-100 pt-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <p className="break-all text-sm font-black text-slate-900">{partner.name || data.profile.full_name || data.profile.email}</p>
-              <p className="mt-1 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">Partner · {partnerStatusLabel(partner.status)}</p>
+          <div className="space-y-2 border-t border-slate-200 px-3 py-3">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+              <p className="break-all text-sm font-semibold text-slate-900">{partner.name || data.profile.full_name || data.profile.email}</p>
+              <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Partner · {partnerStatusLabel(partner.status)}</p>
             </div>
-            <button type="button" onClick={handleLogout} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition-colors hover:border-red-200 hover:text-red-600">
+            <button type="button" onClick={handleLogout} className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-red-200 hover:text-red-600">
               <LogOut className="h-4 w-4" />
               Abmelden
             </button>
@@ -799,29 +806,29 @@ export function PartnerDashboard() {
         </aside>
 
         <section className="flex min-h-screen flex-1 flex-col">
-          <header className="sticky top-0 z-20 border-b border-white/70 bg-white/85 px-4 py-4 backdrop-blur-xl sm:px-8">
+          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white px-4 py-4 sm:px-8">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setMobileNavOpen(true)} className="rounded-2xl border border-slate-200 bg-white p-2 text-slate-600 lg:hidden">
-                  <Menu className="h-5 w-5" />
+                <button type="button" onClick={() => setMobileNavOpen(true)} aria-label="Menü öffnen" className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 lg:hidden">
+                  <Menu className="h-4 w-4" />
                 </button>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Partnerportal</p>
-                  <h1 className="text-xl font-black text-slate-950 sm:text-2xl">{sectionMeta.title}</h1>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Partnerportal</p>
+                  <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{sectionMeta.title}</h1>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => handleAvailabilityToggle(!partner.is_available)}
                   className={cx(
-                    'hidden items-center gap-2 rounded-full border px-4 py-2 text-xs font-black transition-colors sm:inline-flex',
+                    'hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors sm:inline-flex',
                     partner.is_available ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-500',
                   )}
                   disabled={actionInFlight === 'availability'}
                 >
-                  <span className={cx('h-2.5 w-2.5 rounded-full', partner.is_available ? 'bg-emerald-500' : 'bg-slate-400')} />
+                  <span className={cx('h-2 w-2 rounded-full', partner.is_available ? 'bg-emerald-500' : 'bg-slate-400')} />
                   {partner.is_available ? 'Verfügbar' : 'Pausiert'}
                 </button>
 
@@ -829,50 +836,51 @@ export function PartnerDashboard() {
                   <button
                     type="button"
                     onClick={() => setShowNotifications((current) => !current)}
-                    className="relative rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-600 transition-colors hover:text-brand-blue"
+                    aria-label="Hinweise öffnen"
+                    className="relative rounded-lg border border-slate-200 bg-white p-2 text-slate-600 transition-colors hover:text-brand-blue"
                   >
-                    <Bell className="h-5 w-5" />
+                    <Bell className="h-4 w-4" />
                     {unreadNotifications.length > 0 ? (
-                      <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-black text-white">
+                      <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
                         {unreadNotifications.length}
                       </span>
                     ) : null}
                   </button>
                   {showNotifications ? (
-                    <div className="absolute right-0 z-30 mt-2 w-[320px] rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.14)]">
-                      <p className="mb-2 px-1 text-xs font-black uppercase tracking-[0.16em] text-slate-400">Hinweise</p>
+                    <div className="absolute right-0 z-30 mt-2 w-[320px] rounded-xl border border-slate-200 bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
+                      <p className="mb-2 px-2 pt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Hinweise</p>
                       {data.notifications.length ? (
-                        <div className="space-y-2 max-h-[340px] overflow-y-auto">
+                        <div className="space-y-1 max-h-[340px] overflow-y-auto">
                           {data.notifications.slice(0, 8).map((entry) => (
                             <button
                               key={entry.id}
                               type="button"
                               onClick={() => handleMarkNotificationRead(entry.id)}
                               className={cx(
-                                'block w-full rounded-2xl border p-3 text-left transition-colors',
-                                entry.is_read ? 'border-slate-100 bg-white' : 'border-brand-blue/15 bg-brand-blue/5',
+                                'block w-full rounded-lg border p-3 text-left transition-colors',
+                                entry.is_read ? 'border-slate-100 bg-white' : 'border-brand-blue/30 bg-brand-blue/5',
                               )}
                             >
-                              <p className="text-sm font-black text-slate-900">{entry.title || 'Hinweis'}</p>
+                              <p className="text-sm font-semibold text-slate-900">{entry.title || 'Hinweis'}</p>
                               <p className="mt-1 text-xs font-medium text-slate-500">{entry.message || '-'}</p>
-                              <p className="mt-2 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{formatDateTime(entry.created_at)}</p>
+                              <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{formatDateTime(entry.created_at)}</p>
                             </button>
                           ))}
                         </div>
                       ) : (
-                        <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-semibold text-slate-500">Keine Hinweise vorhanden.</p>
+                        <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-medium text-slate-500">Keine Hinweise vorhanden.</p>
                       )}
                     </div>
                   ) : null}
                 </div>
 
-                <button type="button" onClick={handleLogout} className="hidden rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition-colors hover:border-red-200 hover:text-red-600 sm:inline-flex">
+                <button type="button" onClick={handleLogout} className="hidden rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-red-200 hover:text-red-600 sm:inline-flex sm:items-center">
                   <LogOut className="mr-2 h-4 w-4" />
                   Abmelden
                 </button>
               </div>
             </div>
-            <p className="mt-2 text-sm font-medium text-slate-500">{sectionMeta.subtitle}</p>
+            <p className="mt-1 text-sm font-medium text-slate-500">{sectionMeta.subtitle}</p>
           </header>
 
           <div className="flex-1 space-y-6 px-4 py-6 sm:px-8 sm:py-8">

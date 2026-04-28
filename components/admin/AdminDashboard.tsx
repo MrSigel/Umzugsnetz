@@ -24,6 +24,7 @@ import {
   emptyStateBySection,
   kpiIcons,
   liveContentItems,
+  sectionDescriptions,
   statusToneMap,
   toneClassMap,
   type AdminSectionId,
@@ -184,10 +185,10 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[2rem] border border-white/80 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-black tracking-tight text-slate-950 sm:text-xl">{title}</h2>
+          <h2 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">{title}</h2>
           {description ? <p className="mt-1 text-sm font-medium text-slate-500">{description}</p> : null}
         </div>
         {action}
@@ -211,22 +212,23 @@ function KpiCard({
   icon: React.ComponentType<{ className?: string }>;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-[1.7rem] border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
-      <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-brand-blue/8 blur-3xl" />
-      <div className={cx('relative flex h-12 w-12 items-center justify-center rounded-2xl border', toneClassMap[tone])}>
-        <Icon className="h-5 w-5" />
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-shadow hover:shadow-[0_4px_12px_rgba(15,23,42,0.06)]">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">{label}</p>
+        <div className={cx('flex h-9 w-9 items-center justify-center rounded-lg border', toneClassMap[tone])}>
+          <Icon className="h-4 w-4" />
+        </div>
       </div>
-      <p className="relative mt-5 text-xs font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-      <p className="relative mt-2 text-3xl font-black tracking-tight text-slate-950">{value}</p>
-      <p className="relative mt-2 text-sm font-semibold text-slate-500">{change}</p>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
+      <p className="mt-1 text-sm font-medium text-slate-500">{change}</p>
     </div>
   );
 }
 
 function EmptyState({ title, text }: { title: string; text: string }) {
   return (
-    <div className="rounded-[1.7rem] border border-dashed border-slate-200 bg-slate-50/80 px-6 py-10 text-center">
-      <p className="text-base font-black text-slate-800">{title}</p>
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
+      <p className="text-sm font-bold text-slate-700">{title}</p>
       <p className="mx-auto mt-2 max-w-lg text-sm font-medium text-slate-500">{text}</p>
     </div>
   );
@@ -234,10 +236,10 @@ function EmptyState({ title, text }: { title: string; text: string }) {
 
 function LoadingState() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_28%),linear-gradient(180deg,#f6f9fc,#eef4f8)] p-6">
-      <div className="rounded-[2rem] border border-white/80 bg-white p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-11 w-auto" priority />
-        <p className="mt-5 font-black text-slate-950">Lädt Übersicht...</p>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-10 w-auto" priority />
+        <p className="mt-5 text-sm font-semibold text-slate-600">Übersicht wird geladen…</p>
       </div>
     </main>
   );
@@ -245,10 +247,10 @@ function LoadingState() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_28%),linear-gradient(180deg,#f6f9fc,#eef4f8)] p-6">
-      <div className="rounded-[2rem] border border-red-100 bg-white p-8 text-center shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-11 w-auto" priority />
-        <p className="mt-5 font-black text-slate-950">{message}</p>
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="max-w-md rounded-2xl border border-red-200 bg-white p-8 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+        <Image src="/logo_transparent.png" alt="Umzugsnetz" width={180} height={44} className="mx-auto h-10 w-auto" priority />
+        <p className="mt-5 text-sm font-semibold text-slate-700">{message}</p>
       </div>
     </main>
   );
@@ -287,18 +289,18 @@ function Sidebar({
       <div className={cx('fixed inset-0 z-30 bg-slate-950/35 backdrop-blur-sm lg:hidden', mobileOpen ? 'block' : 'hidden')} onClick={onClose} />
       <aside
         className={cx(
-          'fixed inset-y-0 left-0 z-40 flex w-[290px] flex-col overflow-y-auto border-r border-white/70 bg-white/95 p-5 shadow-[0_25px_80px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none',
+          'fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col overflow-y-auto border-r border-slate-200 bg-white transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="mb-6 flex flex-shrink-0 items-center justify-between">
-          <Image src="/logo_transparent.png" alt="Umzugsnetz" width={170} height={44} className="h-10 w-auto" priority />
-          <button type="button" onClick={onClose} className="rounded-2xl border border-slate-200 p-2 text-slate-500 lg:hidden">
-            <X className="h-5 w-5" />
+        <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 bg-brand-blue px-5 py-5">
+          <Image src="/logo_transparent.png" alt="Umzugsnetz" width={150} height={36} className="h-8 w-auto brightness-0 invert" priority />
+          <button type="button" onClick={onClose} className="rounded-lg border border-white/30 p-1.5 text-white lg:hidden">
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-1 px-3 py-4">
           {items.map((item) => (
             <button
               key={item.id}
@@ -308,16 +310,21 @@ function Sidebar({
                 onClose();
               }}
               className={cx(
-                'flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition-all',
-                active === item.id ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-950',
+                'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors',
+                active === item.id
+                  ? 'bg-brand-blue/10 font-semibold text-brand-blue'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
               )}
             >
               <span className="flex items-center gap-3">
-                <item.icon className="h-5 w-5" />
-                <span className="text-sm font-black">{item.label}</span>
+                <item.icon className={cx('h-4 w-4', active === item.id ? 'text-brand-blue' : 'text-slate-400')} />
+                <span className="text-sm">{item.label}</span>
               </span>
               {item.counter ? (
-                <span className={cx('rounded-full px-2.5 py-1 text-[11px] font-black', active === item.id ? 'bg-white/15 text-white' : 'bg-white text-slate-500')}>
+                <span className={cx(
+                  'rounded-full px-2 py-0.5 text-[10px] font-bold',
+                  active === item.id ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-500',
+                )}>
                   {item.counter}
                 </span>
               ) : null}
@@ -325,68 +332,94 @@ function Sidebar({
           ))}
         </nav>
 
-        <div className="mt-5 space-y-3 border-t border-slate-100 pt-4">
+        <div className="space-y-2 border-t border-slate-200 px-3 py-3">
           <div className="relative">
-            <button type="button" onClick={() => setShowNotifications((value) => !value)} className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">
+            <button
+              type="button"
+              onClick={() => setShowNotifications((value) => !value)}
+              className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 hover:border-slate-300"
+            >
               <span className="flex items-center gap-2">
                 <Bell className="h-4 w-4 text-brand-blue" />
                 Hinweise
               </span>
-              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-slate-500">{unreadNotifications.length}</span>
+              <span className={cx(
+                'rounded-full px-2 py-0.5 text-[10px] font-bold',
+                unreadNotifications.length > 0 ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-500',
+              )}>
+                {unreadNotifications.length}
+              </span>
             </button>
             {showNotifications ? (
-              <div className="absolute bottom-[calc(100%+10px)] left-0 z-20 w-full rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_24px_70px_rgba(15,23,42,0.14)]">
+              <div className="absolute bottom-[calc(100%+8px)] left-0 z-20 w-full rounded-xl border border-slate-200 bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
                 {unreadNotifications.length ? (
-                  <div className="space-y-2">
-                    <div className="mb-2 flex items-center justify-between gap-3 px-1">
-                      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">Ungelesen</p>
-                      <button type="button" onClick={onMarkNotificationsRead} disabled={notificationsSaving} className="text-xs font-black text-brand-blue disabled:opacity-60">
-                        {notificationsSaving ? 'Speichert...' : 'Alle als gelesen'}
+                  <div className="space-y-1">
+                    <div className="mb-2 flex items-center justify-between gap-3 px-2 pt-1">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Ungelesen</p>
+                      <button type="button" onClick={onMarkNotificationsRead} disabled={notificationsSaving} className="text-xs font-semibold text-brand-blue disabled:opacity-60">
+                        {notificationsSaving ? 'Speichert…' : 'Alle gelesen'}
                       </button>
                     </div>
                     {unreadNotifications.slice(0, 5).map((item) => (
-                      <div key={item.id} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-                        <p className="text-sm font-black text-slate-900">{item.title || 'Hinweis'}</p>
+                      <div key={item.id} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                        <p className="text-sm font-semibold text-slate-900">{item.title || 'Hinweis'}</p>
                         <p className="mt-1 text-xs font-medium text-slate-500">{item.message || '-'}</p>
-                        <p className="mt-2 text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">{formatDateTime(item.created_at)}</p>
+                        <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">{formatDateTime(item.created_at)}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-semibold text-slate-500">Keine Hinweise vorhanden.</p>
+                  <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm font-medium text-slate-500">Keine Hinweise vorhanden.</p>
                 )}
               </div>
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="break-all text-sm font-black text-slate-900">{userEmail || '-'}</p>
-            <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-slate-400">{roleLabel(role)}</p>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <p className="break-all text-sm font-semibold text-slate-900">{userEmail || '-'}</p>
+            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{roleLabel(role)}</p>
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={onLogout}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-black text-red-700 transition-colors hover:bg-red-100"
-        >
-          <LogOut className="h-4 w-4" />
-          Abmelden
-        </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-red-200 hover:text-red-600"
+          >
+            <LogOut className="h-4 w-4" />
+            Abmelden
+          </button>
+        </div>
       </aside>
     </>
   );
 }
 
 function HeaderBar({
+  title,
+  description,
   onOpenMenu,
 }: {
+  title: string;
+  description?: string;
   onOpenMenu: () => void;
 }) {
   return (
-    <button type="button" onClick={onOpenMenu} className="mb-4 rounded-2xl border border-slate-200 bg-white p-3 text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.08)] lg:hidden">
-      <Menu className="h-5 w-5" />
-    </button>
+    <header className="mb-6 flex items-start justify-between gap-3 border-b border-slate-200 pb-5">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenMenu}
+          aria-label="Menü öffnen"
+          className="rounded-lg border border-slate-200 bg-white p-2 text-slate-600 lg:hidden"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{title}</h1>
+          {description ? <p className="mt-1 text-sm font-medium text-slate-500">{description}</p> : null}
+        </div>
+      </div>
+    </header>
   );
 }
 
@@ -2362,10 +2395,12 @@ export function AdminDashboard() {
   if (loading) return <LoadingState />;
   if (error || !portal) return <ErrorState message={error || 'Übersicht konnte nicht geladen werden.'} />;
 
+  const sectionLabel = navigation.find((item) => item.id === activeSection)?.label || '';
+  const sectionDescription = (sectionDescriptions as Partial<Record<AdminSectionId, string>>)[activeSection];
+
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(2,118,200,0.12),transparent_28%),linear-gradient(180deg,#f6f9fc,#eef4f8)] text-slate-900">
-      <div className="pointer-events-none fixed inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(2,118,200,0.16),transparent_60%)]" />
-      <div className="relative lg:grid lg:min-h-screen lg:grid-cols-[290px_1fr]">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="lg:grid lg:min-h-screen lg:grid-cols-[260px_1fr]">
         <Sidebar
           items={navigation}
           active={activeSection}
@@ -2380,8 +2415,10 @@ export function AdminDashboard() {
           notificationsSaving={notificationsSaving}
         />
 
-        <div className="min-w-0 p-4 sm:p-6 lg:p-8">
+        <div className="min-w-0 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <HeaderBar
+            title={sectionLabel}
+            description={sectionDescription}
             onOpenMenu={() => setMobileOpen(true)}
           />
 
