@@ -135,10 +135,16 @@ export async function POST(request: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
-        if (subscriptionId) {
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          await upsertSubscription(subscription, session.metadata?.partner_id, session.metadata?.package_code);
+        if (session.mode === 'subscription') {
+          const subscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
+          if (subscriptionId) {
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            await upsertSubscription(subscription, session.metadata?.partner_id, session.metadata?.package_code);
+          }
+        } else if (session.mode === 'payment' && session.metadata?.type === 'wallet_topup') {
+          if (session.payment_status === 'paid') {
+            await applyWalletTopup(session);
+          }
         }
         break;
       }
@@ -149,6 +155,13 @@ export async function POST(request: Request) {
         await upsertSubscription(subscription);
         break;
       }
+      case 'payment_intent.succeeded': {
+        const intent = event.data.object as Stripe.PaymentIntent;
+        if (intent.metadata?.type === 'wallet_topup') {
+          await applyWalletTopupFromIntent(intent);
+        }
+        break;
+      }
       default:
         break;
     }
@@ -157,4 +170,103 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ received: true });
+}
+
+async function applyWalletTopup(session: Stripe.Checkout.Session) {
+  const partnerId = session.metadata?.partner_id || null;
+  const amountCents = session.amount_total ?? Number(session.metadata?.amount_cents || 0);
+  if (!partnerId || !amountCents || amountCents <= 0) return;
+
+  await creditPartnerWallet({
+    partnerId,
+    amount: amountCents / 100,
+    reference: session.metadata?.reference || `STRIPE-${session.id}`,
+    note: session.metadata?.note || null,
+    externalId: session.id,
+  });
+}
+
+async function applyWalletTopupFromIntent(intent: Stripe.PaymentIntent) {
+  const partnerId = intent.metadata?.partner_id || null;
+  const amountCents = intent.amount_received || Number(intent.metadata?.amount_cents || 0);
+  if (!partnerId || !amountCents || amountCents <= 0) return;
+
+  await creditPartnerWallet({
+    partnerId,
+    amount: amountCents / 100,
+    reference: intent.metadata?.reference || `STRIPE-${intent.id}`,
+    note: null,
+    externalId: intent.id,
+  });
+}
+
+async function creditPartnerWallet(input: {
+  partnerId: string;
+  amount: number;
+  reference: string;
+  note: string | null;
+  externalId: string;
+}) {
+  const admin = getSupabaseAdmin();
+  const { partnerId, amount, reference, note } = input;
+
+  const { data: existing } = await admin
+    .from('wallet_topup_requests')
+    .select('id,status,amount')
+    .eq('reference', reference)
+    .maybeSingle();
+
+  if (existing && existing.status === 'COMPLETED') return;
+
+  const { data: partner } = await admin
+    .from('partners')
+    .select('id,user_id,balance,name')
+    .eq('id', partnerId)
+    .maybeSingle();
+  if (!partner) return;
+
+  const newBalance = (Number(partner.balance) || 0) + amount;
+  const now = new Date().toISOString();
+
+  if (existing) {
+    await admin.from('wallet_topup_requests').update({
+      status: 'COMPLETED',
+      amount,
+      payment_method: 'STRIPE',
+      processed_at: now,
+      updated_at: now,
+      note: note ?? undefined,
+    }).eq('id', existing.id);
+  } else {
+    await admin.from('wallet_topup_requests').insert([{
+      reference,
+      user_id: partner.user_id,
+      partner_id: partnerId,
+      amount,
+      payment_method: 'STRIPE',
+      note,
+      status: 'COMPLETED',
+      processed_at: now,
+    }]);
+  }
+
+  await admin.from('partners')
+    .update({ balance: newBalance, updated_at: now })
+    .eq('id', partnerId);
+
+  await admin.from('wallet_transactions').insert([{
+    user_id: partner.user_id,
+    partner_id: partnerId,
+    type: 'TOPUP',
+    amount,
+    description: `Stripe-Aufladung ${amount.toFixed(2)} € (Ref. ${reference})`,
+  }]);
+
+  await admin.from('notifications').insert([{
+    type: 'PARTNER_TOPUP_COMPLETED',
+    title: 'Aufladung erfolgreich',
+    message: `${partner.name || 'Partner'} hat ${amount.toFixed(2)} € aufgeladen.`,
+    link: '/admin',
+    is_read: false,
+  }]);
 }

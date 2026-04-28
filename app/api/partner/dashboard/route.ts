@@ -561,33 +561,88 @@ async function handleTopup(admin: SupabaseClient, user: User, partnerId: string,
     return jsonError('Bitte einen Betrag größer 0 € angeben.', 400);
   }
 
-  const minAmount = await loadMinTopupAmount(admin);
+  const minAmount = Math.max(await loadMinTopupAmount(admin), 10);
   if (amount < minAmount) {
     return jsonError(`Mindestbetrag ${minAmount.toFixed(2)} €.`, 400);
   }
 
+  if (!isStripeConfigured()) {
+    return jsonError('Online-Aufladung ist aktuell nicht verfügbar. Bitte den Support kontaktieren.', 503);
+  }
+
+  const { data: partnerRow } = await admin
+    .from('partners')
+    .select('id,name,email,settings')
+    .eq('id', partnerId)
+    .maybeSingle();
+
+  if (!partnerRow) return jsonError('Partnerprofil nicht gefunden.', 404);
+
+  let customerId: string;
+  try {
+    customerId = await ensureStripeCustomer(admin, partnerRow);
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Stripe-Kundenkonto konnte nicht angelegt werden.', 500);
+  }
+
+  const stripe = getStripeClient();
+  const baseUrl = appBaseUrl();
+  const amountCents = Math.round(amount * 100);
+  const note = String(body.note || '').trim();
   const reference = generateTopupReference();
-  const { error } = await admin.from('wallet_topup_requests').insert([{
-    reference,
-    user_id: user.id,
-    partner_id: partnerId,
-    amount,
-    payment_method: 'MANUAL_REVIEW',
-    note: String(body.note || '').trim() || null,
-    status: 'REQUESTED',
-  }]);
 
-  if (error) return jsonError(error.message || 'Aufladung konnte nicht angefragt werden.', 500);
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer: customerId,
+      line_items: [{
+        price_data: {
+          currency: 'eur',
+          unit_amount: amountCents,
+          product_data: {
+            name: 'Guthaben-Aufladung Umzugsnetz',
+            description: `Manuelle Aufladung über ${amount.toFixed(2)} €`,
+          },
+        },
+        quantity: 1,
+      }],
+      success_url: `${baseUrl}/crm/partner?topup=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/crm/partner?topup=cancel`,
+      metadata: {
+        partner_id: partnerId,
+        type: 'wallet_topup',
+        amount_cents: String(amountCents),
+        reference,
+        note: note.slice(0, 200),
+      },
+      payment_intent_data: {
+        metadata: {
+          partner_id: partnerId,
+          type: 'wallet_topup',
+          amount_cents: String(amountCents),
+          reference,
+        },
+      },
+    });
 
-  await admin.from('notifications').insert([{
-    type: 'PARTNER_TOPUP_REQUEST',
-    title: 'Aufladung angefragt',
-    message: `Ein Partner hat eine Aufladung über ${amount.toFixed(2)} € angefragt (Ref. ${reference}).`,
-    link: '/admin',
-    is_read: false,
-  }]);
+    if (!session.url) {
+      return jsonError('Stripe-Checkout konnte nicht gestartet werden.', 500);
+    }
 
-  return NextResponse.json({ success: true, reference });
+    await admin.from('wallet_topup_requests').insert([{
+      reference,
+      user_id: user.id,
+      partner_id: partnerId,
+      amount,
+      payment_method: 'STRIPE',
+      note: note || null,
+      status: 'IN_REVIEW',
+    }]);
+
+    return NextResponse.json({ success: true, reference, checkoutUrl: session.url });
+  } catch (error) {
+    return jsonError(error instanceof Error ? error.message : 'Stripe-Checkout fehlgeschlagen.', 500);
+  }
 }
 
 async function handleClaimBonus(sessionClient: SupabaseClient, partnerId: string) {

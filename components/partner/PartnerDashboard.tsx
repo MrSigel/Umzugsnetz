@@ -428,6 +428,30 @@ export function PartnerDashboard() {
   );
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const topup = params.get('topup');
+    const pkg = params.get('package');
+    if (!topup && !pkg) return;
+    if (topup === 'success') {
+      showToast('success', 'Aufladung erfolgreich', 'Stripe verarbeitet die Zahlung. Das Guthaben erscheint in wenigen Sekunden.');
+    } else if (topup === 'cancel') {
+      showToast('info', 'Aufladung abgebrochen', 'Die Zahlung wurde nicht abgeschlossen.');
+    }
+    if (pkg === 'success') {
+      showToast('success', 'Paket gebucht', 'Stripe verarbeitet Ihr Abonnement. Das aktive Paket erscheint in wenigen Sekunden.');
+    } else if (pkg === 'cancel') {
+      showToast('info', 'Buchung abgebrochen', 'Das Paket wurde nicht aktiviert.');
+    }
+    params.delete('topup');
+    params.delete('package');
+    params.delete('session_id');
+    const cleaned = params.toString();
+    const url = `${window.location.pathname}${cleaned ? `?${cleaned}` : ''}`;
+    window.history.replaceState({}, '', url);
+  }, [showToast]);
+
+  useEffect(() => {
     let mounted = true;
     const init = async () => {
       try {
@@ -534,15 +558,24 @@ export function PartnerDashboard() {
         showToast('warning', 'Ungültiger Betrag', 'Bitte einen Betrag größer 0 € angeben.');
         return;
       }
+      const minimum = Math.max(data?.minTopupAmount || 10, 10);
+      if (amount < minimum) {
+        showToast('warning', 'Mindestbetrag nicht erreicht', `Bitte mindestens ${minimum.toFixed(2)} € aufladen.`);
+        return;
+      }
       const result = await performAction('topup', { amount, note: topupNote || null }, 'topup');
+      if (result?.checkoutUrl && typeof result.checkoutUrl === 'string') {
+        window.location.href = result.checkoutUrl;
+        return;
+      }
       if (result) {
-        showToast('success', 'Aufladung angefragt', `Referenz: ${String(result.reference || '-')}`);
+        showToast('success', 'Aufladung gestartet', `Referenz: ${String(result.reference || '-')}`);
         setTopupAmount('');
         setTopupNote('');
         await loadDashboard(accessToken);
       }
     },
-    [accessToken, loadDashboard, performAction, showToast, topupAmount, topupNote],
+    [accessToken, data?.minTopupAmount, loadDashboard, performAction, showToast, topupAmount, topupNote],
   );
 
   const handleClaimBonus = useCallback(async () => {
@@ -1241,22 +1274,35 @@ function WalletSection({
       <PackagesSection data={data} actionInFlight={actionInFlight} onSubscribe={onSubscribe} onManage={onManage} />
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr]">
-        <SectionCard title="Guthaben aufladen" description="Erstellen Sie eine Aufladungsanfrage. Unsere Buchhaltung schaltet das Guthaben nach Zahlungseingang frei.">
+        <SectionCard title="Guthaben aufladen" description="Tragen Sie den gewünschten Betrag ein und schließen Sie die Zahlung über Stripe ab. Das Guthaben wird sofort nach Zahlungseingang gutgeschrieben.">
           <form onSubmit={onSubmit} className="space-y-4">
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Betrag (€)</span>
               <input
                 type="number"
                 inputMode="decimal"
-                min={data.minTopupAmount}
+                min={Math.max(data.minTopupAmount, 10)}
                 step="0.01"
                 value={topupAmount}
                 onChange={(event) => onAmountChange(event.target.value)}
-                placeholder={`z. B. ${data.minTopupAmount.toFixed(0)}`}
+                placeholder={`Mindestens ${Math.max(data.minTopupAmount, 10).toFixed(0)} €`}
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-brand-blue"
                 required
               />
+              <p className="mt-2 text-[11px] font-medium text-slate-500">Mindestbetrag {Math.max(data.minTopupAmount, 10).toFixed(2)} €. Sie wählen den Betrag selbst – auch krumme Summen sind möglich.</p>
             </label>
+            <div className="flex flex-wrap gap-2">
+              {[25, 50, 100, 250, 500].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => onAmountChange(String(preset))}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-black text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+                >
+                  {preset} €
+                </button>
+              ))}
+            </div>
             <label className="block">
               <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-400">Notiz (optional)</span>
               <textarea
@@ -1273,22 +1319,19 @@ function WalletSection({
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-blue px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-blue/20 disabled:opacity-60"
             >
               <CircleDollarSign className="h-4 w-4" />
-              {actionInFlight === 'topup' ? 'Wird gesendet...' : 'Aufladung anfragen'}
+              {actionInFlight === 'topup' ? 'Weiterleitung zu Stripe...' : 'Mit Stripe aufladen'}
             </button>
           </form>
 
-          <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 text-xs text-slate-600">
-            <p className="font-black uppercase tracking-[0.16em] text-slate-400">Bankverbindung</p>
-            <p className="mt-2 font-bold text-slate-800">{data.billingSettings.beneficiary}</p>
-            <p>IBAN: {data.billingSettings.iban}</p>
-            <p>BIC: {data.billingSettings.bic}</p>
-            <p className="mt-2 text-slate-500">{data.billingSettings.note}</p>
-          </div>
+          <p className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-brand-blue/15 bg-brand-blue/5 px-3 py-2 text-[11px] font-bold text-brand-blue">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Zahlung über Stripe – Kreditkarte, Apple Pay, Google Pay, SEPA Lastschrift.
+          </p>
         </SectionCard>
 
-        <SectionCard title="Aufladungsanfragen" description={`${data.topupRequests.length} Vorgänge`}>
+        <SectionCard title="Aufladungen" description={`${data.topupRequests.length} Vorgänge`}>
           {data.topupRequests.length === 0 ? (
-            <EmptyState title="Keine Aufladungen" text="Sobald Sie eine Aufladung anfragen, erscheinen Status und Referenz hier." />
+            <EmptyState title="Keine Aufladungen" text="Sobald Sie eine Aufladung durchgeführt haben, erscheinen Status und Referenz hier." />
           ) : (
             <div className="space-y-3">
               {data.topupRequests.map((entry) => (
