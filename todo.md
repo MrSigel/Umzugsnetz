@@ -1,5 +1,7 @@
 # Manuelle Aufgaben
 
+> Bei jedem Update von `schema.sql` einmal in Supabase neu ausführen — das Skript ist idempotent. Aktuell gehören dazu u. a. die neuen Tabellen `team_channels`, `team_channel_members`, `team_chat_messages` (für den Team Chat).
+
 Diese Schritte muss du selbst (oder dein DevOps/Buchhaltung) durchführen, weil sie externe Konten oder Secrets betreffen.
 
 ## 1. Supabase – Schema-Migration ausführen
