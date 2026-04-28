@@ -158,7 +158,7 @@ function toNumber(value: unknown) {
 }
 
 async function buildDashboardPayload(admin: SupabaseClient, user: User) {
-  const partner = await loadPartnerForUser(admin, user.id);
+  let partner = await loadPartnerForUser(admin, user.id);
 
   if (!partner) {
     return {
@@ -187,6 +187,20 @@ async function buildDashboardPayload(admin: SupabaseClient, user: User) {
   }
 
   const partnerId = partner.id as string;
+
+  if (partner.verification_status !== 'VERIFIED' && partner.verification_status !== 'REJECTED' && partner.verification_status !== 'SUSPENDED') {
+    const userCreatedAt = user.created_at ? new Date(user.created_at).getTime() : Date.now();
+    const emailConfirmed = Boolean(user.email_confirmed_at);
+    const accountAgeMinutes = (Date.now() - userCreatedAt) / 60000;
+    if (emailConfirmed && accountAgeMinutes >= 10) {
+      const nowIso = new Date().toISOString();
+      await admin
+        .from('partners')
+        .update({ verification_status: 'VERIFIED', verified_at: nowIso, updated_at: nowIso })
+        .eq('id', partnerId);
+      partner = { ...partner, verification_status: 'VERIFIED' };
+    }
+  }
 
   const [
     { data: profile },
@@ -234,7 +248,9 @@ async function buildDashboardPayload(admin: SupabaseClient, user: User) {
       .limit(20),
     admin
       .from('notifications')
-      .select('id,title,message,link,is_read,created_at')
+      .select('id,title,message,link,is_read,type,created_at')
+      .eq('audience', 'PARTNER')
+      .eq('partner_id', partnerId)
       .order('created_at', { ascending: false })
       .limit(20),
     loadPricingConfig(admin),
@@ -691,10 +707,15 @@ async function handleUpdateProfile(admin: SupabaseClient, user: User, partnerId:
   return NextResponse.json({ success: true });
 }
 
-async function handleMarkNotificationRead(admin: SupabaseClient, body: ActionBody) {
+async function handleMarkNotificationRead(admin: SupabaseClient, partnerId: string, body: ActionBody) {
   const id = String(body.notificationId || '').trim();
   if (!id) return jsonError('Hinweis-ID fehlt.', 400);
-  const { error } = await admin.from('notifications').update({ is_read: true }).eq('id', id);
+  const { error } = await admin
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('id', id)
+    .eq('audience', 'PARTNER')
+    .eq('partner_id', partnerId);
   if (error) return jsonError(error.message || 'Konnte nicht aktualisiert werden.', 500);
   return NextResponse.json({ success: true });
 }
@@ -871,7 +892,7 @@ export async function POST(request: Request) {
       case 'update_profile':
         return await handleUpdateProfile(admin, user, partnerId, body);
       case 'mark_notification_read':
-        return await handleMarkNotificationRead(admin, body);
+        return await handleMarkNotificationRead(admin, partnerId, body);
       case 'subscribe_package':
         return await handleSubscribePackage(admin, partnerId, body);
       case 'manage_subscription':

@@ -138,8 +138,24 @@ CREATE TABLE IF NOT EXISTS notifications (
   message     TEXT,
   link        TEXT,
   is_read     BOOLEAN DEFAULT FALSE,
+  audience    TEXT NOT NULL DEFAULT 'STAFF',
+  partner_id  UUID REFERENCES partners(id) ON DELETE CASCADE,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE notifications
+  ADD COLUMN IF NOT EXISTS audience TEXT NOT NULL DEFAULT 'STAFF',
+  ADD COLUMN IF NOT EXISTS partner_id UUID REFERENCES partners(id) ON DELETE CASCADE;
+
+ALTER TABLE notifications
+  DROP CONSTRAINT IF EXISTS notifications_audience_check;
+
+ALTER TABLE notifications
+  ADD CONSTRAINT notifications_audience_check
+  CHECK (audience IN ('STAFF', 'PARTNER'));
+
+CREATE INDEX IF NOT EXISTS notifications_partner_idx ON notifications (partner_id, is_read, created_at DESC);
+CREATE INDEX IF NOT EXISTS notifications_audience_idx ON notifications (audience, created_at DESC);
 
 -- ─────────────────────────────────────────────────────────────
 -- 8. CHAT_MESSAGES (Live-Chat zwischen Kunden und Admin)
@@ -535,12 +551,28 @@ CREATE POLICY "wallet_select_admin" ON wallet_transactions FOR SELECT USING (app
 DROP POLICY IF EXISTS "wallet_insert_admin" ON wallet_transactions;
 CREATE POLICY "wallet_insert_admin" ON wallet_transactions FOR INSERT WITH CHECK (app_is_admin());
 
--- NOTIFICATIONS: Nur authentifizierte Benutzer können lesen/schreiben
+-- NOTIFICATIONS: Staff und Partner haben getrennte Sichtbereiche
 DROP POLICY IF EXISTS "notifications_all_authenticated" ON notifications;
 DROP POLICY IF EXISTS "notifications_select_admin" ON notifications;
 DROP POLICY IF EXISTS "notifications_update_admin" ON notifications;
-CREATE POLICY "notifications_select_admin" ON notifications FOR SELECT USING (app_is_admin());
-CREATE POLICY "notifications_update_admin" ON notifications FOR UPDATE USING (app_is_admin()) WITH CHECK (app_is_admin());
+DROP POLICY IF EXISTS "notifications_select_partner" ON notifications;
+DROP POLICY IF EXISTS "notifications_update_partner" ON notifications;
+CREATE POLICY "notifications_select_admin" ON notifications FOR SELECT USING (
+  (audience = 'STAFF' OR audience IS NULL) AND app_is_admin()
+);
+CREATE POLICY "notifications_update_admin" ON notifications FOR UPDATE USING (
+  (audience = 'STAFF' OR audience IS NULL) AND app_is_admin()
+) WITH CHECK (
+  (audience = 'STAFF' OR audience IS NULL) AND app_is_admin()
+);
+CREATE POLICY "notifications_select_partner" ON notifications FOR SELECT USING (
+  audience = 'PARTNER' AND partner_id IN (SELECT id FROM partners WHERE user_id = auth.uid())
+);
+CREATE POLICY "notifications_update_partner" ON notifications FOR UPDATE USING (
+  audience = 'PARTNER' AND partner_id IN (SELECT id FROM partners WHERE user_id = auth.uid())
+) WITH CHECK (
+  audience = 'PARTNER' AND partner_id IN (SELECT id FROM partners WHERE user_id = auth.uid())
+);
 
 DROP POLICY IF EXISTS "notifications_insert_anon" ON notifications;
 CREATE POLICY "notifications_insert_anon" ON notifications FOR INSERT WITH CHECK (true);

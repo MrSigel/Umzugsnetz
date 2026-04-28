@@ -195,7 +195,12 @@ async function fetchPortalData(role: StaffRole, supabase: SupabaseClient, scope:
       ? supabase.from('transactions').select('id, type, amount, description, created_at').order('created_at', { ascending: false }).limit(150)
       : Promise.resolve({ data: [], error: null }),
     includeNotifications
-      ? supabase.from('notifications').select('id, title, message, created_at, is_read').order('created_at', { ascending: false }).limit(20)
+      ? supabase
+          .from('notifications')
+          .select('id, title, message, created_at, is_read, audience, type')
+          .or('audience.eq.STAFF,audience.is.null')
+          .order('created_at', { ascending: false })
+          .limit(20)
       : Promise.resolve({ data: [], error: null }),
     includeTeam
       ? supabase.from('team').select('id, email, role, status, created_at').order('created_at', { ascending: false }).limit(120)
@@ -698,6 +703,7 @@ export async function PATCH(request: Request) {
     } else {
       query = query.eq('is_read', false);
     }
+    query = query.or('audience.eq.STAFF,audience.is.null');
 
     const { error } = await query;
     if (error) return jsonError(error.message, 500);

@@ -187,7 +187,14 @@ export async function POST(request: Request) {
 
   const supabaseAdmin = getSupabaseAdmin();
   const now = new Date().toISOString();
-  const verificationStatus = verification.status === 'VERIFIED' ? 'VERIFIED' : 'MANUAL_REVIEW';
+  const userCreatedAt = user.created_at ? new Date(user.created_at).getTime() : Date.now();
+  const userEmailConfirmedAt = user.email_confirmed_at ? new Date(user.email_confirmed_at).getTime() : null;
+  const accountAgeMinutes = (Date.now() - userCreatedAt) / 60000;
+  const emailConfirmed = userEmailConfirmedAt !== null;
+  const verificationStatus =
+    verification.status === 'VERIFIED' || (emailConfirmed && accountAgeMinutes >= 10)
+      ? 'VERIFIED'
+      : 'MANUAL_REVIEW';
   const partnerStatus = 'ACTIVE';
 
   const { data: partner, error: partnerError } = await supabaseAdmin

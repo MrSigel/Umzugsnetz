@@ -45,8 +45,9 @@ export async function POST(request: Request) {
     type: 'NEW_ORDER',
     title: 'Neuer Kundenauftrag',
     message: `${order.customer_name} hat einen neuen Auftrag eingereicht.`,
-    link: '/',
+    link: '/admin',
     is_read: false,
+    audience: 'STAFF',
   }]);
 
   const { data: partners } = await supabaseAdmin
@@ -57,6 +58,26 @@ export async function POST(request: Request) {
   const matchedPartners = (partners || []).filter((partner) => partnerMatchesOrder(partner, order));
   let emailAttempts = 0;
   let smsAttempts = 0;
+
+  if (matchedPartners.length > 0) {
+    const fromCity = String(order.von_city || order.nach_city || 'Ihrer Region').trim();
+    const serviceLabel = order.service_category === 'ENTRÜMPELUNG'
+      ? 'Entrümpelung'
+      : order.service_category === 'FIRMENUMZUG'
+        ? 'Firmenumzug'
+        : 'Privatumzug';
+    await supabaseAdmin.from('notifications').insert(
+      matchedPartners.map((partner) => ({
+        type: 'PARTNER_NEW_LEAD',
+        title: 'Neue Anfrage im Marktplatz',
+        message: `${serviceLabel} aus ${fromCity}${order.move_date ? ` zum ${order.move_date}` : ''} – jetzt im Marktplatz verfügbar.`,
+        link: '/crm/partner',
+        is_read: false,
+        audience: 'PARTNER',
+        partner_id: partner.id,
+      })),
+    );
+  }
 
   for (const partner of matchedPartners) {
     const settings = (partner.settings || {}) as Record<string, unknown>;
@@ -97,8 +118,9 @@ export async function POST(request: Request) {
     type: 'ORDER_MATCHING',
     title: 'Benachrichtigungen vorbereitet',
     message: `${matchedPartners.length} Partner wurden fuer Auftrag ${order.order_number || order.id} beruecksichtigt. E-Mail: ${emailAttempts}, SMS: ${smsAttempts}.`,
-    link: '/',
+    link: '/admin',
     is_read: false,
+    audience: 'STAFF',
   }]);
 
   return NextResponse.json({
