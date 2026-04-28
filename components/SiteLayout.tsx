@@ -165,6 +165,15 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
                         {label}
                       </Link>
                     ))}
+                    <Link href="/#rechner" onClick={() => setIsMobileMenuOpen(false)} className="block pt-2">
+                      <button
+                        type="button"
+                        style={{ backgroundColor: c_primary }}
+                        className="w-full text-white py-3.5 rounded-2xl font-black shadow-md hover:opacity-95 transition-opacity"
+                      >
+                        Kostenlos anfragen
+                      </button>
+                    </Link>
                   </div>
                   <div className="px-4 pb-4">
                     <div className="border-t border-slate-100 pt-4 text-center">
@@ -190,18 +199,9 @@ export function SiteHeader({ activeNav = 'startseite', theme = 'blue' }: { activ
                     <Link
                       href="/login"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="mb-3 block w-full rounded-2xl border border-slate-200 bg-white py-3.5 text-center font-black text-slate-700 shadow-sm transition-colors"
+                      className="block w-full rounded-2xl border border-slate-200 bg-white py-3.5 text-center font-black text-slate-700 shadow-sm transition-colors"
                     >
                       Login
-                    </Link>
-                    <Link href="/#rechner" onClick={() => setIsMobileMenuOpen(false)} className="block">
-                      <button
-                        type="button"
-                        style={{ backgroundColor: c_primary }}
-                        className="w-full text-white py-3.5 rounded-2xl font-black shadow-md hover:opacity-95 transition-opacity"
-                      >
-                        Kostenlos anfragen
-                      </button>
                     </Link>
                   </div>
                 </div>
