@@ -115,6 +115,13 @@ ALTER TABLE wallet_transactions
   ADD COLUMN IF NOT EXISTS description TEXT,
   ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
+ALTER TABLE wallet_transactions
+  DROP CONSTRAINT IF EXISTS wallet_transactions_type_check;
+
+ALTER TABLE wallet_transactions
+  ADD CONSTRAINT wallet_transactions_type_check
+  CHECK (type IN ('TOPUP', 'LEAD_PURCHASE', 'ADMIN_CREDIT', 'REFUND', 'BONUS_CREDIT', 'TOKEN_REDEMPTION'));
+
 -- ─────────────────────────────────────────────────────────────
 -- 6. TRANSACTIONS (Admin-Finanztransaktionen)
 -- ─────────────────────────────────────────────────────────────
