@@ -584,6 +584,32 @@ export function PartnerDashboard() {
     [accessToken, loadDashboard, performAction, showToast, statusDraft],
   );
 
+  const handleRefundPurchase = useCallback(
+    async (purchaseId: string, reason: string) => {
+      const trimmed = reason.trim();
+      if (trimmed.length < 10) {
+        showToast('warning', 'Begründung zu kurz', 'Bitte mindestens 10 Zeichen Begründung angeben.');
+        return false;
+      }
+      const result = await performAction('refund_purchase', { purchaseId, reason: trimmed }, `refund:${purchaseId}`);
+      if (result) {
+        const refundedToken = (result as { refundedToken?: boolean }).refundedToken;
+        const refundedAmount = Number((result as { refundedAmount?: number }).refundedAmount || 0);
+        showToast(
+          'success',
+          'Reklamation erfasst',
+          refundedToken
+            ? 'Bonus-Token wurde Ihrem Konto wieder gutgeschrieben.'
+            : `${refundedAmount.toFixed(2)} € wurden Ihrem Guthaben gutgeschrieben.`,
+        );
+        await loadDashboard(accessToken);
+        return true;
+      }
+      return false;
+    },
+    [accessToken, loadDashboard, performAction, showToast],
+  );
+
   const handleTopup = useCallback(
     async (event: React.FormEvent) => {
       event.preventDefault();
@@ -901,6 +927,7 @@ export function PartnerDashboard() {
                 statusDraft={statusDraft}
                 onDraftChange={(orderId, draft) => setStatusDraft((current) => ({ ...current, [orderId]: draft }))}
                 onStatusSave={handleStatusUpdate}
+                onRefund={handleRefundPurchase}
                 actionInFlight={actionInFlight}
               />
             ) : null}
@@ -1182,14 +1209,18 @@ function MyLeadsSection({
   statusDraft,
   onDraftChange,
   onStatusSave,
+  onRefund,
   actionInFlight,
 }: {
   data: DashboardData;
   statusDraft: Record<string, { status: string; notes: string }>;
   onDraftChange: (orderId: string, draft: { status: string; notes: string }) => void;
   onStatusSave: (orderId: string) => Promise<void>;
+  onRefund: (purchaseId: string, reason: string) => Promise<boolean>;
   actionInFlight: string | null;
 }) {
+  const [refundFor, setRefundFor] = useState<DashboardData['myLeads'][number] | null>(null);
+
   if (data.myLeads.length === 0) {
     return <EmptyState title="Noch keine gekauften Anfragen" text="Sobald Sie eine Anfrage gekauft haben, erscheinen Kontaktdaten und Statusoptionen hier." />;
   }
@@ -1199,6 +1230,8 @@ function MyLeadsSection({
       {data.myLeads.map((entry) => {
         const draft = statusDraft[entry.id] || { status: '', notes: '' };
         const saving = actionInFlight === `status:${entry.id}`;
+        const refunding = actionInFlight === `refund:${entry.purchase_id}`;
+        const canRefund = entry.status !== 'Abgeschlossen';
         return (
           <article key={entry.id} className="rounded-xl border border-white/90 bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
             <header className="flex flex-wrap items-start justify-between gap-3">
@@ -1207,7 +1240,19 @@ function MyLeadsSection({
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">{entry.customer_name || 'Kunde'}</h3>
                 <p className="text-xs font-medium text-slate-500">Gekauft am {formatDateTime(entry.purchased_at)} für {formatCurrency(entry.purchase_price)}</p>
               </div>
-              <StatusBadge label={statusLabel(entry.status)} tone={statusToneClass(entry.status)} />
+              <div className="flex flex-col items-end gap-2">
+                <StatusBadge label={statusLabel(entry.status)} tone={statusToneClass(entry.status)} />
+                {canRefund ? (
+                  <button
+                    type="button"
+                    onClick={() => setRefundFor(entry)}
+                    disabled={refunding}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-60"
+                  >
+                    {refunding ? 'Wird bearbeitet…' : 'Reklamieren'}
+                  </button>
+                ) : null}
+              </div>
             </header>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -1270,6 +1315,113 @@ function MyLeadsSection({
           </article>
         );
       })}
+
+      {refundFor ? (
+        <RefundDialog
+          lead={refundFor}
+          inFlight={actionInFlight === `refund:${refundFor.purchase_id}`}
+          onClose={() => setRefundFor(null)}
+          onConfirm={async (reason) => {
+            const success = await onRefund(refundFor.purchase_id, reason);
+            if (success) setRefundFor(null);
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function RefundDialog({
+  lead,
+  inFlight,
+  onClose,
+  onConfirm,
+}: {
+  lead: DashboardData['myLeads'][number];
+  inFlight: boolean;
+  onClose: () => void;
+  onConfirm: (reason: string) => void | Promise<void>;
+}) {
+  const [reason, setReason] = useState('');
+  const presets = [
+    'Telefonnummer ist nicht erreichbar.',
+    'E-Mail-Adresse ist ungültig.',
+    'Kunde hat die Anfrage zurückgezogen.',
+    'Falsche oder unvollständige Angaben im Auftrag.',
+    'Region passt nicht zu meinem Einsatzgebiet.',
+  ];
+  const refundLabel = Number(lead.purchase_price) > 0
+    ? `${formatCurrency(lead.purchase_price)} Guthaben`
+    : '1 Bonus-Token';
+
+  return (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-red-600">Anfrage reklamieren</p>
+            <h2 className="mt-1 text-xl font-bold text-slate-900">{lead.customer_name || 'Anfrage'}</h2>
+            <p className="text-sm text-slate-500">Bei berechtigter Reklamation erhalten Sie {refundLabel} zurück und der Auftrag wird wieder freigegeben.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={inFlight}
+            aria-label="Schließen"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-60"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <label className="block">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Begründung</span>
+          <textarea
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Bitte erläutern Sie kurz, warum die Anfrage nicht verwertbar ist."
+            rows={4}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20"
+          />
+          <p className="mt-1 text-xs text-slate-400">Mindestens 10 Zeichen.</p>
+        </label>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {presets.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              onClick={() => setReason((current) => (current.trim() ? current : preset))}
+              className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600 hover:border-brand-blue/40 hover:text-brand-blue"
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
+
+        <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+          Hinweis: Reklamationen werden protokolliert. Bei Missbrauch behalten wir uns die Sperrung des Kontos vor.
+        </p>
+
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={inFlight}
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          >
+            Abbrechen
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(reason)}
+            disabled={inFlight || reason.trim().length < 10}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-60"
+          >
+            {inFlight ? 'Wird gesendet…' : 'Reklamation absenden'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -411,6 +411,117 @@ END;
 $$;
 
 -- ─────────────────────────────────────────────────────────────
+-- 12c. RPC: refund_partner_purchase (Lead-Reklamation durch Partner)
+-- ─────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION refund_partner_purchase(
+  purchase_id_param UUID,
+  partner_id_param  UUID,
+  reason_param      TEXT
+)
+RETURNS NUMERIC
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  purchase_record   partner_purchases%ROWTYPE;
+  partner_user_id   UUID;
+  refund_price      NUMERIC;
+  was_token         BOOLEAN;
+  current_status    TEXT;
+  trimmed_reason    TEXT;
+BEGIN
+  trimmed_reason := COALESCE(NULLIF(trim(reason_param), ''), 'Keine Begründung angegeben');
+
+  SELECT * INTO purchase_record
+  FROM partner_purchases
+  WHERE id = purchase_id_param
+    AND partner_id = partner_id_param
+  FOR UPDATE;
+
+  IF purchase_record.id IS NULL THEN
+    RAISE EXCEPTION 'Kauf nicht gefunden oder kein Zugriff.';
+  END IF;
+
+  SELECT user_id INTO partner_user_id
+  FROM partners
+  WHERE id = partner_id_param;
+
+  IF partner_user_id IS NULL THEN
+    RAISE EXCEPTION 'Partnerprofil nicht gefunden.';
+  END IF;
+
+  SELECT status INTO current_status
+  FROM orders
+  WHERE id = purchase_record.order_id;
+
+  IF current_status = 'Abgeschlossen' THEN
+    RAISE EXCEPTION 'Bereits gebuchte Aufträge können nicht mehr reklamiert werden.';
+  END IF;
+
+  refund_price := COALESCE(purchase_record.price, 0);
+  was_token := refund_price = 0;
+
+  DELETE FROM partner_purchases
+  WHERE id = purchase_id_param;
+
+  UPDATE orders
+  SET status = 'Neu',
+      updated_at = NOW()
+  WHERE id = purchase_record.order_id;
+
+  IF was_token THEN
+    UPDATE partners
+    SET bonus_tokens = COALESCE(bonus_tokens, 0) + 1,
+        updated_at = NOW()
+    WHERE id = partner_id_param;
+
+    INSERT INTO wallet_transactions (user_id, partner_id, type, amount, description)
+    VALUES (
+      partner_user_id,
+      partner_id_param,
+      'REFUND',
+      0,
+      'Reklamation Auftrag ' || purchase_record.order_id::TEXT || ' – Bonus-Token gutgeschrieben. Begründung: ' || trimmed_reason
+    );
+  ELSE
+    UPDATE partners
+    SET balance = COALESCE(balance, 0) + refund_price,
+        updated_at = NOW()
+    WHERE id = partner_id_param;
+
+    INSERT INTO wallet_transactions (user_id, partner_id, type, amount, description)
+    VALUES (
+      partner_user_id,
+      partner_id_param,
+      'REFUND',
+      refund_price,
+      'Reklamation Auftrag ' || purchase_record.order_id::TEXT || ' – Guthaben erstattet. Begründung: ' || trimmed_reason
+    );
+  END IF;
+
+  INSERT INTO transactions (partner_id, type, amount, description)
+  VALUES (
+    partner_id_param,
+    'REFUND',
+    -refund_price,
+    'Reklamation Lead-Verkauf an Partner ' || partner_id_param::TEXT || ': ' || trimmed_reason
+  );
+
+  INSERT INTO notifications (type, title, message, link, is_read, audience)
+  VALUES (
+    'PARTNER_LEAD_REFUND',
+    'Anfrage reklamiert',
+    'Eine Partnerfirma hat Anfrage ' || purchase_record.order_id::TEXT || ' reklamiert. Begründung: ' || trimmed_reason,
+    '/admin',
+    FALSE,
+    'STAFF'
+  );
+
+  RETURN refund_price;
+END;
+$$;
+
+-- ─────────────────────────────────────────────────────────────
 -- 12. RPC: admin_credit_partner (Admin-Gutschrift an Partner)
 -- ─────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION admin_credit_partner(

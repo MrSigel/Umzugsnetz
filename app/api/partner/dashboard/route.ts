@@ -480,6 +480,8 @@ type ActionBody = {
   postalCode?: string;
   radiusKm?: number | string;
   serviceMode?: 'UMZUG' | 'ENTRUEMPELUNG' | 'BEIDES';
+  purchaseId?: string;
+  reason?: string;
 };
 
 async function handlePurchaseLead(admin: SupabaseClient, user: User, partnerId: string, body: ActionBody) {
@@ -798,6 +800,54 @@ async function handleMarkNotificationRead(admin: SupabaseClient, partnerId: stri
   return NextResponse.json({ success: true });
 }
 
+async function handleRefundPurchase(admin: SupabaseClient, partnerId: string, body: ActionBody) {
+  const purchaseId = String(body.purchaseId || '').trim();
+  const reason = String(body.reason || '').trim();
+  if (!purchaseId) return jsonError('Kauf-ID fehlt.', 400);
+  if (reason.length < 10) {
+    return jsonError('Bitte mindestens 10 Zeichen Begründung angeben.', 400);
+  }
+
+  const { data: purchase } = await admin
+    .from('partner_purchases')
+    .select('id,partner_id,order_id,price,created_at')
+    .eq('id', purchaseId)
+    .eq('partner_id', partnerId)
+    .maybeSingle();
+
+  if (!purchase) {
+    return jsonError('Dieser Kauf gehört nicht zu Ihrem Konto.', 403);
+  }
+
+  const { data: order } = await admin
+    .from('orders')
+    .select('id,status,order_number')
+    .eq('id', purchase.order_id)
+    .maybeSingle();
+
+  if (order?.status === 'Abgeschlossen') {
+    return jsonError('Bereits gebuchte Aufträge können nicht reklamiert werden.', 409);
+  }
+
+  const { data: refundResult, error } = await admin.rpc('refund_partner_purchase', {
+    purchase_id_param: purchaseId,
+    partner_id_param: partnerId,
+    reason_param: reason,
+  });
+
+  if (error) {
+    return jsonError(error.message || 'Reklamation fehlgeschlagen.', 500);
+  }
+
+  const refundedAmount = Number(refundResult || 0);
+  return NextResponse.json({
+    success: true,
+    refundedAmount,
+    refundedToken: refundedAmount === 0,
+    orderNumber: order?.order_number || null,
+  });
+}
+
 async function ensureStripeCustomer(admin: SupabaseClient, partner: { id: string; settings: unknown; email?: string | null; name?: string | null }) {
   const stripe = getStripeClient();
   const settings = (partner.settings && typeof partner.settings === 'object' ? partner.settings as Record<string, unknown> : {});
@@ -971,6 +1021,8 @@ export async function POST(request: Request) {
         return await handleUpdateProfile(admin, user, partnerId, body);
       case 'mark_notification_read':
         return await handleMarkNotificationRead(admin, partnerId, body);
+      case 'refund_purchase':
+        return await handleRefundPurchase(admin, partnerId, body);
       case 'subscribe_package':
         return await handleSubscribePackage(admin, partnerId, body);
       case 'manage_subscription':
