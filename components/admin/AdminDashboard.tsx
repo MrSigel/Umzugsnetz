@@ -2158,6 +2158,7 @@ export function AdminDashboard() {
   const [error, setError] = useState('');
   const [employeeEmail, setEmployeeEmail] = useState('');
   const [employeeSubmitting, setEmployeeSubmitting] = useState(false);
+  const [revokingTeamEmail, setRevokingTeamEmail] = useState('');
   const [ticketSavingSessionId, setTicketSavingSessionId] = useState('');
   const [notificationsSaving, setNotificationsSaving] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
@@ -2366,6 +2367,29 @@ export function AdminDashboard() {
     }
   };
 
+  const revokeTeamInvite = async (email: string) => {
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed) return;
+    const confirmed = window.confirm(
+      `Einladung an ${trimmed} wirklich zurückziehen?\n\nDer in der Einladungs-E-Mail enthaltene Link wird sofort ungültig.`,
+    );
+    if (!confirmed) return;
+
+    setRevokingTeamEmail(trimmed);
+    setError('');
+    try {
+      handlePortalSave(await patchPortal({
+        action: 'revokeTeamInvite',
+        email: trimmed,
+        scope: 'all',
+      }));
+    } catch (submitError) {
+      window.alert(submitError instanceof Error ? submitError.message : 'Einladung konnte nicht zurückgezogen werden.');
+    } finally {
+      setRevokingTeamEmail('');
+    }
+  };
+
   const markTicketRead = async (ticket: PortalTicket) => {
     setTicketSavingSessionId(ticket.session_id);
     setError('');
@@ -2464,19 +2488,39 @@ export function AdminDashboard() {
               <SectionCard title="Bestehende Mitarbeiter" description="Alle vorhandenen Team-Einträge aus dem System.">
                 {filteredTeam.length ? (
                   <div className="space-y-3">
-                    {filteredTeam.map((member) => (
-                      <div key={member.id} className="rounded-xl border border-slate-100 bg-white p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="min-w-0">
-                            <p className="truncate text-base font-bold text-slate-950">{member.email || 'Ohne E-Mail'}</p>
-                            <p className="mt-2 text-sm font-medium text-slate-500">
-                              {teamRoleLabel(member.role)} · {formatDateTime(member.created_at)}
-                            </p>
+                    {filteredTeam.map((member) => {
+                      const memberEmail = String(member.email || '').trim().toLowerCase();
+                      const isPending = String(member.status || '').toUpperCase() === 'PENDING';
+                      const isRevoking = revokingTeamEmail === memberEmail;
+                      return (
+                        <div key={member.id} className="rounded-xl border border-slate-100 bg-white p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                              <p className="truncate text-base font-bold text-slate-950">{member.email || 'Ohne E-Mail'}</p>
+                              <p className="mt-2 text-sm font-medium text-slate-500">
+                                {teamRoleLabel(member.role)} · {formatDateTime(member.created_at)}
+                              </p>
+                            </div>
+                            <StatusBadge label={teamStatusLabel(member.status)} />
                           </div>
-                          <StatusBadge label={teamStatusLabel(member.status)} />
+                          {isPending && memberEmail ? (
+                            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2">
+                              <p className="text-xs font-medium text-amber-800">
+                                Einladung offen — der Mitarbeiter hat den Einladungslink noch nicht eingelöst.
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => revokeTeamInvite(memberEmail)}
+                                disabled={isRevoking || Boolean(revokingTeamEmail)}
+                                className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:border-red-300 hover:bg-red-50 disabled:opacity-60"
+                              >
+                                {isRevoking ? 'Wird zurückgezogen...' : 'Einladung zurückziehen'}
+                              </button>
+                            </div>
+                          ) : null}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <EmptyState {...emptyStateBySection.employees} />

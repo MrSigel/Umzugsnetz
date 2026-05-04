@@ -22,8 +22,10 @@ export default function DatenschutzPage() {
               <h2 className="text-2xl font-black text-slate-900 mb-4 flex items-center gap-3"><Lock className="w-6 h-6 text-brand-blue" />1. Verantwortlicher</h2>
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6">
                 <p className="font-bold text-slate-800">Dean Zander</p>
-                <p>Heinrich Pierson Straße 20</p>
-                <p>E-Mail: kontakt@umzugsnetz.de</p>
+                <p>Welserstraße 3</p>
+                <p>87463 Dietmannsried</p>
+                <p>Deutschland</p>
+                <p className="pt-2">E-Mail: kontakt@umzugsnetz.de</p>
                 <p>Telefon: 01722699945</p>
               </div>
             </section>

@@ -1986,9 +1986,9 @@ function PackagesSection({
   const orderedPackages = sortedPackages.length
     ? sortedPackages
     : ([
-        { code: 'FREE', name: 'Free', monthly_price: 0, lead_limit_monthly: 25, priority: 3, release_delay_seconds: 1800, purchasable: false },
-        { code: 'PREMIUM', name: 'Premium', monthly_price: 99, lead_limit_monthly: 150, priority: 2, release_delay_seconds: 300, purchasable: data.stripeConfigured },
-        { code: 'BUSINESS', name: 'Business', monthly_price: 249, lead_limit_monthly: 500, priority: 1, release_delay_seconds: 0, purchasable: data.stripeConfigured },
+        { code: 'FREE', name: 'Starter', monthly_price: 0, lead_limit_monthly: 25, priority: 3, release_delay_seconds: 1800, purchasable: false },
+        { code: 'PREMIUM', name: 'Pro', monthly_price: 49, lead_limit_monthly: 150, priority: 2, release_delay_seconds: 300, purchasable: data.stripeConfigured },
+        { code: 'BUSINESS', name: 'Business', monthly_price: 149, lead_limit_monthly: 500, priority: 1, release_delay_seconds: 0, purchasable: data.stripeConfigured },
       ] as DashboardData['packages']);
 
   return (
@@ -2030,23 +2030,33 @@ function PackagesSection({
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 pt-3 lg:grid-cols-3">
         {orderedPackages.map((pkg) => {
           const theme = PACKAGE_THEME[pkg.code];
           const isCurrent = pkg.code === currentCode && (pkg.code === 'FREE' || subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'PAST_DUE');
           const subscribing = actionInFlight === `subscribe:${pkg.code}`;
           const isPaid = pkg.code !== 'FREE';
+          const isRecommended = pkg.code === 'BUSINESS' && !isCurrent;
           return (
             <article
               key={pkg.code}
               className={cx(
-                'flex h-full flex-col gap-4 rounded-xl border-2 p-5 transition-all',
-                isCurrent ? 'border-emerald-400 bg-emerald-50/60 shadow-[0_18px_45px_rgba(16,185,129,0.12)]' : theme.accent,
+                'relative flex h-full flex-col gap-4 rounded-xl border-2 p-5 transition-all',
+                isCurrent
+                  ? 'border-emerald-400 bg-emerald-50/60 shadow-[0_18px_45px_rgba(16,185,129,0.12)]'
+                  : isRecommended
+                    ? 'border-amber-300 bg-gradient-to-br from-amber-50/80 to-white shadow-[0_18px_45px_rgba(245,158,11,0.15)] ring-2 ring-amber-200/60'
+                    : theme.accent,
               )}
             >
+              {isRecommended ? (
+                <span className="pointer-events-none absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white shadow-lg ring-1 ring-amber-600/20">
+                  <Sparkles className="h-3 w-3" /> Empfohlen
+                </span>
+              ) : null}
               <header className="space-y-2">
                 <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]', theme.chip)}>
-                  {pkg.code === 'FREE' ? 'Basis' : pkg.code === 'PREMIUM' ? 'Pro' : 'Premium'}
+                  {pkg.code === 'FREE' ? 'Einstieg' : pkg.code === 'PREMIUM' ? 'Beliebt' : 'Top-Tier'}
                 </span>
                 <h3 className="text-2xl font-bold text-slate-950">{pkg.name}</h3>
                 <p className="text-xs font-medium text-slate-500">{theme.tagline}</p>

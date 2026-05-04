@@ -630,6 +630,53 @@ export async function PATCH(request: Request) {
     return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
   }
 
+  if (action === 'revokeTeamInvite') {
+    if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
+
+    const email = String(body.email || '').trim().toLowerCase();
+    if (!email) return jsonError('Bitte eine E-Mail-Adresse angeben.', 400);
+
+    const { data: teamRow, error: teamLookupError } = await adminClient
+      .from('team')
+      .select('id, status')
+      .ilike('email', email)
+      .maybeSingle();
+
+    if (teamLookupError) return jsonError(teamLookupError.message, 500);
+    if (!teamRow) return jsonError('Es liegt keine Einladung für diese E-Mail vor.', 404);
+    if (String(teamRow.status || '').toUpperCase() !== 'PENDING') {
+      return jsonError('Diese Einladung ist nicht mehr offen. Aktive Konten bitte über den Status-Auswahlschalter deaktivieren.', 409);
+    }
+
+    try {
+      const { data: usersData, error: usersError } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      if (usersError) return jsonError(mapSupabaseAdminError(usersError), 500);
+
+      const matchingUser = usersData.users.find((user) => user.email?.toLowerCase() === email);
+      if (matchingUser) {
+        const { error: deleteUserError } = await adminClient.auth.admin.deleteUser(matchingUser.id);
+        if (deleteUserError) return jsonError(mapSupabaseAdminError(deleteUserError), 500);
+      }
+
+      const { error: deleteTeamError } = await adminClient.from('team').delete().eq('id', teamRow.id);
+      if (deleteTeamError) return jsonError(deleteTeamError.message, 500);
+
+      await adminClient.from('profiles').delete().ilike('email', email);
+
+      await adminClient.from('notifications').insert([{
+        type: 'TEAM_INVITE_REVOKED',
+        title: 'Mitarbeiter-Einladung zurückgezogen',
+        message: `Die Einladung an ${email} wurde von ${staff.user.email || 'einem Administrator'} zurückgezogen. Der Einladungslink ist nun ungültig.`,
+        link: '/',
+        is_read: false,
+      }]);
+    } catch (error) {
+      return jsonError(mapSupabaseAdminError(error), 500);
+    }
+
+    return NextResponse.json(await fetchPortalData(staff.role, adminClient, scope, staff.user));
+  }
+
   if (action === 'assignLeadPartner') {
     if (staff.role !== 'ADMIN') return jsonError('Geschäftsführer-Rechte erforderlich.', 403);
 

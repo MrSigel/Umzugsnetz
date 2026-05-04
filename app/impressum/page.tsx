@@ -32,7 +32,9 @@ export default function ImpressumPage() {
               </h2>
               <div className="pl-7 space-y-2">
                 <p className="font-bold text-slate-800 text-lg">Dean Zander</p>
-                <p>Heinrich Pierson Straße 20</p>
+                <p>Welserstraße 3</p>
+                <p>87463 Dietmannsried</p>
+                <p>Deutschland</p>
               </div>
             </section>
 

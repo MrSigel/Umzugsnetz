@@ -286,7 +286,7 @@ export function SiteFooter({ theme = 'blue' }: { theme?: 'blue' | 'green' }) {
           <ul className="space-y-4 text-white/80">
             <li className="flex items-start gap-3 break-words"><Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-white/60" /> <span className="min-w-0">kontakt@umzugsnetz.de</span></li>
             <li className="flex items-start gap-3 break-words"><Phone className="mt-0.5 h-4 w-4 flex-shrink-0 text-white/60" /> <span className="min-w-0">+49 000 00000000</span></li>
-            <li className="flex items-center gap-3"><MapPin className="w-4 h-4 text-white/60" /> Musterstraße 123, 12345 Musterstadt</li>
+            <li className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-white/60" /> <span className="min-w-0">Welserstraße 3, 87463 Dietmannsried</span></li>
           </ul>
           <div className="mt-8 text-white/60 text-[10px]">
             © {new Date().getFullYear()} Umzugsnetz. Alle Rechte vorbehalten.

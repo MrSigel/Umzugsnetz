@@ -1084,10 +1084,17 @@ CREATE TABLE IF NOT EXISTS packages (
 );
 
 INSERT INTO packages (code, name, monthly_price, lead_limit_monthly, priority, release_delay_seconds, is_active) VALUES
-  ('FREE', 'Free', 0, 25, 3, 1800, true),
-  ('PREMIUM', 'Premium', 99, 150, 2, 300, true),
-  ('BUSINESS', 'Business', 249, 500, 1, 0, true)
-ON CONFLICT (code) DO NOTHING;
+  ('FREE', 'Starter', 0, 25, 3, 1800, true),
+  ('PREMIUM', 'Pro', 49, 150, 2, 300, true),
+  ('BUSINESS', 'Business', 149, 500, 1, 0, true)
+ON CONFLICT (code) DO UPDATE SET
+  name = EXCLUDED.name,
+  monthly_price = EXCLUDED.monthly_price,
+  lead_limit_monthly = EXCLUDED.lead_limit_monthly,
+  priority = EXCLUDED.priority,
+  release_delay_seconds = EXCLUDED.release_delay_seconds,
+  is_active = EXCLUDED.is_active,
+  updated_at = NOW();
 
 CREATE TABLE IF NOT EXISTS subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

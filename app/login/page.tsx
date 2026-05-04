@@ -312,7 +312,7 @@ export default function LoginPage() {
       <div className="grid min-h-screen lg:grid-cols-[35%_65%]">
         {/* LEFT — Form column */}
         <section className="flex min-h-screen flex-col bg-white">
-          <header className="flex items-center justify-between border-b border-slate-100 px-6 py-5 sm:px-10">
+          <header className="flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5 sm:px-10">
             <Link href="/" aria-label="Zur Startseite" className="inline-flex items-center">
               <Image src="/logo_transparent.png" alt="Umzugsnetz" width={150} height={36} className="h-8 w-auto" priority />
             </Link>
@@ -321,7 +321,46 @@ export default function LoginPage() {
             </Link>
           </header>
 
-          <div className="flex flex-1 items-center justify-center overflow-y-auto px-6 py-10 sm:px-10">
+          {/* Mobile hero — adds color & branding below lg breakpoint where the right-hand aside is hidden */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-brand-blue via-brand-blue to-slate-900 px-6 py-7 text-white sm:px-10 lg:hidden">
+            <Image
+              src="/login.png"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover opacity-25"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/90 via-brand-blue/75 to-slate-900/85" />
+            <div className="relative">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] backdrop-blur">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                </span>
+                Live-Marktplatz für Umzüge & Entrümpelungen
+              </span>
+              <h2 className="mt-3 text-xl font-bold leading-tight tracking-tight sm:text-2xl">
+                Deutschlands wachsende Plattform für geprüfte Umzugs- &amp; Entrümpelungs­firmen.
+              </h2>
+              <dl className="mt-4 grid grid-cols-3 gap-3 text-white/90">
+                <div>
+                  <dt className="text-base font-bold sm:text-lg">500+</dt>
+                  <dd className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 sm:text-[10px]">Geprüfte Firmen</dd>
+                </div>
+                <div>
+                  <dt className="text-base font-bold sm:text-lg">50.000+</dt>
+                  <dd className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 sm:text-[10px]">Kunden</dd>
+                </div>
+                <div>
+                  <dt className="text-base font-bold sm:text-lg">4.9★</dt>
+                  <dd className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 sm:text-[10px]">Trustpilot</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <div className="flex flex-1 items-center justify-center overflow-y-auto bg-gradient-to-b from-slate-50 to-white px-6 py-10 sm:px-10 lg:bg-none">
             <div className="w-full max-w-md">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-blue">
                 {isLogin ? 'Anmelden' : 'Registrieren'}
